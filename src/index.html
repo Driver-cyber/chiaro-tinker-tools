@@ -131,6 +131,15 @@ table.role-reviewer .col-prep{display:none}
 .codecell{font-weight:800;width:34px;text-align:center;}
 .typedot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;}
 .t-billable{background:var(--bill)} .t-nonbillable{background:var(--nonbill)} .t-unpaid{background:var(--unpaid)}
+.stdcodes{margin:8px 6px 2px;font-size:13px;}
+.stdcodes>summary{cursor:pointer;color:var(--muted);user-select:none;list-style:revert;}
+.stdcodes>summary:hover{color:var(--accent);}
+.stdcoderef{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;}
+.stdcode{white-space:nowrap;}
+.stdcode b{display:inline-block;min-width:12px;font-weight:800;}
+th.sortable{cursor:pointer;user-select:none;}
+th.sortable:hover{color:var(--accent);}
+.sortcaret{font-size:10px;opacity:.6;}
 .num{text-align:right;font-variant-numeric:tabular-nums;}
 .dur-cell{font-variant-numeric:tabular-nums;font-weight:600;}
 .start-cell{color:var(--muted);font-variant-numeric:tabular-nums;}
@@ -170,7 +179,7 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><img class="brand-icon" alt="PJT" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAfcklEQVR4nO2debxeVXX3v2uf4XmeO9+bm5B5uAljmC1TkEQqUFQ+1qLyirZAbUVoBdSKbS0VrFXf9631I+KIWrHWoqBUqEOKIEmYAgECahgyz3Nyc8dnOGfv9f5xnvPkuVOGOyS8ml8+O/fe55yz99pr7b3W2muvfR7hoFBZsGCRt3jxxTHAnJtWZqQw4SKMXIKNz0fdbIRWIIvqwav7XYAIQAFlN2LW4PlLcfqIZnc+vvquE4oACxY85i9e/CYLckCmyAEbevd9HvdfZQGO//PtbYSZ60Tdu4CTxcuiasFFqLOAO2h1vztQwCDGAxMg4qG2APCKivkRpeI9q74zcS3Qh4eDYWiOvVs97hc7530rG6Su5e9BbvLCuloX9aJxHsCWnxdEfl843xeqSiINBTzxc5igBlvq7gG9S7v3fm7190/oTHk5WBWDM+4+9bhK7PHXb52PF95t/NoTXXEfqjYGMYAZs079/w0H6kQ832SacHHPa9jS9avunrwk5Wn/BwYwcsHtj/lcJXbO9RtuxA9/hXBiXNgVK7Ei+IgziONYGbQYBF+JNS7sihFOxA9/Nef6DTdyldgFtz/m9+e39GW++os/JXHb9etvC7Itn7bFDoezYMyxET8cOOcwHl6m0USFvf+49u6Z/5zyOL1lvwBSnX/96hu83Piv2cK+GJyXmvxjGC5UwVgv2+Tb/K4bV9895+vVNiFhbtlSt31w9YWen3tcXWxxsfd7a1xHG6qK8a0Y37Nx/qK135jzZMpzQVW4Azll186akva8JH6mTUu97pjaGWU45ySsMRoX14ZSe8bL4yf0cgdqFtyxyONT4op23z+YXGObi7pjPEzi1x8ro1Y8jIu6Y5NrbCvaff/Ap8QtuGORJwBt1/92ugTZ14AQtYlvfwxjAUU8BUoaFU5ce/epG30ACfwPeNn6bJzfG4vIAFfpGEYNohpZP9eStcQfAP5R5tz084xzM35r/NxsjQvJGvsYxhJO/Ky4OL/GmA2n+k6nX2g8b7baXpDXJ/NFJIl5lBWjkKz9+9xT/qkkjl/y83UZHDRqe9V4/mznpl/oi7jLJQhFSyUL4h1t6lIYSYpTiKwjipXIKs4pSiIMKbNd0Uog1jOC7wmhLwSeVOpIhfL6gDoJQk9Kpct9hfPURaBOjvaaywgYI0RW6S46SrES+kJrvc+UlgzTW0OmNIe0Nvg05DxyYTJhCyVHZ96yuytmy94Sm/aU2Ly3xO6umGKkhJ6Qyxh8T1BVnDuq3QRVURehcJ4P8WxVgxonR8v58UzSbm/RkY8czbUe5x9fw7wT6zlvTh0nTs4yoSE4rDp3dcas3Jbn2TU9PPlaFy9t7GVPd0QmMNRkDAJYd5TmhKigERDPllk3P1cU8cKjEc83ZZF3FSxO4bRpNbz9DS285cwmjp+YHXB/qn50EEqrP0sFWo01Owr8z6/38eBz7by0sQcU6nOJxj3yckh8HVVbkrYPP69HeidLJGFSd8FinfLGExt4/5uO49LTmgi8VK8nDAcwcvjaURWcDnzeOuXRFR18Z9EOFr3SgSDU5zysO+JsABGk7cPPHtFmPSPEVunIx5w9s56PvnUKbzmjuXLdOkUkMZ6jicQQa5/Z8chv9/GFn2/h2TVdNOQ8fE+OuFqSto88c8Ra9I3QVYjJBoYPXz6VG948idA3ldE6mOqohpaZmBJcTXi6fJdDmC3VQo6d8q3HtvGFn2+mq2BpyPnER1AI0vaRp8e8NZFEDezpjjinrZ5/uXoOp02rBRJmDMX4ajVyMOH0hz0E9VXd9mvbevnYvWt4amUH4+oCnB4ZlSSzPvrkmDaT+uvtPRHXvnESn71qNtnAEJc7Pxhv0s73Z/r2jhJb2ots31dkX29MTzHZ4avJeDTV+ExsDJnSnGFSU6bPc8mIT4QxGGKn+GX395M/Xsvdi7bQXBNUaBlL+AfJmhgR0u52FCI++Sdt3HLZNCAxrv4gI7raaCKwrzfmqVX7WPJaOy9u7GbjngIdvTGl2CU6vayEhESdhL6hIecxrSXLGdPrmX9iE/OOb2JcXcpMAB0gCN8IThXfEz531Wxmjs/yyQfWUJvxEMOYzgSZ9TdLxqT6tI9dBcvn33MC11w4Get0UJWQejzpiF++sZN7n97OIyv2sGlvEadKxjeEvuAZqQioOvxAWV1Zp5RipRg7jMCU5ix/eEoLV58/kXNmNQIMTYeC1WRw3Pfsdm7+j1epCT1Exk4IMutji8akaiNCRz7iC1efzJ/Nm1yZ5v3hdP+IfGlTF3c+vJ5frthDb8lSG3pkgmS1298AD4X+hrgUO3qKlkxgePPJ47jlshm8YWbjgLarEdtkNty/bDsf+t7L1GV9OIS2hwOZdetjo1yv4hvD7u4Sn3rHCdx0yYxKh/ojNYI9Rcv//cUavvP4ZvKRoyHrYww4N/L4jUBSl0JXPib0DX86bwp//7bZNOb8IZ2AlOZvL9nEx+97lZa6ADsGIQyZdeujoyoA3xN2d5e47sJpfOE9pww58tOOv7Chg4/cu4Jfb+6ipTbAyNj54l5Z17f3RJw0qY4vvOcUzp/dfFAh3PbAa3z1V+tprQ+J7ejSJrM+/stRqzFZ3cacNrWB/775PAJfEAbq2rTDP3x2Kx+/fwUlq9RnvVHv3FDwPaGnYEHgs+88mWvnTRtUCKkbrMCVX17GM2vbaSjPmtGCUVFGoyBK5CxhKNz53lMrunso5n/lsXX81fdfRIxSmxEia0eFjkMpkbXkMkIYCB/+wW/414dX45mBM08kKb5J+lSfM0QuybcdLVpGbfPd85SOfIlb/2g2J0+qJ3YDDVzK/K8+tpbb/msFTbUexihWHYk7fIQ2yCVpU8Qxrs7n0z99hX99eFUSJuknBCPJZ7Naa/jE206go1DC80aPVh8ZuWUxInQXI86e2cD1C2YNGlZImX//85u57cHf0lIXorjEyB6lbQglMc6t9QGf/tkrjK8PueaCGQPUUTo7rrtwOj9evpnn1rdTl/FHZZE2KnmeIo7YWf7uLScSeklsp5qnqUBe3LSPj973Ig05r8z8kbc90qLicOpoqfX52wd+zdK1eyrGOkXaFyPCJ9564qi2b/ZnVw+veAY6iyXmn9DKpScfN2D0p/3oKcXc/MMXiJ3F90iYP8K2R6soDmMUEeWWH75ARz7qQzvs96AunN3KpadMoLNQwjOMuO1RmQFOHR+cP3sA0enoNyJ8/uFX+fWWvUnsXe1RH/n9i1VLbdawcmcHn/3FCozIABWT/nnD/NkYMzoz2Gh5Gg6niFG6SxGnT2vk4pMmDAigpbPh5W0dfPPJVTTXBkQuRsWBKGIOXBJvY/C2+z+f3nso9Q5VYmdprgv47jNreH7j3kT3VwnBM4IqzJvdyhtmNNNdKiFmaBoPpfgjWWsaA4U44sozpxKYJMLpD7K0/9dHXqY3imgOwkpkshRb4gPsjhsRAs8QeKZPWBpInreWuGpp6hlDxjfEzlGKhjwRdEAEniHre8TO8vlHVnDv+y8a4B+ksaJ3nT2dp9btpF68ERnjEXlBkYPmWp+3nTYFoM8uVqp6frt1Hwtf2UxjTaJ6pLwJMrU5x7i6LKpK/6C0ovSWLDu68uzqKhB4htpMsgASkucnN+YYX5+ttNPeW2Tj3h5aajNMa24ctN6hoCQbNFv39bKnp0hjjc+vVm5j2YbdnDOjtY9XlLrWb5k7mf/9cEghjvFEhj2Mhy0AI0JXMebCtgnMGleXZMFLP+Mr8L1nV9MbReTCDLFzeEZoLxT5ywtP5wMXnjDoBjtAbB07ugs8vXYX33jiVZZv3ktDNsAItOeL/O35c/nQgpOJncM3hh8+v4733rOYK06byjeuvgCXGLhD6ksqxI89sIxvP72SCZkckY3592dWc86M1j4EJnlGyqTGHH8wo4WHX91KYzboo6oOi4/Dtt6iRDbiojkTAPoQoCT6srMQ8fCrm6nNmMTwVj2fTtuhlvW+Z5jSWMO7zprBf994CVecOoXOYhFjABn4vNOULlfu2KEvLtKBI2WvJjHIHo+u3MrunkIywqv6l5I8//jjiJ1FZPhe0LBngCPJPjtvZmtCfPW18pR9au12Nu7roikXYp2jkl9YNpZAuWPCjq486/Z04RmhLgw4eWITkGTFZX2PO999Psu37KYjX0Kqnk+hohhP6Y0iNu/rqaiNdCN+YkNNhdEKbO/sJbYOKQf/PCN0F0sYk7iloQ/bu7pZvGo77zxzJlbBl1Rgyc9zZrSSCwXLQHoOFcMWQOSU1voMJx3XVCZq4IhbtHpblctZJjAVANUjFx78zXpu/tFTjK/LUbKWK+ZO5ytXvZGM5xE7R2M25I9OnsK/LX0NY7TyfArnlNrQ8OT67Vx8108TGyCJKhtXm+XRD11BYy4EwDrHe7/7K9bs7iDrJyvaRBCOurKb7BlBURav3so7z5zZZ4CltuWE8Y1MbMiys7uQLECHYQmMcvj/RKBoY6Y25RhXk63wNUU68l7YsovQF9yAGvYLIIVvhFxoyAZCbcbjvhfX8PS6HYhQydmZPb4exSXBvwGdTVxRq45CHFG0MUUbU7AxJRfTHyUXU4jj/ffFEXFZTWpZRWYC4cWtuyq2K20x3SGrzwZMb6mlZONhcnKYCzExSehhRksdIn1dxFRX7uwusKG9g0wgyYn6yvPad0akEBDjkNSPF5cE6aqvQ996+jyf1Cvi8Iz2KWaQIydGdMB9UqHNoVhCX9jc0cWWjp4+fYP9fZ4xro5I47JaPPwyLBUkYrBYpjTVVIip1q8CbN7XTUehSNb3yiN+PyOrVVCKUhzTUSiQ8Q2F2PLWudOYN3NiZXEnwLq9Heynd5DpnjKvou7Yv3Drhz4LokHqSh2JrmKJTe3dzGiur3h2yfXkj6lNNSh2v/AOE8NciCngaK0bmL+ZErmtq4eSjagJTT9Pp6/6SAX3trkzmd3agO8ZasOAP5g2ASNCZB2BZ+gtxfzPaxuozXh0FkpD0tS//oF/939m6OsiELmYrZ3dQzwP4+uy/do+PAzPCJdHcUN2YMZyOjLa84XywqvfyEhnQHmUprZjWlMd05rqBtQXeAanysceWsKG9g7G1WbpKAytgqhur9LWYMxxB7hWflwMimNvb6FP35Kqk58N2bASjhiOJzQsAagoYhy5wCsTMxA9pVJffZdiCBU0GPb2Fli2aQdfffJFnli3lYZcuN+rGtQI92uvjwD6QQ4ugPT5fBwNSWPGNxgzhF06BPjDcZ2SSXuw5/pa+4GfJnBOwcBPX17Ll59cTmM2WTH3lCK2dvawpaMbERLmO1celQNbV8DJ0O0dKn2D3XGwwXKweg6EYRthJXH3GIK8mtA/8AxIF2Lljzd1dPHwyvWMr8sRO1cJxtVnk0ObychPnx/kPUgydjMgGwx2citRRyUb47B9Vd9hYAQ2wNJZLA56CaA5lymvKvsxK2Vgv06HvtCY86nP+pUoqSpJ56orHlKFHa4A9JAEIOJoSdc6fVsDoKNYRHH73dDDxPC9IFF29fQOpLlsVSc11JLxBUd/olIF5rCqleJcsiniNNngOWDbQ6qFwa4lf7tyO5DGrdwQ9++HU0fgC5MaatPeDbhnd08vg3tfh4ZhG2FjlC2dncDgYYipjQ005ALyUb9wbdk3z/g+ngg1QaJisqGHih16xCaPYoyUF2r9YkFlr6bPSCyHPUSU+kyIV6bT87xyUO/AM8Aq1GV8pjc1VKqrpgVgc0dnlRd0hFSQkhwB3bhvH0pfAaS/T6irYXpTPb/ZvpOaMKisIhUIPFi1Zw9LN26hZGNCz2flrj0EnlQYORisKnFsKbmIUyeO30+PKu35PNBfgIKIErmYRWs3UBeGKEkCbz4ulWNKg3svRoR8FDOnuZkpDfVJbdX9LL/LZP2+dgKPgar2EDEsL8ihBL6wsXMfe3vzjKvJlYNfCYHWOTxjOGvKcSzbsoVa8SsCiDWmLhtwz/PL+dayF/YTYoS6bECsMYM7tkpNGOAbww3nn82b2mZUIp0iwvJt25IcUPavbJUkaaCrVODqHzxA9UjP+D6BV45kDgIRKNiIMyZNIPBMn02ZdDXQXSyxYV87gZ8MnOEo82HOAAg8YVdPN6/t3s286dNwQH9fYUHbDL753PPlzDlX9XwiwLDqYL6iqLoy7/t2xYjQE5X4yjvewsVts6gPQ1SVyDlCz2PNnnYeXbOWumyAS72lKloBasK+1CUph0OzTMWgWBa0Ta/Ql1acDrZVe/ayrbuLjOcltm4Y+U3DzoowRinYiGc2ba4QVam0PD0vmjmdqY11FG2pT6ArCXY5HLZSDpZhoDhaa2qoD0NsmQGh57Gzp4cbHnqIfFzCq9bF/Up1W44DZ2WIOCIbcVx9DW9qmwVQsR+p8ACe3byZ3qiI5zEsHiJu+KmJDkfoC0vWrxtAoJDo66ZslsuOb6OnVMRL9e2wixLZGKdKT6nEa7t38/Vnn+Xye77LC1u3ljPV7AjbSIox0B0VuLhtJsfV1VYEXhlg5d8Xr1+HV8lxGl4Z9hElp5aawGP5ti1s2LePGU1Ngx54uOass/j+Sy+Wp+gw20LJBoZb/2chucCnq1hiV08PHYUCNUFAfcbfv1AbBSgO3xOuO/usgdfKfdzR3c2yLZuoDf0Bau9wMKLErMAX9uS7+fnKV4G++wJeObHprEmTuHTObDqKvUkm2QhU3oaOvby8awdbuzqAZIEU+klofCT9qC6J0c6zYNYMLpg+PcltqhpU6Vpi4aqVbO/uJPRlSLU3pioIHE4tmcDjRyt+k3g+/UZ/Ko5bL5pP6JvyqjZdsBx+exnfUBN4hL6AUazGifs3CmonVXMOq06tvfWNF5Vfi6PJklwtaIyRhPr7VrxU3u0bWZsjOh9gcdSGPs9v38Si9Wsr+6rVs8Cq48yJk3j/2W9gT74nyQsVN6z2UlOauJrDq+OAufpG6YgK8lfzF3gXTJuBdc55kPik4uHEx4hh2ab1LN28gdpMgNWRnWsYhdzQJCzxteeeIqG17ywwJKroE/P/kJMntNIdFUakisawOOcLOd9sv/nMc/4j2REzBjFoYRfx2h9hV/+AuHsT/2fZC1iNBnh2wyl+MhWGD6tJxsKj617jsfWruXjmHKw6PElPyCQb9A2ZLF9565Vcce83sdjyxvbwjPIYQBFRi+U9p575uYn19T8plXqWhGHt37jNPz++8Ku/EM1vFwC/poVpnW+G8CxUiyRveBt+P0w6gkdSlORM7mcef7gcyeybqmfKqum8qdP5/GVvp73QXUkHH432R1wM1mU87/RxrXd98fI/fri9q31WGNYusqv+/Z/ix96rWtyNZBsh04iLevlC7YNcEG6ghwCThsaHWUYnPR1LfTZg6ZZ1fGv504nu75d465kkcfbaM87hjgV/xK7eLoxhVKbxsAtOwVmX8fxZNbX/ufB9N3w9H0XNzVmNgDBe8aU3hl7Bw69xuBjRmEhCDJYrw99QFCkL4CiqoBRWlcZshs88sZBLZp3AnJbxA9YFvjFY57h13ptRlDsW/1ybsln1xBNFj+xBpSQpR10Yem01dd9/4toPfy6KaPD3h3qsjUstiHFUQiTJ3HYYmqSAKTsDI8GonZJ0JMlL3VGBv174QyJnB92mM8Zg1fHxeZfw1bf9LwlqssZ6KojasTwZWV1ArfNFrG/MGc2tXyozvx4igiBICfa85pOWI2qsiDgEhxBjMMQss5NxZSfkKHtB+4vVmIZsyOObV/EPix7Ck/4pKZTTQ406Va47/bw9HzrjgttE3VaX871EJVg3dmrHOsQ6m/W8wJOd75wz9+ZfvOevvp6PooY+zA9aLFBn3nzfo0jrww1Bj6mTkquRiGbp4Il4NvdGc2kwBWz1rtvRVEEpd2OXBM2+8vxjtDWN44az5/dXRWoSr0N6o+jTt55/6YNvP+m0p//0oe9+aEtU+hM1npgoTldqBkYcYEiMjKpxoW9ElSm52p/ddfG7v3jB9LZtnfl8c0MuN+BER3tXe9Bc37znj80nlp9d/Mllb2ElAiyJp/Pl0rkUMYTYEfg/CWTyl24ddV9Qyv91l4p8+bKruXruueVXyggk3z3jAV8B7uzK5yfV53K9QO8nlvzkggdXv/QX7YX8BeoZTGRJ8hoBVEj2pA4mEE2OaYorE+O5wAfnaApyz10x+7Rv/cvFVz4BZDvz+cxgzN+b7/JbcvW7//yn337nwo2rPtPlApdzsYio9GpAvZTwcOgoBJ9k8l1/MybOuBEhH0ccV9vA0ms+QV2YZJBJ4n4Y4BHg74AgAvL5vGnI5boB+dtF/3XuLze8/I5dvZ1vjD1pgIr2gCQ2NzjNSbaUUc+gyRFGfKvdrbm6p9488+T/+vyb3rUUsJ35fH0u57uAoE89URRJntg0BLk91/70O1f+ctMrnxHn8JzDSbIbY3A4zIhHfoXkyXd9ZEwE4BvDnnwP/zT/T/joOZdVTrKUkQrho8AvgXrA5aPIAOSCoBtwv9z06tRvv/TEuSv3bD+/o9A9txBHk9Uzgabvu6yGgjhFrI3DINzalKl5+fjmic9cM/ecZ6+YfdZGQCKi2jhCckEwQO/mo8iUP+94xwNfvvbZnev/TmzlvWVj5qGN2RuzHA7Pg7OOm5b4dQPjdM7h5hrMLyh3MGVMPorqojiWS6edtPvSaSf9GHigM8o3PLBq+XHLd6yfvK2r47iuUr6xFMc1qioZ3++tC3Mdkxqad5w+fvK2q048d1tDkOsst5PtzOcbAt/XXBC4IBg4eMsqpweQed//7G3reve+T6xNVdmYusf+YJnDowIxRBqzq7cLoBzWTS6V94yNwezaW+r2W8K+OaG5IHC5ICCKoiAfxxmAhlwuvu6UeRuuO2XeGugTVgUqKVsGCICgM59vBMjlfDeYngfozOe9XM53Lbn6PfeuWHrCPz370CfbXfENJoociKhBRhJmOBSMrhdUDYHQM/z7ise56qRzCYyX5Psr6hljijbu6Sz0Lhlf2xDlo4gojr3+jAqCQIMgSD+TiCgTR2SjOBb6f8tBDIHvqx+gAYEOxXRI1E0Ux9KQy3UB/jsevPOaZTvW3WSFOhPZxEkYI83QHzLpq389Zi15InSU8lw79yJun3clrbkkvWNl+3a9ZdH33Iu7Nq7405Pm3f0v869eAmgURXVdxKY+GGggR4qISPJRbHJJ3T0AH3/iBxc8uOqFGzu0eKYpWcpZAUf0Ff4y6Ws3jqmojQgdxTzT6sdxxvjpFG3M8zvW0lHMU1tTg1VHS6b2yUumnnrvly7+s6VAL5DLR/lMBBKA+vhatUI9JERRJDGx5EFy+JoLgiKQB3K3PvGf5/xi3a+v3lPoXoAIEsUORA75YPEoQiZ+7YNFEQnH8t2MnjEU45i8LSEItUGIZzycsw4VcRlPcEqdH758UsuUn1136oIl72o7dyMQkej0MCLy8/nYVFRP/2NfVZ+XXcwYKKV1/GT9c1Pv+fWii1bs3frW7rhwuhrBlGxqR478F1ckYfqSTPz6BzaL503BWh3gq4xue5Wzu+lrwPZDHYpo4Il6gim5QmOm5qXpjeOXnj9xzktvn3n2hjdMnN0OFBloeGGgQc68uHt9009WL5uxdPvq0zd27jqvs5g/Mw6kRqwikdUkYn5k1c1+qOJ5otZukeO+8ZeLTejP12KUJN8fVagTFVXB08BDDUjk8JH2nJ/ZXBtmNjcEuW0NYXZvrZ/rDnxTxEHkXKYnztd1RYXmjmJ+Uk9UmJqPoqmxuBYNkm1vE9skXCUqR4/xaTfVSSYwrhQv8QX7DJ43n9fHl3yY8gE7lchp2Qc01khzl+abO6PCaduiTugt01lNbhr/QBMHRhziVKVoXfmCqKTJe0e9n4qnCPYZX0UXShR9DOPMGC74DhdV6kVBUYlRSbbf9t9R2UMY5PPkXR3JbvrrDaKGKFIVXejX57c/2Z2dsEYy/mxNvIHX4zcplQWiQ4yRQT6XqmuvK6iTwBctxmvqCzufNKtvWVhUoz+QrCegbvRybI6VIXKPnGQ9UaM/WH3LwqIPYBzfdL35j+ERJultR/nrlH5noYoR43rzBePkmwCG2xf42z74vY24+ItSGxhVZ0fyCq5j5QBFnZXawODiL2774Pc2cvsCPzFWd9wu4+e+XGO6vZck8NteHy7p7xjKrqdG8VpXZ8/YteKUXu74lBoEZe7Lsuuq+7udddeAVXxx4LTv6fNj5fBLmXe4Mk+tOuuu2XXV/d3MfVkQqlJB7nu3x1X32wnfeucNXkP2a66nFKN67Fu1R4rkOI01taFvOws37vzLH3895TX0d95uX+DzqcXxhH+78javPvNp11NKvivEyOjtwf2+QACnDiOY2tDYruI/7nz/A/+c8rj6tr4o3zD+nitv9ALvLkQ9LdqYZBV5bDYcGhTFSsbzUbE2sjftuu6Br/VnPgzF0PIUmXjP2+dr4N9tsv6JrqeEOo1FMK/TxdrrAOpUcWLEN7UhrhC/JlF8/fbrHlpSrXaqMfSILj/QcuflDf64zN8jcpPJ+bVatGipnC4ilTSR39eZkURhEz3vSeghGQ+Xj3tQvSveU/zc3lsWdg7FfDgY46oenPD9t7WpeNeJ8i7gZAkNWEWtUvnC3t8nJF9MhngCnqAlB/CKCj8StffsfN/P1gIciPlwKCNXEe5Y4KW6a86dl2c6W72LELkEp+cDsxVaRRn4+qzfYahQENgNrMHIUlQfadhtH199y8LkDSa3L/C5Y7HlIC/V/X+OIC4j7PYWkgAAAABJRU5ErkJggg==" /><span>Project Journal &amp; Timecard<small>Project journal + timecard, team-synced · v2.9</small></span></div>
+  <div class="brand"><img class="brand-icon" alt="PJT" src="data:image/png;base64,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" /><span>Project Journal &amp; Timecard<small>Project journal + timecard, team-synced · v3.2</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
     <div class="maintab" data-m="timecard" onclick="switchMain('timecard')">Time Card</div>
@@ -352,6 +361,11 @@ body.modal-open{overflow:hidden;}
       </div>
       <div class="hint">Pick a journal project (only those with a client code appear) and a section to enable sync.
         Leave it blank to just track the time without posting it anywhere.</div>
+      <details class="stdcodes">
+        <summary>Standard codes — always available in the log picker</summary>
+        <div id="stdCodesRef" class="stdcoderef"></div>
+        <div class="hint" style="margin-top:4px">These are fixed so they can't be edited by accident. Pick them by letter in the Time Log above.</div>
+      </details>
     </div>
 
     <div class="panel">
@@ -378,7 +392,12 @@ body.modal-open{overflow:hidden;}
       <div class="hint" style="margin:0 0 6px">Click any row for the full note trail — every time-entry note for that code this month, plus the linked journal notes. Handy when someone asks where the hours went.</div>
       <div class="body">
         <table>
-          <thead><tr><th>Client / Project</th><th>Type</th><th class="num">Hours</th><th style="width:36%">Share</th></tr></thead>
+          <thead><tr>
+            <th class="sortable" onclick="sortReport('label')">Client / Project <span class="sortcaret" data-k="label"></span></th>
+            <th class="sortable" onclick="sortReport('type')">Type <span class="sortcaret" data-k="type"></span></th>
+            <th class="num sortable" onclick="sortReport('mins')">Hours <span class="sortcaret" data-k="mins"></span></th>
+            <th style="width:36%">Share</th>
+          </tr></thead>
           <tbody id="reportBody"></tbody>
         </table>
       </div>
@@ -461,9 +480,66 @@ body.modal-open{overflow:hidden;}
   </div>
 </div></div>
 
+<div class="modal-bg" id="encUnlockBg"><div class="modal">
+  <h2 style="margin-top:0">🔒 Enter your passphrase</h2>
+  <p class="muted" style="margin-top:0">This copy of Project Journal &amp; Timecard is encrypted on this device. Enter your passphrase to unlock it.</p>
+  <input type="password" id="encUnlockPass" placeholder="Passphrase" autocomplete="off"
+    onkeydown="if(event.key==='Enter')encUnlockSubmit()" style="width:100%;box-sizing:border-box" />
+  <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+    <button onclick="encUnlockSubmit()">Unlock</button>
+    <button class="ghost small" onclick="encShowRecoveryField()">Use Recovery Key instead</button>
+  </div>
+  <div id="encRecoveryWrap" style="display:none;margin-top:12px">
+    <p class="sync-note" style="margin:0 0 6px">Paste your Recovery Key (the one you saved when you turned encryption on):</p>
+    <textarea id="encRecovery" rows="2" placeholder="XXXX-XXXX-XXXX-…" style="width:100%;box-sizing:border-box;font-family:monospace"></textarea>
+    <button class="small" style="margin-top:8px" onclick="encRecoverySubmit()">Unlock with Recovery Key</button>
+  </div>
+  <p id="encUnlockMsg" style="min-height:16px;margin:10px 0 0;color:var(--danger);font-size:13px"></p>
+</div></div>
+
+<div class="modal-bg" id="encSetBg"><div class="modal">
+  <h2 style="margin-top:0" id="encSetTitle">Set a passphrase</h2>
+  <p class="muted" style="margin-top:0" id="encSetHint">Pick something strong you won't forget. There is no reset — only the Recovery Key you'll get next.</p>
+  <input type="password" id="encSetP1" placeholder="Passphrase" autocomplete="off" style="width:100%;box-sizing:border-box;margin-bottom:8px" />
+  <input type="password" id="encSetP2" placeholder="Re-enter passphrase" autocomplete="off"
+    onkeydown="if(event.key==='Enter')encSetSubmit()" style="width:100%;box-sizing:border-box" />
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button onclick="encSetSubmit()" id="encSetGo">Continue</button>
+    <button class="ghost" onclick="closeModal('encSetBg')">Cancel</button>
+  </div>
+  <p id="encSetMsg" style="min-height:16px;margin:10px 0 0;color:var(--danger);font-size:13px"></p>
+</div></div>
+
 <div class="modal-bg" id="settingsModalBg"><div class="modal wide">
   <h2 style="margin-top:0">☁ Cloud Sync &amp; Journal</h2>
   <p class="muted" style="margin-top:0">Everyone using this build shares one private team gist; each person gets their own journal file inside it. Your <strong>Journal ID</strong> is all you need to restore on another machine. Time entries &amp; project notes only — keep client-identifying data out.</p>
+
+  <div class="sync-row" id="localStoreRow">
+    <h3>💾 Local storage (this device)</h3>
+    <p class="sync-note" id="lsStatus">…</p>
+    <div id="lsBtns" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <button class="small ghost" onclick="backupNow()">Back up now</button>
+      <select id="lsRestoreSel" class="small" style="width:auto"><option value="">Restore from backup…</option></select>
+      <button class="small ghost" onclick="restoreFromSelected()">Restore</button>
+    </div>
+    <p class="sync-note" id="lsMsg" style="min-height:16px;margin-top:6px"></p>
+  </div>
+
+  <div class="sync-row" id="encRow">
+    <h3>🔒 Encryption (this device)</h3>
+    <p class="sync-note" id="encStatus">…</p>
+    <div id="encBtns" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center"></div>
+    <div id="encRecoveryShow" style="display:none;margin-top:10px;padding:10px;border:1px solid var(--warn);border-radius:10px;background:var(--bg)">
+      <p class="sync-note" style="margin:0 0 6px"><b>Your Recovery Key</b> — save it now. This is the only way in if you forget your passphrase, and it won't be shown again.</p>
+      <div id="encRecoveryVal" style="font-family:monospace;font-size:13px;word-break:break-all;padding:6px 0"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="small ghost" onclick="copyRecoveryKey()">Copy</button>
+        <button class="small ghost" onclick="downloadRecoveryKey()">Download .txt</button>
+        <button class="small" onclick="dismissRecoveryKey()">I've saved it</button>
+      </div>
+    </div>
+    <p class="sync-note" id="encMsg" style="min-height:16px;margin-top:6px"></p>
+  </div>
 
   <div class="sync-row" id="syncStatusRow">
     <h3 id="syncStatusHead">Not connected</h3>
@@ -564,6 +640,11 @@ body.modal-open{overflow:hidden;}
   </div>
 
   <div class="sync-row">
+    <h3>Encryption (optional)</h3>
+    <p class="sync-note">Turn on encryption (above) to require a passphrase at launch and encrypt this device's data at rest — working file, daily backups, and the local cache. You'll get a one-time <b>Recovery Key</b>: save it in your password manager or print it. If you forget the passphrase, the Recovery Key is the <em>only</em> way back in; lose both and the data can't be recovered (that's the point of encryption). The cloud gist is left unencrypted, so cloud sync and second-computer restore work exactly as before.</p>
+  </div>
+
+  <div class="sync-row">
     <h3>If something looks off</h3>
     <p class="sync-note" style="font-size:13px;line-height:1.7">
       <strong>"Sync error / can't reach GitHub"</strong> — usually a blip; try Push/Pull again.<br>
@@ -596,8 +677,11 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Project Journal & Timecard (PJT) v2.9 — Project Journal + Time Card, one file.
+   Project Journal & Timecard (PJT) v3.2 — Project Journal + Time Card, one file.
    Single shared db, single localStorage key 'projtime_v8', JSON backups.
+   Desktop (Tauri) build adds a durable on-disk copy + rolling daily backups,
+   and optional passphrase encryption at rest (AES-GCM via Web Crypto). Both
+   are feature-detected / opt-in, so the plain-browser single file is unchanged.
    ===================================================================== */
 
 /* ---------- shared helpers ---------- */
@@ -636,13 +720,16 @@ function save(){
   dot.classList.add('saving'); txt.textContent='Saving…';
   // Stamp genuine user edits only — not sync-driven saves (syncing) or the initial load (booting).
   if(!syncing && !booting) db.lastEdit=Date.now();
-  try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){ console.error(e); }
+  persistLocal();   // writes localStorage; encrypts first when encryption is unlocked
   clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ dot.classList.remove('saving'); txt.textContent='Saved'; },220);
   if(typeof scheduleAutoPush==='function') scheduleAutoPush();
+  if(typeof scheduleDiskSave==='function') scheduleDiskSave();   // desktop: mirror to a local file (no-op in browser)
 }
 function load(){
   booting=true;
-  let raw=localStorage.getItem('projtime_v8');
+  // When encryption is on, encBootstrap has already decrypted the cache into _bootRaw.
+  let raw = (_bootRaw!=null) ? _bootRaw : localStorage.getItem('projtime_v8');
+  _bootRaw=null;
   if(raw){ try{ db=mergeDefaults(JSON.parse(raw)); }catch(e){ console.error(e); } }
   else { migrateFromOldKeys(); }
   if(!db.journal.projects.length && !Object.keys(db.timecard.days).length) seedDemo();
@@ -654,6 +741,7 @@ function load(){
   applyAccordionState(); renderJournal(); renderTimecard(); save();
   booting=false;
   syncBoot();
+  if(typeof bootDisk==='function') bootDisk();                   // desktop: reconcile with the local file + snapshot (no-op in browser)
 }
 function mergeDefaults(p){
   if(p.lastEdit==null) p.lastEdit=0;
@@ -695,6 +783,346 @@ function migrateFromOldKeys(){
 }
 
 /* =====================================================================
+   LOCAL-FILE STORAGE (desktop / Tauri) — a durable on-disk mirror of the
+   journal plus rolling daily backups. Feature-detected: in a plain browser
+   (file:// or web) window.__TAURI__ is undefined, so every function here is
+   a safe no-op and the single HTML behaves exactly as before. On the Tauri
+   desktop build it writes under AppData\Local\PJT:
+       PJT/journal.json               working file, overwritten each save
+       PJT/backups/journal-DATE.json  one snapshot/day, newest KEEP_BACKUPS kept
+   localStorage stays the instant cache; the file is the reliable copy that
+   survives a cleared browser store or a swapped Chrome profile — the exact
+   failure that bit us before. A single overwriting file alone gives no
+   history, so the daily backups are the real safety net, not optional.
+   ===================================================================== */
+const FS_ENABLED = (typeof window!=='undefined') && !!(window.__TAURI__ && window.__TAURI__.fs);
+const FS  = FS_ENABLED ? window.__TAURI__.fs : null;
+const APP_DIR    = 'PJT';
+const STATE_FILE = APP_DIR + '/journal.json';
+const BACKUP_DIR = APP_DIR + '/backups';
+const KEEP_BACKUPS = 30;
+const BASE = FS_ENABLED ? FS.BaseDirectory.AppLocalData : null;   // per-machine, not roamed by Windows profiles
+let diskTimer=null, diskSaving=false, lastDiskSave=null, snappedToday=false;
+
+function diskOpts(){ return { baseDir: BASE }; }
+function diskFlash(m,isErr){ const el=document.getElementById('lsMsg'); if(el){ el.textContent=m||''; el.style.color=isErr?'var(--danger)':'var(--muted)'; } }
+async function fsEnsureDirs(){ try{ await FS.mkdir(APP_DIR,{baseDir:BASE,recursive:true}); }catch(e){}
+  try{ await FS.mkdir(BACKUP_DIR,{baseDir:BASE,recursive:true}); }catch(e){} }
+
+function scheduleDiskSave(){ if(!FS_ENABLED) return; clearTimeout(diskTimer); diskTimer=setTimeout(diskSave, 1500); }
+async function diskSave(){ if(!FS_ENABLED||diskSaving) return; diskSaving=true;
+  try{
+    await fsEnsureDirs();
+    await FS.writeTextFile(STATE_FILE, await encMaybe(JSON.stringify(db)), diskOpts());   // full state incl. this device's sync link (encrypted when unlocked)
+    lastDiskSave=Date.now();
+    if(!snappedToday) await snapshotDaily();
+    renderLocalStore();
+  }catch(e){ console.error('diskSave',e); diskFlash('Local save failed: '+(e.message||e), true); }
+  finally{ diskSaving=false; }
+}
+async function diskLoad(){ if(!FS_ENABLED) return null;
+  try{ if(!(await FS.exists(STATE_FILE, diskOpts()))) return null;
+    return JSON.parse(await encReadMaybe(await FS.readTextFile(STATE_FILE, diskOpts()))); }
+  catch(e){ console.error('diskLoad',e); return null; } }
+
+// Boot reconcile: whichever of {browser-store db, on-disk file} has the newer
+// lastEdit wins — same timestamp rule the cloud sync uses. Then ensure a snapshot.
+async function bootDisk(){ if(!FS_ENABLED){ renderLocalStore(); return; }
+  try{
+    await fsEnsureDirs();
+    const fileDb = await diskLoad();
+    if(fileDb && (fileDb.lastEdit||0) > (db.lastEdit||0)){
+      const keepSync=db.sync; db=mergeDefaults(fileDb); if(keepSync && !(db.sync&&db.sync.journalId)) db.sync=keepSync;
+      db.journal.techReviewMigrated=false; runMigrations();
+      if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
+      if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
+      document.body.classList.toggle('dark',!!db.darkMode);
+      booting=true; try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){} booting=false;
+      renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
+      diskFlash('Loaded the newer local file from disk.');
+    }
+    await diskSave();          // make sure the working file exists / is current
+  }catch(e){ console.error('bootDisk',e); }
+  renderLocalStore();
+}
+
+async function listBackups(){ if(!FS_ENABLED) return [];
+  try{ const es=await FS.readDir(BACKUP_DIR, diskOpts());
+    return es.filter(e=>e && e.name && /^journal-.*\.json$/.test(e.name)).map(e=>e.name).sort().reverse(); }
+  catch(e){ return []; } }
+async function pruneBackups(){ try{ const all=await listBackups();
+  for(const n of all.slice(KEEP_BACKUPS)){ try{ await FS.remove(BACKUP_DIR+'/'+n, diskOpts()); }catch(e){} } }catch(e){} }
+// One snapshot per calendar day (portable — strips the device sync link, like Export JSON).
+async function snapshotDaily(){ if(!FS_ENABLED) return;
+  try{ await fsEnsureDirs(); const name=BACKUP_DIR+'/journal-'+todayStr()+'.json';
+    if(!(await FS.exists(name, diskOpts()))) await FS.writeTextFile(name, await encMaybe(JSON.stringify(dbWithoutSecrets(),null,2)), diskOpts());
+    snappedToday=true; await pruneBackups(); }
+  catch(e){ console.error('snapshotDaily',e); } }
+async function backupNow(){ if(!FS_ENABLED){ diskFlash('Backups are part of the desktop app.',true); return; }
+  try{ await fsEnsureDirs(); const d=new Date(), p=n=>String(n).padStart(2,'0');
+    const stamp=todayStr()+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+    await FS.writeTextFile(BACKUP_DIR+'/journal-'+stamp+'.json', await encMaybe(JSON.stringify(dbWithoutSecrets(),null,2)), diskOpts());
+    await pruneBackups(); diskFlash('Backup saved.'); renderLocalStore(); }
+  catch(e){ diskFlash('Backup failed: '+(e.message||e), true); } }
+async function restoreBackup(name){ if(!FS_ENABLED||!name) return;
+  if(!confirm('Restore "'+name+'"?\n\nThis replaces the current journal on this device. A safety backup of the current state is taken first.')) return;
+  try{ await backupNow();
+    const txt=await encReadMaybe(await FS.readTextFile(BACKUP_DIR+'/'+name, diskOpts()));
+    const keepSync=db.sync; db=mergeDefaults(JSON.parse(txt)); if(keepSync) db.sync=keepSync;
+    db.journal.techReviewMigrated=false; runMigrations();
+    if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
+    if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
+    document.body.classList.toggle('dark',!!db.darkMode);
+    save(); renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
+    diskFlash('Restored from '+name+'.'); renderLocalStore(); }
+  catch(e){ diskFlash('Restore failed: '+(e.message||e), true); } }
+function restoreFromSelected(){ const sel=document.getElementById('lsRestoreSel'); if(sel && sel.value) restoreBackup(sel.value); }
+
+async function renderLocalStore(){ const st=document.getElementById('lsStatus'); if(!st) return;
+  const btns=document.getElementById('lsBtns');
+  if(!FS_ENABLED){ st.innerHTML='Running in <b>browser mode</b> — saved in this browser\'s local storage only. The desktop app adds an on-disk copy plus automatic daily backups.';
+    if(btns) btns.style.display='none'; return; }
+  if(btns) btns.style.display='flex';
+  const backs=await listBackups();
+  st.innerHTML='Saving to <b>AppData\\Local\\'+APP_DIR+'\\journal.json</b> on this machine.<br>'+
+    'Last file save: <b>'+(lastDiskSave? new Date(lastDiskSave).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'}):'—')+'</b>'+
+    ' · Backups kept: <b>'+backs.length+'</b> (newest '+KEEP_BACKUPS+' daily)';
+  const sel=document.getElementById('lsRestoreSel');
+  if(sel){ const cur=sel.value; sel.innerHTML='<option value="">Restore from backup…</option>'+
+    backs.map(n=>{ const label=n.replace(/^journal-/,'').replace(/\.json$/,''); return '<option value="'+escapeHtml(n)+'">'+escapeHtml(label)+'</option>'; }).join('');
+    sel.value=cur; }
+}
+
+/* =====================================================================
+   ENCRYPTION (this device) — optional passphrase-based encryption of data
+   at rest. Uses the WebView's built-in Web Crypto (AES-GCM-256 + PBKDF2);
+   no libraries. Opt-in: OFF by default, so the default behaviour is
+   byte-identical to before and data-loss-safe. When ON, a random data key
+   (DEK) actually encrypts the data; that DEK is wrapped twice — once by a
+   key derived from your passphrase, once by a random Recovery Key shown at
+   setup. So a forgotten passphrase is recoverable with the Recovery Key,
+   but neither = data gone (the point of encryption). Working file, daily
+   backups, and the localStorage cache are all encrypted. The cloud gist is
+   left as-is (unencrypted) by design.
+   ===================================================================== */
+const ENC_META_KEY  = 'pj_enc';                 // small, non-secret metadata (salt + wrapped keys)
+const ENC_META_FILE = APP_DIR + '/enc.json';    // mirrored to disk so a cleared cache can still unlock
+const PBKDF2_ITER = 210000, PBKDF2_HASH='SHA-256';
+const SUB = (typeof crypto!=='undefined' && crypto.subtle) ? crypto.subtle : null;
+const _te = new TextEncoder(), _td = new TextDecoder();
+let encState = { enabled:false, unlocked:false, dek:null, dekRaw:null, meta:null };
+let _bootRaw = null;          // pre-decrypted localStorage plaintext, handed to load()
+let _persistChain = Promise.resolve();
+
+function b64e(buf){ const b=new Uint8Array(buf); let s=''; for(let i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function b64d(str){ const s=atob(str); const b=new Uint8Array(s.length); for(let i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+function isEnvelope(str){ if(!str || str.charAt(0)!=='{') return false; try{ const o=JSON.parse(str); return !!(o && o.__pjenc===1 && o.iv && o.ct); }catch(e){ return false; } }
+
+async function deriveKEK(pass, saltU8, iter, hash){
+  const base=await SUB.importKey('raw', _te.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return SUB.deriveKey({name:'PBKDF2', salt:saltU8, iterations:iter, hash}, base,
+    {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']); }
+async function importRawKey(rawU8){ return SUB.importKey('raw', rawU8, 'AES-GCM', false, ['encrypt','decrypt']); }
+async function gcmEnc(key, plainStr){ const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await SUB.encrypt({name:'AES-GCM', iv}, key, _te.encode(plainStr)); return { iv:b64e(iv), ct:b64e(ct) }; }
+async function gcmDec(key, obj){ const pt=await SUB.decrypt({name:'AES-GCM', iv:b64d(obj.iv)}, key, b64d(obj.ct)); return _td.decode(pt); }
+async function wrapDEK(kek, dekRawU8){ return gcmEnc(kek, b64e(dekRawU8)); }          // stores DEK bytes (b64) inside GCM
+async function unwrapDEK(kek, wrapObj){ return b64d(await gcmDec(kek, wrapObj)); }     // throws on wrong key = wrong passphrase
+
+// Data-level helpers used by save()/disk functions.
+async function encEncrypt(plainStr){ const o=await gcmEnc(encState.dek, plainStr); return JSON.stringify({__pjenc:1, iv:o.iv, ct:o.ct}); }
+async function encDecrypt(envStr){ const o=JSON.parse(envStr); return gcmDec(encState.dek, {iv:o.iv, ct:o.ct}); }
+async function encMaybe(str){ return (encState.enabled && encState.unlocked) ? await encEncrypt(str) : str; }
+async function encReadMaybe(str){ return isEnvelope(str) ? await encDecrypt(str) : str; }
+
+// localStorage write, routed through here so it can be encrypted. Encrypted
+// writes are serialized (Web Crypto is async) so they land in order.
+function persistLocal(){
+  if(encState.enabled && !encState.unlocked) return;   // never write plaintext while locked
+  if(encState.enabled && encState.unlocked){
+    const snap=JSON.stringify(db);
+    _persistChain=_persistChain.then(async ()=>{ try{ localStorage.setItem('projtime_v8', await encEncrypt(snap)); }catch(e){ console.error('enc persist',e); } });
+  } else {
+    try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){ console.error(e); }
+  }
+}
+
+/* ---- metadata (non-secret: salt + wrapped keys) ---- */
+function readEncMetaLocal(){ try{ return JSON.parse(localStorage.getItem(ENC_META_KEY)||'null'); }catch(e){ return null; } }
+async function readEncMetaDisk(){ if(!FS_ENABLED) return null;
+  try{ if(!(await FS.exists(ENC_META_FILE, diskOpts()))) return null; return JSON.parse(await FS.readTextFile(ENC_META_FILE, diskOpts())); }catch(e){ return null; } }
+async function loadEncMeta(){ return readEncMetaLocal() || await readEncMetaDisk(); }
+async function writeEncMeta(meta){ try{ localStorage.setItem(ENC_META_KEY, JSON.stringify(meta)); }catch(e){}
+  if(FS_ENABLED){ try{ await fsEnsureDirs(); await FS.writeTextFile(ENC_META_FILE, JSON.stringify(meta,null,2), diskOpts()); }catch(e){ console.error('enc meta disk',e); } } }
+async function removeEncMeta(){ try{ localStorage.removeItem(ENC_META_KEY); }catch(e){}
+  if(FS_ENABLED){ try{ if(await FS.exists(ENC_META_FILE, diskOpts())) await FS.remove(ENC_META_FILE, diskOpts()); }catch(e){} } }
+
+/* ---- boot: if encryption is on, block on the passphrase before load() ---- */
+async function encBootstrap(){
+  if(!SUB){ return; }                       // no Web Crypto → treat as disabled (shouldn't happen in the WebView)
+  const meta=await loadEncMeta();
+  if(!meta || !meta.enabled){ encState.enabled=false; return; }
+  encState.enabled=true; encState.meta=meta;
+  await promptUnlock(meta);                  // resolves only once a correct passphrase or recovery key is entered
+  // pre-decrypt the localStorage cache so the (sync) load() can read it
+  try{ const raw=localStorage.getItem('projtime_v8'); if(raw && isEnvelope(raw)) _bootRaw=await encDecrypt(raw); }catch(e){ console.error('boot decrypt',e); }
+}
+function promptUnlock(meta){
+  return new Promise(resolve=>{
+    _unlockResolve=resolve;
+    const m=document.getElementById('encUnlockBg');
+    document.getElementById('encUnlockPass').value='';
+    document.getElementById('encRecovery').value='';
+    document.getElementById('encUnlockMsg').textContent='';
+    document.getElementById('encRecoveryWrap').style.display='none';
+    if(m){ m.classList.add('open'); setTimeout(()=>{ const i=document.getElementById('encUnlockPass'); if(i) i.focus(); },50); }
+  });
+}
+let _unlockResolve=null;
+async function encUnlock(pass){
+  const meta=encState.meta; if(!meta) return false;
+  try{ const kek=await deriveKEK(pass, b64d(meta.salt), meta.iter||PBKDF2_ITER, meta.hash||PBKDF2_HASH);
+    const dekRaw=await unwrapDEK(kek, meta.wrapPass);
+    encState.dekRaw=dekRaw; encState.dek=await importRawKey(dekRaw); encState.unlocked=true; return true;
+  }catch(e){ return false; } }
+async function encUnlockRecovery(recStr){
+  const meta=encState.meta; if(!meta) return false;
+  try{ const recRaw=b64d(String(recStr).replace(/[^A-Za-z0-9+/=]/g,''));
+    const recKek=await importRawKey(recRaw);
+    const dekRaw=await unwrapDEK(recKek, meta.wrapRec);
+    encState.dekRaw=dekRaw; encState.dek=await importRawKey(dekRaw); encState.unlocked=true; return true;
+  }catch(e){ return false; } }
+async function encUnlockSubmit(){
+  const pass=document.getElementById('encUnlockPass').value;
+  const ok=await encUnlock(pass);
+  if(ok){ closeModal('encUnlockBg'); if(_unlockResolve){ const r=_unlockResolve; _unlockResolve=null; r(); } }
+  else document.getElementById('encUnlockMsg').textContent='That passphrase didn\u2019t work. Try again, or use your Recovery Key.';
+}
+async function encRecoverySubmit(){
+  const rec=document.getElementById('encRecovery').value;
+  const ok=await encUnlockRecovery(rec);
+  if(ok){ closeModal('encUnlockBg'); if(_unlockResolve){ const r=_unlockResolve; _unlockResolve=null; r(); } }
+  else document.getElementById('encUnlockMsg').textContent='That Recovery Key didn\u2019t match. Check for typos / full key.';
+}
+function encShowRecoveryField(){ document.getElementById('encRecoveryWrap').style.display='block';
+  document.getElementById('encUnlockMsg').textContent=''; const t=document.getElementById('encRecovery'); if(t) t.focus(); }
+
+/* ---- enable / change / disable (all require being unlocked, except enable) ---- */
+function fmtRecovery(rawU8){ const s=b64e(rawU8); return (s.match(/.{1,4}/g)||[s]).join('-'); }   // grouped for readability
+async function encEnable(pass){
+  if(!SUB) throw new Error('Web Crypto is unavailable in this environment.');
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const dekRaw=crypto.getRandomValues(new Uint8Array(32));
+  const recRaw=crypto.getRandomValues(new Uint8Array(32));
+  const kek=await deriveKEK(pass, salt, PBKDF2_ITER, PBKDF2_HASH);
+  const recKek=await importRawKey(recRaw);
+  const meta={ v:1, enabled:true, salt:b64e(salt), iter:PBKDF2_ITER, hash:PBKDF2_HASH,
+    wrapPass:await wrapDEK(kek, dekRaw), wrapRec:await wrapDEK(recKek, dekRaw) };
+  encState.enabled=true; encState.unlocked=true; encState.dekRaw=dekRaw;
+  encState.dek=await importRawKey(dekRaw); encState.meta=meta;
+  await writeEncMeta(meta);
+  persistLocal();                            // re-write cache encrypted
+  await reencryptBackups(true);              // encrypt any existing plaintext snapshots
+  if(FS_ENABLED) await diskSave();           // re-write working file encrypted
+  await _persistChain;
+  return fmtRecovery(recRaw);                // show once
+}
+async function encChangePass(newPass){
+  if(!encState.unlocked || !encState.dekRaw) throw new Error('Unlock first.');
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const kek=await deriveKEK(newPass, salt, PBKDF2_ITER, PBKDF2_HASH);
+  const meta=Object.assign({}, encState.meta, { salt:b64e(salt), iter:PBKDF2_ITER, hash:PBKDF2_HASH, wrapPass:await wrapDEK(kek, encState.dekRaw) });
+  encState.meta=meta; await writeEncMeta(meta);   // data untouched; only the passphrase wrap changes
+}
+async function encDisable(){
+  if(!encState.unlocked) throw new Error('Unlock first.');
+  await reencryptBackups(false);             // rewrite snapshots as plaintext
+  encState.enabled=false; encState.unlocked=false; encState.dek=null; encState.dekRaw=null; encState.meta=null;
+  await removeEncMeta();
+  persistLocal();                            // cache back to plaintext
+  if(FS_ENABLED) await diskSave();           // working file back to plaintext
+  await _persistChain;
+}
+// Rewrite every snapshot in the backups folder to match the target state (encrypted=true/false).
+async function reencryptBackups(toEncrypted){
+  if(!FS_ENABLED) return;
+  try{ const names=await listBackups();
+    for(const n of names){ const p=BACKUP_DIR+'/'+n;
+      try{ let txt=await FS.readTextFile(p, diskOpts());
+        const enc=isEnvelope(txt);
+        if(toEncrypted && !enc){ const pt=txt; await FS.writeTextFile(p, await encEncrypt(pt), diskOpts()); }
+        else if(!toEncrypted && enc){ const pt=await encDecrypt(txt); await FS.writeTextFile(p, pt, diskOpts()); }
+      }catch(e){ console.error('reencrypt '+n, e); }
+    }
+  }catch(e){ console.error('reencryptBackups', e); }
+}
+
+/* ---- Settings UI ---- */
+function renderEncRow(){
+  const st=document.getElementById('encStatus'), btns=document.getElementById('encBtns');
+  if(!st) return;
+  if(!SUB){ st.innerHTML='Encryption needs the desktop app / a modern browser (Web Crypto unavailable here).'; if(btns) btns.style.display='none'; return; }
+  if(encState.enabled){
+    st.innerHTML='<b>On.</b> Your data on this device is encrypted with your passphrase'+(FS_ENABLED?' (working file, daily backups, and cache)':' (browser cache)')+'. The cloud gist is not encrypted.';
+    if(btns) btns.innerHTML='<button class="small ghost" onclick="encChangeDialog()">Change passphrase</button>'+
+      '<button class="small ghost" onclick="encDisableDialog()">Turn off encryption</button>';
+  } else {
+    st.innerHTML='<b>Off.</b> Turn on to require a passphrase at launch and encrypt this device\u2019s data at rest. You\u2019ll get a one-time Recovery Key \u2014 save it, it\u2019s the only way back in if you forget the passphrase.';
+    if(btns) btns.innerHTML='<button class="small" onclick="encEnableDialog()">Enable encryption\u2026</button>';
+  }
+  if(btns) btns.style.display='flex';
+  encMsg('');
+}
+function encMsg(m,isErr){ const el=document.getElementById('encMsg'); if(el){ el.textContent=m||''; el.style.color=isErr?'var(--danger)':'var(--muted)'; } }
+let _encSetMode='enable';
+function openEncSet(mode){ _encSetMode=mode;
+  document.getElementById('encSetTitle').textContent = mode==='enable' ? 'Set a passphrase' : 'Change passphrase';
+  document.getElementById('encSetHint').textContent = mode==='enable'
+    ? "Pick something strong you won't forget. There is no reset — only the Recovery Key you'll get next."
+    : 'Your Recovery Key stays the same. Only the passphrase changes.';
+  document.getElementById('encSetGo').textContent = mode==='enable' ? 'Enable encryption' : 'Change passphrase';
+  document.getElementById('encSetP1').value=''; document.getElementById('encSetP2').value='';
+  document.getElementById('encSetMsg').textContent='';
+  openModal('encSetBg'); setTimeout(()=>{ const i=document.getElementById('encSetP1'); if(i) i.focus(); },50);
+}
+function encSetSubmit(){
+  const p1=document.getElementById('encSetP1').value, p2=document.getElementById('encSetP2').value;
+  const msg=document.getElementById('encSetMsg');
+  if(p1.length<6){ msg.textContent='Use at least 6 characters.'; return; }
+  if(p1!==p2){ msg.textContent='The two passphrases didn\u2019t match.'; return; }
+  if(_encSetMode==='enable'){
+    msg.style.color='var(--muted)'; msg.textContent='Enabling\u2026';
+    encEnable(p1).then(rec=>{ closeModal('encSetBg'); renderEncRow(); showRecoveryKey(rec); })
+      .catch(e=>{ msg.style.color='var(--danger)'; msg.textContent='Could not enable: '+(e.message||e); });
+  } else {
+    msg.style.color='var(--muted)'; msg.textContent='Changing\u2026';
+    encChangePass(p1).then(()=>{ closeModal('encSetBg'); encMsg('Passphrase changed. Your Recovery Key is unchanged.'); })
+      .catch(e=>{ msg.style.color='var(--danger)'; msg.textContent='Could not change: '+(e.message||e); });
+  }
+}
+function encEnableDialog(){ openEncSet('enable'); }
+function showRecoveryKey(rec){
+  const box=document.getElementById('encRecoveryShow'); const val=document.getElementById('encRecoveryVal');
+  if(val) val.textContent=rec;
+  if(box) box.style.display='block';
+  encMsg('Encryption is on. Save your Recovery Key now \u2014 it will not be shown again.');
+}
+function copyRecoveryKey(){ const v=document.getElementById('encRecoveryVal'); if(!v) return;
+  const t=v.textContent||''; if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>encMsg('Recovery Key copied.'),()=>{});
+  else { const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); encMsg('Recovery Key copied.');}catch(e){} document.body.removeChild(ta); } }
+function downloadRecoveryKey(){ const v=document.getElementById('encRecoveryVal'); if(!v) return;
+  download('PJT-recovery-key-'+todayStr()+'.txt',
+    'Project Journal & Timecard (PJT) \u2014 Recovery Key\n\nKeep this somewhere safe (password manager, printed and filed).\nIt is the ONLY way to unlock your data if you forget your passphrase.\n\nRecovery Key:\n'+(v.textContent||'')+'\n', 'text/plain'); }
+function dismissRecoveryKey(){ const box=document.getElementById('encRecoveryShow'); if(box) box.style.display='none';
+  const v=document.getElementById('encRecoveryVal'); if(v) v.textContent=''; encMsg('Encryption is on.'); }
+function encChangeDialog(){ openEncSet('change'); }
+function encDisableDialog(){
+  if(!confirm('Turn off encryption?\n\nYour data on this device will be written back as plaintext (working file, backups, and cache). The passphrase and Recovery Key will no longer be required.')) return;
+  encMsg('Turning off\u2026');
+  encDisable().then(()=>renderEncRow()).catch(e=>encMsg('Could not turn off: '+(e.message||e),true));
+}
+
+/* =====================================================================
    JOURNAL
    ===================================================================== */
 const AUDIT_TEMPLATE=['1 - Permanent File','2 - General File','3 - Trial Balance and Reports','4 - Financial Statements','5 - Profit Vision','T - Technical Review',
@@ -714,6 +1142,15 @@ const STATUSES=['In Prep','Tech Review','Review Comments','Complete'];
 const STATUS_MAP={ 'Open':'In Prep','In Progress':'In Prep','Review Needed':'Review Comments' };
 
 function extractPrefix(n){ const m=String(n||'').trim().match(/^([0-9A-Za-z]+)/); return m?m[1]:''; }
+// Ordering for the section-link dropdown ONLY: numbered sections first, then single-letter
+// billing codes strictly A→Z (so T sits after S / before W, not jammed above A). The journal's
+// grouped display is unaffected — Technical Review still lives with the review sections there.
+function secDropKey(name){ const p=extractPrefix(name);
+  if(/^\d+$/.test(p)) return [0, parseInt(p,10), name.toLowerCase()];
+  if(/^[A-Za-z]$/.test(p)) return [1, p.toUpperCase().charCodeAt(0), name.toLowerCase()];
+  return [2, 0, name.toLowerCase()]; }   // custom / multi-char prefixes last, alphabetical
+function secDropCmp(a,b){ const ka=secDropKey(a.name), kb=secDropKey(b.name);
+  return ka[0]-kb[0] || ka[1]-kb[1] || (ka[2]<kb[2]?-1:ka[2]>kb[2]?1:0); }
 function groupIdFor(s){ if(s.custom) return 'g6'; return PREFIX_GROUP[extractPrefix(s.name)]||'g6'; }
 function sortKey(s,i){ if(!s.custom){ const o=PREFIX_ORDER[extractPrefix(s.name)]; if(o!==undefined) return o; } return 1000+i; }
 function makeSection(name,custom=false){ return {id:uid(),name,status:'In Prep',budget:0,actual:0,preparer:'',reviewer:'',scratch:'',custom,updated:'',timeSync:{}}; }
@@ -976,6 +1413,14 @@ function standardCodes(){ return [
   {letter:'x',client:'Admin',billing:'',type:'nonbillable',linkProjectId:'',linkSection:''},
   {letter:'y',client:'Training',billing:'',type:'nonbillable',linkProjectId:'',linkSection:''},
   {letter:'z',client:'Nonchargeable',billing:'',type:'nonbillable',linkProjectId:'',linkSection:''}]; }
+// v–z are reserved standard codes: always present, hidden from the editable Codes table
+// (addCode only ever hands out a–u), and shown read-only in the Standard-codes reference.
+const RESERVED = new Set(['v','w','x','y','z']);
+function isStdCode(c){ return RESERVED.has(c.letter); }
+// Guarantee every standard code exists on a day so it's always pickable in the log,
+// even on old days or ones where one got dropped. Appends only what's missing.
+function ensureStdCodes(day){ if(!day||!day.codes) return; const have=new Set(day.codes.map(c=>c.letter));
+  standardCodes().forEach(sc=>{ if(!have.has(sc.letter)) day.codes.push(sc); }); }
 
 function getDay(date,create=true){ if(!db.timecard.days[date]&&create) db.timecard.days[date]={dayStart:'08:00',codes:standardCodes(),entries:[],win:[]}; return db.timecard.days[date]; }
 function curDay(){ return getDay(db.timecard.currentDate); }
@@ -1009,6 +1454,7 @@ function fmt12(hhmm){ const mm=toMin(hhmm); if(mm==null) return ''; let h=Math.f
 
 function renderTimecard(){
   const day=curDay();
+  ensureStdCodes(day);                                       // v–z always available in the log picker
   day.codes.sort((a,b)=>a.letter.localeCompare(b.letter));  // keep code picker + codes table alphabetical
   document.getElementById('datePicker').value=db.timecard.currentDate;
   document.getElementById('dowLabel').textContent=dowName(db.timecard.currentDate);
@@ -1030,7 +1476,18 @@ function renderLoggedDays(){
 function renderLog(){ const day=curDay(); const lb=document.getElementById('logBody'); lb.innerHTML='';
   day.entries.forEach((en,i)=>lb.appendChild(logRow(day,en,i))); }
 function renderCodesTable(){ const day=curDay(); const {byCode}=dayTotals(day);
-  const cb=document.getElementById('codeBody'); cb.innerHTML=''; day.codes.forEach(c=>cb.appendChild(codeRow(day,c,byCode[c.letter]||0))); scheduleAutoSync(); }
+  const cb=document.getElementById('codeBody'); cb.innerHTML='';
+  day.codes.filter(c=>!isStdCode(c)).forEach(c=>cb.appendChild(codeRow(day,c,byCode[c.letter]||0)));
+  if(!day.codes.some(c=>!isStdCode(c))) cb.innerHTML='<tr><td colspan="7" class="muted">No custom codes yet — click <b>+ Add code</b> to create one. Standard codes (below) are always available in the log.</td></tr>';
+  renderStdCodesRef(day, byCode); scheduleAutoSync(); }
+// Read-only reference for the reserved standard codes — findable when you forget which letter Training is.
+function renderStdCodesRef(day, byCode){ const el=document.getElementById('stdCodesRef'); if(!el) return;
+  const std=day.codes.filter(isStdCode).sort((a,b)=>a.letter.localeCompare(b.letter));
+  el.innerHTML=std.map(c=>{ const h=byCode[c.letter]||0;
+    return '<span class="stdcode"><b>'+c.letter+'</b> — '+escapeHtml(c.client||'(unnamed)')+
+      ' <span class="typedot t-'+c.type+'"></span>'+TYPE_LABEL[c.type]+
+      (h>0?(' <span class="muted">· '+fmtH(h)+'h</span>'):'')+'</span>'; }).join('');
+}
 function renderTotals(){ const {t}=dayTotals(curDay());
   document.getElementById('cBill').textContent=fmtH(t.billable);
   document.getElementById('cNon').textContent=fmtH(t.nonbillable);
@@ -1100,7 +1557,7 @@ function codeRow(day,c,mins){
   if(linkedProj){
     const secSel=document.createElement('select');
     const sn=document.createElement('option'); sn.value=''; sn.textContent='— pick section —'; secSel.appendChild(sn);
-    linkedProj.sections.forEach(s=>{ const o=document.createElement('option'); o.value=s.name; o.textContent=s.name; if(c.linkSection===s.name)o.selected=true; secSel.appendChild(o); });
+    linkedProj.sections.slice().sort(secDropCmp).forEach(s=>{ const o=document.createElement('option'); o.value=s.name; o.textContent=s.name; if(c.linkSection===s.name)o.selected=true; secSel.appendChild(o); });
     secSel.onchange=()=>{ c.linkSection=secSel.value;
       if(c.linkSection) c.billing=extractPrefix(c.linkSection);  // refresh bill to match the chosen section
       renderTimecard(); save(); };
@@ -1163,6 +1620,22 @@ function toggleAutoSync(){ db.timecard.autoSync=!db.timecard.autoSync;
   save(); }
 
 /* ---- month report ---- */
+// Column sort. Default: Hours, high→low (matches the old behavior).
+let reportSort={ key:'mins', dir:'desc' };
+const TYPE_ORDER={ billable:0, nonbillable:1, unpaid:2 };
+function reportComparator(a,b){
+  const d=reportSort.dir==='asc'?1:-1;
+  if(reportSort.key==='mins'){ const r=(a.mins-b.mins)*d; return r || a.label.localeCompare(b.label,undefined,{sensitivity:'base'}); }
+  if(reportSort.key==='type'){ const r=(TYPE_ORDER[a.type]-TYPE_ORDER[b.type])*d; return r || a.label.localeCompare(b.label,undefined,{sensitivity:'base'}); }
+  return a.label.localeCompare(b.label,undefined,{sensitivity:'base'})*d;   // 'label'
+}
+function sortReport(key){
+  if(reportSort.key===key) reportSort.dir=(reportSort.dir==='asc'?'desc':'asc');
+  else reportSort={ key, dir: key==='mins'?'desc':'asc' };   // hours defaults high→low, text/type A→Z
+  renderReport();
+}
+function updateSortCarets(){ document.querySelectorAll('.sortcaret').forEach(el=>{
+  el.textContent = (el.dataset.k===reportSort.key) ? (reportSort.dir==='asc'?'▲':'▼') : ''; }); }
 function renderReport(){
   const ym=document.getElementById('monthPicker').value||todayStr().slice(0,7);
   const totals={billable:0,nonbillable:0,unpaid:0}; const byClient={}; let dayCount=0;
@@ -1176,7 +1649,8 @@ function renderReport(){
   document.getElementById('rTotal').textContent=fmtH(totals.billable+totals.nonbillable)+' · '+dayCount+'d';
   document.getElementById('rRange').textContent=ym;
   const grand=totals.billable+totals.nonbillable+totals.unpaid||1;
-  const rows=Object.values(byClient).sort((a,b)=>b.mins-a.mins);
+  const rows=Object.values(byClient).sort(reportComparator);
+  updateSortCarets();
   const body=document.getElementById('reportBody'); body.innerHTML='';
   rows.forEach(r=>{ const tr=document.createElement('tr'); const pct=r.mins/grand*100;
     tr.className='clickrow'; tr.title='Click for all entry notes + linked journal notes';
@@ -1571,7 +2045,7 @@ function changeTeamCode(){
   clearTeam(); db.sync={ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null };
   save(); renderSync(); setSyncDot('off'); syncMsg('Disconnected. Paste a Team code to reconnect.');
 }
-function openSettings(){ renderSync(); syncMsg(''); openModal('settingsModalBg'); }
+function openSettings(){ renderSync(); if(typeof renderLocalStore==='function') renderLocalStore(); if(typeof renderEncRow==='function') renderEncRow(); syncMsg(''); openModal('settingsModalBg'); }
 function syncBoot(){ if(isConnected()){ setSyncDot('on'); if(db.sync.auto) gistPull(false); } else setSyncDot('off'); }
 function scheduleAutoPush(){ if(syncing||!isConnected()||!db.sync.auto) return; clearTimeout(pushTimer); pushTimer=setTimeout(()=>gistPush(false), 4000); }
 document.addEventListener('click',()=>closeGearMenu());
@@ -1611,7 +2085,11 @@ function seedDemo(){
   db.timecard.currentDate=d;
 }
 
-load();
+async function bootApp(){
+  try{ await encBootstrap(); }catch(e){ console.error('encBootstrap',e); }
+  load();
+}
+bootApp();
 </script>
 </body>
 </html>
