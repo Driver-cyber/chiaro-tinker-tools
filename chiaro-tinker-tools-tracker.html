@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chiaro Tinker Tools — Build Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#2C1A0E; --card:#3D2410; --border:#4A2E18;
+    --accent:#F2A24A; --text:#F5DEB3; --muted:#7A3B1E;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:'Plus Jakarta Sans',sans-serif;padding:32px 20px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  header h1{font-family:'Fraunces',serif;font-weight:700;font-size:30px;
+    margin:0 0 4px;color:var(--accent);}
+  header p{margin:0;font-size:14px;opacity:.85;}
+  header .updated{font-size:12px;color:var(--accent);opacity:.8;margin-top:6px;}
+  .col{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:22px;margin-top:26px;}
+  .col h2{font-family:'Fraunces',serif;font-weight:700;font-size:20px;margin:0;}
+  .col .sub{font-size:12px;opacity:.7;margin:2px 0 16px;}
+  .pri{display:flex;gap:14px;align-items:flex-start;padding:12px 0;
+    border-bottom:1px solid var(--border);}
+  .pri:last-of-type{border-bottom:none;}
+  .badge{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);
+    color:var(--bg);font-weight:700;display:flex;align-items:center;
+    justify-content:center;font-size:14px;}
+  .pri .t{font-weight:700;font-size:15px;}
+  .pri .n{font-size:13px;opacity:.8;margin-top:2px;line-height:1.45;}
+  .backlog{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);}
+  .backlog h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accent);margin:0 0 8px;}
+  .backlog ul{margin:0;padding-left:18px;}
+  .backlog li{font-size:13px;color:var(--text);opacity:.75;margin:5px 0;}
+  .backlog li::marker{color:var(--muted);}
+  footer{margin-top:26px;font-size:12px;opacity:.55;text-align:center;
+    font-family:'Fraunces',serif;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Chiaro Tinker Tools</h1>
+    <p>Personal tool belt &amp; studio — timecard, journal, and whatever the belt grows. Ordo ab chao.</p>
+    <div class="updated">Updated 2026-07-18</div>
+  </header>
+
+  <div class="col">
+    <h2>chiaro-tinker-tools</h2>
+    <div class="sub">Single-file HTML · Tauri 2 · Cloudflare Pages · Driver-cyber</div>
+
+    <div class="pri">
+      <div class="badge">1</div>
+      <div>
+        <div class="t">Phase 0 — The Trophy (macOS .dmg of PJT as-is)</div>
+        <div class="n">Wrap the untouched clone via Tauri 2 + GitHub Actions (macos-latest). Demo data, PJT branding. Tag <code>pjt-trophy</code>. First live test of the Mac toolchain; Gatekeeper right-click-open is fine.</div>
+      </div>
+    </div>
+    <div class="pri">
+      <div class="badge">2</div>
+      <div>
+        <div class="t">Phase 1 — Re-point at ORDO (CTT MVP)</div>
+        <div class="n">Strip audit defaults, free-form project steps, admin vs. client-deliverable time codes, new storage key + schema version, export/import day one, chiaroscuro rebrand, deploy to Pages.</div>
+      </div>
+    </div>
+    <div class="pri">
+      <div class="badge">3</div>
+      <div>
+        <div class="t">Make it a legit PWA</div>
+        <div class="n">Manifest + service worker on the single file. Cheap now, and it's the iPhone on-ramp for later.</div>
+      </div>
+    </div>
+
+    <div class="backlog">
+      <h3>Backlog</h3>
+      <ul>
+        <li>Phase 2 — project templates (bookkeeping cadence, advisory framework)</li>
+        <li>macOS wrap of CTT proper (new bundle identifier)</li>
+        <li>iPhone: native build or PWA mobile supremacy</li>
+        <li>Personal task surface (form deliberately undecided)</li>
+        <li>Tinker's bell focus timer</li>
+        <li>Intention-on-open / enough-on-close ritual (mirror, not wall)</li>
+        <li>Cross-device sync (Worker+KV vs. Gist) — gate before iPhone-primary</li>
+        <li>At-rest encryption (revisit with sync)</li>
+        <li>Code signing / notarization (deferred until real distribution)</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>Light and dark, in concert — not several.</footer>
+</div>
+
+<script id="tracker-data" type="application/json">
+{
+  "project": "Chiaro Tinker Tools",
+  "description": "Personal tool belt & studio — ORDO timecard + project journal, growing into tasks and the tinker's bell",
+  "updated": "2026-07-18",
+  "columns": [
+    {
+      "name": "chiaro-tinker-tools",
+      "sub": "Single-file HTML · Tauri 2 · Cloudflare Pages · Driver-cyber",
+      "priorities": [
+        { "title": "Phase 0 — The Trophy (macOS .dmg of PJT as-is)", "note": "Untouched clone wrapped via Tauri 2 + Actions on macos-latest. Tag pjt-trophy. First Mac toolchain test; Gatekeeper right-click-open acceptable." },
+        { "title": "Phase 1 — Re-point at ORDO (CTT MVP)", "note": "Strip audit defaults, free-form steps, admin vs. client-deliverable codes, new storage key + schema version, export day one, chiaroscuro rebrand, Pages deploy." },
+        { "title": "Make it a legit PWA", "note": "Manifest + service worker; cheap now and the iPhone on-ramp later." }
+      ],
+      "backlog": [
+        "Phase 2 — project templates (bookkeeping cadence, advisory framework)",
+        "macOS wrap of CTT proper (new bundle identifier)",
+        "iPhone: native build or PWA mobile supremacy",
+        "Personal task surface (form deliberately undecided)",
+        "Tinker's bell focus timer",
+        "Intention-on-open / enough-on-close ritual (mirror, not wall)",
+        "Cross-device sync (Worker+KV vs. Gist) — gate before iPhone-primary",
+        "At-rest encryption (revisit with sync)",
+        "Code signing / notarization (deferred until real distribution)"
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>
