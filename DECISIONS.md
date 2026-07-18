@@ -76,6 +76,9 @@
 * **CTT macOS bundle identifier** — pick deliberately at Phase 3 wrap
   (e.g. `com.chiarotinkertools.ctt`); Phase 0 keeps PJT's.
 * **Code signing / notarization** — required for any distribution beyond
-  family right-click-open; consciously deferred.
+  family right-click-open; consciously deferred. *[2026-07-18]* Chad has a
+  paid Apple Developer account, so this is unlocked whenever we want it:
+  Developer ID cert + notarytool via GitHub Actions secrets (runtime
+  injection, per the no-secrets rule). Also the gate-opener for native iOS.
 * **PJT ↔ CTT backport notes** — lightweight log of improvements general
   enough to flow between the sibling apps.
