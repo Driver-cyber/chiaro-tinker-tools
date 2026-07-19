@@ -12,6 +12,14 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'If set (e.g. pjt-trophy), publish the .dmg as a GitHub Release under this tag'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -43,3 +51,21 @@ jobs:
           path: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
           if-no-files-found: error
+
+      # Manual runs with a release_tag publish the .dmg as a Release asset —
+      # a plain, permanent download link (no artifact-zip wrapper). Creates
+      # the tag at the built commit if it doesn't exist yet.
+      - name: Publish GitHub Release
+        if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_tag }}
+          fail_on_unmatched_files: true
+          files: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          body: |
+            Unsigned macOS build (universal: Apple Silicon + Intel).
+
+            **Install:** download the `.dmg`, open it, drag the app to Applications.
+            **First launch:** right-click the app → Open → Open (Gatekeeper workaround for unsigned builds).
