@@ -65,6 +65,33 @@
   for; when met, CTT acts as a *mirror, not a wall*: names the "five more
   minutes" impulse and points at the door ("this is held — go be with them").
   Never blocks. Experimental; design after MVP proves the daily loop.
+* **Brand illustration — "Plagued by Concepts."** *[2026-07-19]* Rodin's
+  *Thinker*, seated on his plinth, contemplating a plague-doctor mask instead of
+  resting his chin — art-historical, dry-witted, memento-mori; the literate,
+  myth-soaked voice made visible. Two original renderings exist: a clean
+  single-continuous-line version (the *animatable* asset) and a richer
+  cross-hatched engraving (static frontispiece — and effectively the Atelier /
+  Alchemist's-Ledger palette incarnate). **The plague mask alone = the app
+  icon**; the full figure = the between-states "mental canvas." Original art
+  only; renders ink-on-cream or gilt-on-walnut from one file. Working direction:
+  *Atelier as the surface, Plagued-by-Concepts as the soul.*
+* **Line-draw ritual screens — boot + think mode.** *[2026-07-19]* The single-
+  line art animated in code (SVG `stroke-dashoffset`, staggered per path),
+  **duration as a parameter**: ~6s draw on boot, slow/looping in "think" mode,
+  pause-on-tap as a fidget-lamp for re-centering. One drawing, two rituals.
+  Intentionally-slow boot as anti-engagement in its purest form — it *spends*
+  the wait asking "what did you come for?" (this is the concrete embodiment of
+  the intention-on-open ritual above), never apologizing for it. Intention
+  prompts live in the `db` as a growable pool ("What is this session for?",
+  "Name the one thing", "What gets set down after?"), drawn at random. Uses
+  `currentColor` so it inherits any palette. **Deliberately NOT video** (Veo
+  caps ~8s; baked timing, heavy files, compression smears fine line-work).
+  Vectorize the clean line art via Inkscape *centerline* trace → stroked paths.
+  Image-gen (Gemini) is the renewable style engine for more figures (the mask
+  solo, the tinker's bell) — each traced later into the same draw-engine.
+  Deliberately unbuilt until the MVP daily loop exists; first move when ready =
+  a tiny two-speed proof-of-concept HTML so the pattern is inherited, not
+  described.
 * **Personal task surface** — separate tab or other form; mechanism
   deliberately undecided. Don't over-spec.
 * **Tinker's bell** — focus timer; interaction, sound, tie-in to time entries
