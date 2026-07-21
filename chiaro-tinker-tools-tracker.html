@@ -47,7 +47,7 @@
   <header>
     <h1>Chiaro Tinker Tools</h1>
     <p>Personal tool belt &amp; studio — timecard, journal, and whatever the belt grows. Ordo ab chao.</p>
-    <div class="updated">Updated 2026-07-18</div>
+    <div class="updated">Updated 2026-07-21</div>
   </header>
 
   <div class="col">
@@ -57,22 +57,22 @@
     <div class="pri">
       <div class="badge">1</div>
       <div>
-        <div class="t">Phase 0 — The Trophy (macOS .dmg of PJT as-is)</div>
-        <div class="n">Wrap the untouched clone via Tauri 2 + GitHub Actions (macos-latest). Demo data, PJT branding. Tag <code>pjt-trophy</code>. First live test of the Mac toolchain; Gatekeeper right-click-open is fine.</div>
+        <div class="t">Carry-forward ritual (month close)</div>
+        <div class="n">"Start next month" on ORDO Monthly: dual-checkbox menu — carry (default, left) vs. resolved (right, happy animation) — then roll notes/links into the new month and archive the old.</div>
       </div>
     </div>
     <div class="pri">
       <div class="badge">2</div>
       <div>
-        <div class="t">Phase 1 — Re-point at ORDO (CTT MVP)</div>
-        <div class="n">Strip audit defaults, free-form project steps, admin vs. client-deliverable time codes, new storage key + schema version, export/import day one, chiaroscuro rebrand, deploy to Pages.</div>
+        <div class="t">Make it a legit PWA</div>
+        <div class="n">Manifest + service worker + Chiaro icons on the single file. The iPhone on-ramp; sync gate is already cleared.</div>
       </div>
     </div>
     <div class="pri">
       <div class="badge">3</div>
       <div>
-        <div class="t">Make it a legit PWA</div>
-        <div class="n">Manifest + service worker on the single file. Cheap now, and it's the iPhone on-ramp for later.</div>
+        <div class="t">Dogfood &amp; iterate the daily loop</div>
+        <div class="n">Real ORDO data is in and syncing. Live in it; collect friction; let the form be discovered. Shipped so far: Trophy .dmg (pjt-trophy), storage seam, templates+types, happy checkbox, 5 time categories, KV cloud sync, chiaroscuro v0.1.0.</div>
       </div>
     </div>
 
@@ -85,7 +85,6 @@
         <li>Personal task surface (form deliberately undecided)</li>
         <li>Tinker's bell focus timer</li>
         <li>Intention-on-open / enough-on-close ritual (mirror, not wall)</li>
-        <li>Cross-device sync (Worker+KV vs. Gist) — gate before iPhone-primary</li>
         <li>At-rest encryption (revisit with sync)</li>
         <li>Code signing / notarization (deferred until real distribution)</li>
       </ul>
@@ -99,15 +98,15 @@
 {
   "project": "Chiaro Tinker Tools",
   "description": "Personal tool belt & studio — ORDO timecard + project journal, growing into tasks and the tinker's bell",
-  "updated": "2026-07-18",
+  "updated": "2026-07-21",
   "columns": [
     {
       "name": "chiaro-tinker-tools",
       "sub": "Single-file HTML · Tauri 2 · Cloudflare Pages · Driver-cyber",
       "priorities": [
-        { "title": "Phase 0 — The Trophy (macOS .dmg of PJT as-is)", "note": "Untouched clone wrapped via Tauri 2 + Actions on macos-latest. Tag pjt-trophy. First Mac toolchain test; Gatekeeper right-click-open acceptable." },
-        { "title": "Phase 1 — Re-point at ORDO (CTT MVP)", "note": "Strip audit defaults, free-form steps, admin vs. client-deliverable codes, new storage key + schema version, export day one, chiaroscuro rebrand, Pages deploy." },
-        { "title": "Make it a legit PWA", "note": "Manifest + service worker; cheap now and the iPhone on-ramp later." }
+        { "title": "Carry-forward ritual (month close)", "note": "Dual-checkbox roll-forward menu: carry by default, check to resolve (happy animation); notes/links roll into next month, old month archives." },
+        { "title": "Make it a legit PWA", "note": "Manifest + service worker + Chiaro icons; iPhone on-ramp, sync gate already cleared." },
+        { "title": "Dogfood & iterate the daily loop", "note": "Shipped: Trophy .dmg, storage seam, templates+types, happy checkbox, 5 categories, KV cloud sync, chiaroscuro v0.1.0. Live in it and collect friction." }
       ],
       "backlog": [
         "Phase 2 — project templates (bookkeeping cadence, advisory framework)",
@@ -116,7 +115,6 @@
         "Personal task surface (form deliberately undecided)",
         "Tinker's bell focus timer",
         "Intention-on-open / enough-on-close ritual (mirror, not wall)",
-        "Cross-device sync (Worker+KV vs. Gist) — gate before iPhone-primary",
         "At-rest encryption (revisit with sync)",
         "Code signing / notarization (deferred until real distribution)"
       ]
