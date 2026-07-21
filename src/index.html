@@ -119,12 +119,20 @@ table.role-reviewer .col-prep{display:none}
 .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .datectrl{display:flex;gap:6px;align-items:center;} .datectrl input{width:auto;}
 .dow{font-size:15px;font-weight:700;margin-left:6px;}
-.tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
-.tcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.tcards{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
+.tcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;min-width:220px;}
 .tcard .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
 .tcard .val{font-size:28px;font-weight:800;margin-top:4px;}
 .tcard.bill .val{color:var(--bill)} .tcard.nonbill .val{color:var(--nonbill)}
 .tcard.unpaid .val{color:var(--unpaid)} .tcard.total .val{color:var(--accent)}
+.tcard.clickable{cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.tcard.clickable:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(37,99,235,.12);}
+.catbreak{display:flex;flex-direction:column;gap:10px;margin:8px 0;}
+.catrow{display:grid;grid-template-columns:14px 84px 1fr 62px;align-items:center;gap:10px;font-size:14px;}
+.catrow .catbar{height:10px;border-radius:6px;background:var(--group);overflow:hidden;}
+.catrow .catbar i{display:block;height:100%;}
+.catrow .catval{text-align:right;font-variant-numeric:tabular-nums;}
+.catrow.cattotal{border-top:1px solid var(--border);padding-top:8px;margin-top:2px;}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:18px;}
 .panel h3{margin:0;padding:13px 16px;border-bottom:1px solid var(--border);font-size:15px;display:flex;justify-content:space-between;align-items:center;}
 .panel .body{padding:6px 10px 12px;}
@@ -363,9 +371,8 @@ body.modal-open{overflow:hidden;}
     <div id="loggedDays" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin:0 0 14px;"></div>
 
     <div class="tcards">
-      <div class="tcard bill"><div class="lbl">Client-deliverable</div><div class="val" id="cBill">0.00</div></div>
-      <div class="tcard nonbill"><div class="lbl">Admin</div><div class="val" id="cNon">0.00</div></div>
-      <div class="tcard total"><div class="lbl">Total Logged</div><div class="val" id="cTotal">0.00</div></div>
+      <div class="tcard total clickable" onclick="openDayBreakdown()" title="Click for the ORDO / Admin / Tinker / Personal / Family breakdown">
+        <div class="lbl">Total Logged today &nbsp;·&nbsp; ▸ breakdown</div><div class="val" id="cTotal">0.00</div></div>
     </div>
 
     <div class="panel">
@@ -392,7 +399,7 @@ body.modal-open{overflow:hidden;}
       <div class="body">
         <table>
           <thead><tr>
-            <th>Code</th><th>Client</th><th>Bill</th><th>Type</th>
+            <th>Code</th><th>Client</th><th>Bill</th><th>Category</th>
             <th class="linkcell">Sync to Journal (optional)</th><th class="num">Hrs</th><th></th>
           </tr></thead>
           <tbody id="codeBody"></tbody>
@@ -421,9 +428,8 @@ body.modal-open{overflow:hidden;}
       <button class="ghost small" onclick="copyReport()">Copy Report</button>
     </div>
     <div class="tcards">
-      <div class="tcard bill"><div class="lbl">Client-deliverable</div><div class="val" id="rBill">0.00</div></div>
-      <div class="tcard nonbill"><div class="lbl">Admin</div><div class="val" id="rNon">0.00</div></div>
-      <div class="tcard total"><div class="lbl">Total · Days</div><div class="val" id="rTotal">0.00</div></div>
+      <div class="tcard total clickable" onclick="openMonthBreakdown()" title="Click for the category breakdown">
+        <div class="lbl">Total · Days &nbsp;·&nbsp; ▸ breakdown</div><div class="val" id="rTotal">0.00</div></div>
     </div>
     <div class="panel">
       <h3>By Client / Project <span class="muted" id="rRange"></span></h3>
@@ -796,6 +802,12 @@ body.modal-open{overflow:hidden;}
     <button class="ghost" onclick="conflictChoose('pull')">⬇ Pull (use cloud copy)</button>
     <button class="danger" onclick="conflictChoose('push')">⬆ Push (overwrite cloud)</button>
   </div>
+</div></div>
+
+<div class="modal-bg" id="catModalBg"><div class="modal" style="width:min(92vw,460px);resize:both;overflow:auto;min-width:280px;min-height:220px">
+  <h2 id="catTitle" style="margin-top:0">Breakdown</h2>
+  <div id="catBody" class="catbreak"></div>
+  <div class="modal-actions"><button class="ghost" onclick="closeModal('catModalBg')">Close</button></div>
 </div></div>
 
 <input type="file" id="importFile" class="hidden" accept=".json" />
@@ -1669,6 +1681,17 @@ const TYPE_LABEL={client:'Client-deliverable', admin:'Admin'};
 const TYPE_MAP={billable:'client', nonbillable:'admin', unpaid:'admin'};
 function normType(t){ return TYPES.indexOf(t)>=0 ? t : (TYPE_MAP[t]||'client'); }
 function migrateCodeTypes(){ Object.values(db.timecard.days).forEach(day=>{ (day.codes||[]).forEach(c=>{ c.type=normType(c.type); }); }); }
+
+// CTT categories — a code's category FOLLOWS the type of the project it's linked
+// to (ORDO/Tinker/Personal/Family); unlinked/standard codes (Admin, Break) = Admin.
+// Derived, not stored — nothing to set per code.
+const CATS=['ordo','admin','tinker','personal','family'];
+const CAT={ ordo:{label:'ORDO',color:'#16a34a'}, admin:{label:'Admin',color:'#d97706'},
+  tinker:{label:'Tinker',color:'#2563eb'}, personal:{label:'Personal',color:'#7c3aed'}, family:{label:'Family',color:'#0d9488'} };
+function typeToCat(t){ return t==='ORDO'?'ordo':t==='Tinker'?'tinker':t==='Family'?'family':t==='Personal'?'personal':'admin'; }
+function categoryOf(c){ if(c && c.linkProjectId){ const p=db.journal.projects.find(x=>x.id===c.linkProjectId); if(p) return typeToCat(p.type); } return 'admin'; }
+function emptyCatTotals(){ return {ordo:0,admin:0,tinker:0,personal:0,family:0}; }
+function catGrand(t){ return CATS.reduce((a,k)=>a+(t[k]||0),0); }
 function standardCodes(){ return [
   {letter:'w',client:'Break',billing:'',type:'admin',linkProjectId:'',linkSection:''},
   {letter:'x',client:'Admin',billing:'',type:'admin',linkProjectId:'',linkSection:''}]; }
@@ -1687,8 +1710,8 @@ function entryStart(day,i){ return i===0?day.dayStart:day.entries[i-1].stop; }
 function entryMinutes(day,i){ const s=toMin(entryStart(day,i)),e=toMin(day.entries[i].stop); if(s==null||e==null) return 0; return Math.max(0,e-s); }
 function codeFor(day,letter){ return day.codes.find(c=>c.letter===letter); }
 function codeLabel(c){ return c?(c.client+(c.billing?(' '+c.billing):'')):'(unassigned)'; }
-function dayTotals(day){ const t={client:0,admin:0}; const byCode={};
-  day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); const c=codeFor(day,en.code); const tp=c?normType(c.type):'client'; t[tp]+=m; byCode[en.code]=(byCode[en.code]||0)+m; });
+function dayTotals(day){ const t=emptyCatTotals(); const byCode={};
+  day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); const c=codeFor(day,en.code); const cat=c?categoryOf(c):'admin'; t[cat]+=m; byCode[en.code]=(byCode[en.code]||0)+m; });
   return {t,byCode}; }
 function syncableProjects(){ return db.journal.projects.filter(p=>(p.clientCode||'').trim() && !p.archived)
   .sort((a,b)=>(a.clientCode||a.name).localeCompare(b.clientCode||b.name,undefined,{sensitivity:'base'})); }
@@ -1744,13 +1767,29 @@ function renderStdCodesRef(day, byCode){ const el=document.getElementById('stdCo
   const std=day.codes.filter(isStdCode).sort((a,b)=>a.letter.localeCompare(b.letter));
   el.innerHTML=std.map(c=>{ const h=byCode[c.letter]||0;
     return '<span class="stdcode"><b>'+c.letter+'</b> — '+escapeHtml(c.client||'(unnamed)')+
-      ' <span class="typedot t-'+normType(c.type)+'"></span>'+TYPE_LABEL[normType(c.type)]+
+      ' <span class="typedot" style="background:'+CAT[categoryOf(c)].color+'"></span>'+CAT[categoryOf(c)].label+
       (h>0?(' <span class="muted">· '+fmtH(h)+'h</span>'):'')+'</span>'; }).join('');
 }
 function renderTotals(){ const {t}=dayTotals(curDay());
-  document.getElementById('cBill').textContent=fmtH(t.client);
-  document.getElementById('cNon').textContent=fmtH(t.admin);
-  document.getElementById('cTotal').textContent=fmtH(t.client+t.admin); }
+  document.getElementById('cTotal').textContent=fmtH(catGrand(t)); }
+// Reusable category breakdown (day or month), rendered into the resizable modal.
+function renderCatBreakdown(title, t){
+  document.getElementById('catTitle').textContent=title;
+  const grand=catGrand(t)||1;
+  const body=document.getElementById('catBody');
+  body.innerHTML=CATS.map(k=>{ const pct=(t[k]||0)/grand*100;
+    return '<div class="catrow"><span class="typedot" style="background:'+CAT[k].color+'"></span>'+
+      '<span class="catname">'+CAT[k].label+'</span>'+
+      '<span class="catbar"><i style="width:'+pct.toFixed(1)+'%;background:'+CAT[k].color+'"></i></span>'+
+      '<span class="catval">'+fmtH(t[k]||0)+' h</span></div>'; }).join('')+
+    '<div class="catrow cattotal"><span></span><span class="catname"><b>Total</b></span><span></span><span class="catval"><b>'+fmtH(catGrand(t))+' h</b></span></div>';
+}
+function openDayBreakdown(){ renderCatBreakdown('Today · '+dowName(db.timecard.currentDate), dayTotals(curDay()).t); openModal('catModalBg'); }
+function openMonthBreakdown(){ const ym=document.getElementById('monthPicker').value||todayStr().slice(0,7);
+  const t=emptyCatTotals();
+  Object.keys(db.timecard.days).filter(d=>d.startsWith(ym)).forEach(d=>{ const day=db.timecard.days[d];
+    day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); const c=codeFor(day,en.code); t[c?categoryOf(c):'admin']+=m; }); });
+  renderCatBreakdown('Month · '+ym, t); openModal('catModalBg'); }
 function focusLogCell(rowIndex,which){ const rows=document.querySelectorAll('#logBody tr'); const tr=rows[rowIndex]; if(!tr) return;
   const el=which==='stop'?tr.querySelector('input[data-stop]'):tr.querySelector('select'); if(el){ el.focus(); try{el.select&&el.select();}catch(e){} } }
 function advanceFromStop(i){ const day=curDay();
@@ -1818,9 +1857,8 @@ function codeRow(day,c,mins){
   ci.onchange=()=>{ c.client=ci.value; renderTimecard(); save(); }; tdClient.appendChild(ci);
   const tdBill=document.createElement('td'); const bi=document.createElement('input'); bi.value=c.billing||''; bi.placeholder='C3'; bi.style.width='62px';
   bi.onchange=()=>{ c.billing=bi.value; renderTimecard(); save(); }; tdBill.appendChild(bi);
-  const tdType=document.createElement('td'); const ts=document.createElement('select');
-  TYPES.forEach(tp=>{ const o=document.createElement('option'); o.value=tp; o.textContent=TYPE_LABEL[tp]; if(normType(c.type)===tp)o.selected=true; ts.appendChild(o); });
-  ts.onchange=()=>{ c.type=ts.value; renderTimecard(); save(); }; tdType.appendChild(ts);
+  const tdType=document.createElement('td');   // category is derived from the linked project's type (read-only)
+  tdType.innerHTML='<span class="typedot" style="background:'+CAT[categoryOf(c)].color+'"></span>'+CAT[categoryOf(c)].label;
 
   // link cell
   const tdLink=document.createElement('td'); tdLink.className='linkcell';
@@ -1904,11 +1942,11 @@ function toggleAutoSync(){ db.timecard.autoSync=!db.timecard.autoSync;
 /* ---- month report ---- */
 // Column sort. Default: Hours, high→low (matches the old behavior).
 let reportSort={ key:'mins', dir:'desc' };
-const TYPE_ORDER={ client:0, admin:1 };
+const TYPE_ORDER={ ordo:0, admin:1, tinker:2, personal:3, family:4 };
 function reportComparator(a,b){
   const d=reportSort.dir==='asc'?1:-1;
   if(reportSort.key==='mins'){ const r=(a.mins-b.mins)*d; return r || a.label.localeCompare(b.label,undefined,{sensitivity:'base'}); }
-  if(reportSort.key==='type'){ const r=(TYPE_ORDER[a.type]-TYPE_ORDER[b.type])*d; return r || a.label.localeCompare(b.label,undefined,{sensitivity:'base'}); }
+  if(reportSort.key==='type'){ const r=(TYPE_ORDER[a.cat]-TYPE_ORDER[b.cat])*d; return r || a.label.localeCompare(b.label,undefined,{sensitivity:'base'}); }
   return a.label.localeCompare(b.label,undefined,{sensitivity:'base'})*d;   // 'label'
 }
 function sortReport(key){
@@ -1920,23 +1958,21 @@ function updateSortCarets(){ document.querySelectorAll('.sortcaret').forEach(el=
   el.textContent = (el.dataset.k===reportSort.key) ? (reportSort.dir==='asc'?'▲':'▼') : ''; }); }
 function renderReport(){
   const ym=document.getElementById('monthPicker').value||todayStr().slice(0,7);
-  const totals={client:0,admin:0}; const byClient={}; let dayCount=0;
+  const totals=emptyCatTotals(); const byClient={}; let dayCount=0;
   Object.keys(db.timecard.days).filter(d=>d.startsWith(ym)).forEach(d=>{ const day=db.timecard.days[d]; let used=false;
-    day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); if(m>0)used=true; const c=codeFor(day,en.code); const tp=c?normType(c.type):'client'; totals[tp]+=m;
-      const key=(codeLabel(c)||'(unassigned)')+'|'+tp; if(!byClient[key]) byClient[key]={label:codeLabel(c),type:tp,mins:0}; byClient[key].mins+=m; });
+    day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); if(m>0)used=true; const c=codeFor(day,en.code); const cat=c?categoryOf(c):'admin'; totals[cat]+=m;
+      const key=(codeLabel(c)||'(unassigned)')+'|'+cat; if(!byClient[key]) byClient[key]={label:codeLabel(c),cat:cat,mins:0}; byClient[key].mins+=m; });
     if(used) dayCount++; });
-  document.getElementById('rBill').textContent=fmtH(totals.client);
-  document.getElementById('rNon').textContent=fmtH(totals.admin);
-  document.getElementById('rTotal').textContent=fmtH(totals.client+totals.admin)+' · '+dayCount+'d';
+  document.getElementById('rTotal').textContent=fmtH(catGrand(totals))+' · '+dayCount+'d';
   document.getElementById('rRange').textContent=ym;
-  const grand=totals.client+totals.admin||1;
+  const grand=catGrand(totals)||1;
   const rows=Object.values(byClient).sort(reportComparator);
   updateSortCarets();
   const body=document.getElementById('reportBody'); body.innerHTML='';
   rows.forEach(r=>{ const tr=document.createElement('tr'); const pct=r.mins/grand*100;
     tr.className='clickrow'; tr.title='Click for all entry notes + linked journal notes';
-    tr.innerHTML='<td>'+escapeHtml(r.label)+' <span class="muted" style="font-size:11px">▸</span></td><td><span class="typedot t-'+r.type+'"></span>'+TYPE_LABEL[r.type]+'</td><td class="num">'+fmtH(r.mins)+'</td><td><div class="bar"><i class="'+(r.type==='client'?'b':'nb')+'" style="width:'+pct+'%"></i></div></td>';
-    tr.onclick=()=>codeBreakdown(r.label,r.type);
+    tr.innerHTML='<td>'+escapeHtml(r.label)+' <span class="muted" style="font-size:11px">▸</span></td><td><span class="typedot" style="background:'+CAT[r.cat].color+'"></span>'+CAT[r.cat].label+'</td><td class="num">'+fmtH(r.mins)+'</td><td><div class="bar"><i style="width:'+pct+'%;background:'+CAT[r.cat].color+'"></i></div></td>';
+    tr.onclick=()=>codeBreakdown(r.label,r.cat);
     body.appendChild(tr); });
   if(!rows.length) body.innerHTML='<tr><td colspan="4" class="muted">No entries this month.</td></tr>';
 }
@@ -1953,14 +1989,14 @@ function codeBreakdown(label,type){
   Object.keys(db.timecard.days).filter(d=>d.startsWith(ym)).sort().forEach(d=>{
     const day=db.timecard.days[d];
     day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); if(m<=0) return;
-      const c=codeFor(day,en.code); const lbl=codeLabel(c)||'(unassigned)'; const tp=c?normType(c.type):'client';
-      if(lbl!==label || tp!==type) return;
+      const c=codeFor(day,en.code); const lbl=codeLabel(c)||'(unassigned)'; const cat=c?categoryOf(c):'admin';
+      if(lbl!==label || cat!==type) return;
       totalMins+=m; (byDate[d]=byDate[d]||[]).push({mins:m,desc:(en.desc||'').trim()});
       if(c && c.linkProjectId && c.linkSection){ const k=c.linkProjectId+'|'+c.linkSection;
         if(!links.has(k)) links.set(k,{projId:c.linkProjectId,section:c.linkSection}); }
     });
   });
-  const head=label+'  ·  '+TYPE_LABEL[type]+'  ·  '+fmtH(totalMins)+' hrs in '+ym;
+  const head=label+'  ·  '+(CAT[type]?CAT[type].label:type)+'  ·  '+fmtH(totalMins)+' hrs in '+ym;
   const plain=[head,'','TIME ENTRY NOTES'], html=['<b>'+escapeHtml(head)+'</b>','','<b>TIME ENTRY NOTES</b>'];
   const dates=Object.keys(byDate).sort();
   if(!dates.length){ plain.push('  (no time entries)'); html.push('  (no time entries)'); }
@@ -1985,7 +2021,7 @@ function codeBreakdown(label,type){
 function copySummary(){ const day=curDay(); const {t,byCode}=dayTotals(day);
   const rows=day.codes.filter(c=>(byCode[c.letter]||0)>0).map(c=>({letter:c.letter,label:codeLabel(c),mins:byCode[c.letter]})).sort((a,b)=>a.label.localeCompare(b.label,undefined,{sensitivity:'base'}));
   const dow=dowName(db.timecard.currentDate);
-  const totals='Client-deliverable '+fmtH(t.client)+'  ·  Admin '+fmtH(t.admin)+'  ·  Total '+fmtH(t.client+t.admin);
+  const grand=catGrand(t); const totals=CATS.filter(k=>t[k]>0).map(k=>CAT[k].label+' '+fmtH(t[k])).join('  ·  ')+(grand?('  ·  Total '+fmtH(grand)):'Total 0.00');
   const plain=[dow,''], html=[escapeHtml(dow),''];
   rows.forEach(r=>{ const head=r.label+' — '+fmtH(r.mins)+' hrs';
     plain.push(head); html.push('<b>'+escapeHtml(head)+'</b>');
