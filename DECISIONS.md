@@ -60,6 +60,29 @@
       generated and maintained by Claude Code during the build, when code can
       be their source of truth.
 
+* **[2026-07-21] Phase 1 build underway (Claude Code, in-repo).**
+    * *Storage seam (L1):* new localStorage key `ctt_v1` + `schema:'ctt-1'` +
+      `normalize()` forward-compat path; CTT starts clean, never adopts PJT
+      data. Clarified: the "storage key" is *browser localStorage*, not a gist —
+      cloud sync (gist or Worker+KV) stays parked until a second device joins.
+    * *Templates + types (L2a):* two orthogonal dimensions. **Template** =
+      structure — ORDO Monthly (7 steps → future codes 1–7: reconcile, month
+      close, filings, financial analysis & forecasting, meeting agenda prep,
+      present/host meeting, follow-up), Simple (Plan · Execute · Review), and
+      Audit (kept as an option, no longer default). **Type** = life-domain for
+      organizing/filtering: ORDO · Tinker · Family · Personal — a project
+      property + filter chips (not separate tab-screens; reversible, tab-split
+      parked). Non-audit templates render as a clean flat list; audit keeps its
+      grouped A–Z binder. Dropped PJT's audit-section backfill migrations.
+    * *Carry-forward (planned L4):* dual checkbox per open note — left "carry"
+      (default on), right "resolved" (checking it clears carry); resolving is a
+      completion, so it gets the happy animation. One reusable animated-checkbox
+      primitive for all of Chiaro; lives at the month-close threshold, not the
+      day-grid.
+    * *Single-file reaffirmed:* stay single-file HTML through Phase 1–2; revisit
+      only when the ritual engine + bell push editing size, or a real PWA build
+      pipeline is wanted. Chad is open to splitting if a constraint appears.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * **Intention-on-open / enough-on-close ritual** — Chad names what a session is
   for; when met, CTT acts as a *mirror, not a wall*: names the "five more
