@@ -164,6 +164,13 @@ tr.drop-below>td{box-shadow:inset 0 -2px 0 0 var(--accent);}
 .bar i{display:block;height:100%;} .bar .b{background:var(--bill)} .bar .nb{background:var(--nonbill)}
 .tab-pane{display:none}.tab-pane.active{display:block}
 
+/* ---------- Type chips (project type: filter + new-project select) ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--border);
+  background:var(--panel);color:var(--text);cursor:pointer;user-select:none;line-height:1.2;}
+.chip:hover{background:rgba(37,99,235,.08);}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
 /* ---------- Modals ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;overscroll-behavior:contain;}
 body.modal-open{overflow:hidden;}
@@ -218,6 +225,7 @@ body.modal-open{overflow:hidden;}
   <div class="sidebar">
     <div class="card">
       <div style="font-size:12px;font-weight:700;margin-bottom:8px">CURRENT PROJECT</div>
+      <div id="typeFilterChips" class="chips" style="margin-bottom:10px"></div>
       <select id="projectPicker"></select>
       <label class="muted" style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px">
         <input type="checkbox" id="showArchivedChk" style="width:auto" onchange="toggleShowArchived(this.checked)"> Show archived projects
@@ -438,9 +446,16 @@ body.modal-open{overflow:hidden;}
 <!-- Shared modals -->
 <div class="modal-bg" id="projectModalBg"><div class="modal">
   <h2>Create New Project</h2>
-  <input id="newProjectName" placeholder="Project Name" /><br><br>
-  <input id="newClientCode" placeholder="Time-card client code (optional, e.g. ACME)" /><br><br>
-  <select id="templateType"><option value="audit">Audit Template</option><option value="blank">Blank Project</option></select>
+  <input id="newProjectName" placeholder="Project name" /><br><br>
+  <div class="muted" style="margin-bottom:6px">Type</div>
+  <div id="newTypeChips" class="chips" style="margin-bottom:12px"></div>
+  <div class="muted" style="margin-bottom:6px">Structure (template)</div>
+  <select id="templateType">
+    <option value="ordo">ORDO Monthly — 7 steps</option>
+    <option value="simple">Simple — Plan · Execute · Review</option>
+    <option value="audit">Audit Binder</option>
+  </select>
+  <input id="newClientCode" placeholder="Time-card client code (optional, e.g. ACME)" style="margin-top:10px" />
   <select id="newRole" style="margin-top:10px"><option value="both">Both notes columns</option><option value="preparer">Preparer role</option><option value="reviewer">Reviewer role</option></select>
   <div class="modal-actions">
     <button class="ghost" onclick="closeModal('projectModalBg')">Cancel</button>
@@ -763,11 +778,13 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Project Journal & Timecard (PJT) v3.3.0 — Project Journal + Time Card, one file.
-   Single shared db, single localStorage key 'projtime_v8', JSON backups.
-   Desktop (Tauri) build adds a durable on-disk copy + rolling daily backups,
-   and optional passphrase encryption at rest (AES-GCM via Web Crypto). Both
-   are feature-detected / opt-in, so the plain-browser single file is unchanged.
+   Chiaro Tinker Tools (CTT) — forked from PJT v3.3.0. Single-file HTML.
+   Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
+   the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
+   compat path. JSON export/import unchanged. CTT uses its own key so it can
+   never collide with PJT's 'projtime_v8'. Desktop (Tauri) on-disk mirror +
+   optional passphrase encryption are still feature-detected / opt-in, so the
+   plain-browser single file is unchanged.
    ===================================================================== */
 
 /* ---------- shared helpers ---------- */
@@ -792,8 +809,14 @@ let flashT=null;
 function flash(msg){ const t=document.getElementById('saveStatus'); t.textContent=msg; clearTimeout(flashT); flashT=setTimeout(()=>t.textContent='Saved',1400); }
 
 /* ---------- state ---------- */
+/* ---------- CTT storage seam ----------
+   One localStorage key + a schema string on the db from the first commit; all
+   reads/writes flow through STORE_KEY, and normalize() is the forward-compat
+   path (bump SCHEMA and add a migration branch there when the shape changes). */
+const STORE_KEY = 'ctt_v1';   // new CTT key — never collides with PJT's 'projtime_v8'
+const SCHEMA    = 'ctt-1';
 let db = {
-  version:'8.0', darkMode:false, lastEdit:0,
+  version:'8.0', schema:SCHEMA, darkMode:false, lastEdit:0,
   journal:{ projects:[], currentProjectId:null, collapsedGroups:{}, accordions:{projects:true,export:false} },
   timecard:{ days:{}, currentDate:null },
   sync:{ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null }
@@ -815,10 +838,10 @@ function save(){
 function load(){
   booting=true;
   // When encryption is on, encBootstrap has already decrypted the cache into _bootRaw.
-  let raw = (_bootRaw!=null) ? _bootRaw : localStorage.getItem('projtime_v8');
+  let raw = (_bootRaw!=null) ? _bootRaw : localStorage.getItem(STORE_KEY);
   _bootRaw=null;
-  if(raw){ try{ db=mergeDefaults(JSON.parse(raw)); }catch(e){ console.error(e); } }
-  else { migrateFromOldKeys(); }
+  if(raw){ try{ db=normalize(JSON.parse(raw)); }catch(e){ console.error(e); } }
+  // CTT starts clean under its own key — it deliberately does NOT adopt PJT data.
   if(!db.journal.projects.length && !Object.keys(db.timecard.days).length) seedDemo();
   if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
   if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
@@ -837,6 +860,11 @@ function mergeDefaults(p){
   p.sync=Object.assign({journalId:null,journalName:'',auto:false,lastSync:null,myHash:null}, p.sync||{});
   return p;
 }
+// CTT schema normalizer — the single forward-compat seam. Fills defaults, then
+// stamps/migrates the schema string. Add `if(p.schema===<old>){ …migrate… }`
+// branches here (before the stamp) as the db shape evolves. Verify each new
+// branch against legacy-shaped data — the most load-bearing migration step.
+function normalize(p){ p=mergeDefaults(p); if(p.schema!==SCHEMA){ /* future migrations key off p.schema here */ p.schema=SCHEMA; } return p; }
 // One-time cleanup of old numbered-section names; also fixes any time-card links to them.
 function migrateLegacySectionNames(){
   const map={ '4':'4 - Financial Statements', '5':'5 - Profit Vision', '5 - FS / Financial Statement Workpapers':'5 - Profit Vision' };
@@ -864,16 +892,14 @@ function ensureClientConfSection(){
 function migrateStatuses(){ db.journal.projects.forEach(p=>p.sections.forEach(s=>{
   if(STATUS_MAP[s.status]) s.status=STATUS_MAP[s.status];
   if(STATUSES.indexOf(s.status)<0) s.status='In Prep'; })); }
-function runMigrations(){ db.journal.projects.forEach(normalizeProject); migrateLegacySectionNames(); ensureTechReviewSection(); ensureClientConfSection(); migrateStatuses(); }
-// Best-effort pickup of the older standalone apps (works only if the browser shares file:// storage).
-function migrateFromOldKeys(){
-  try{ const j=localStorage.getItem('pj73'); if(j){ const o=JSON.parse(j);
-    db.journal.projects=(o.projects||[]); db.journal.currentProjectId=o.currentProjectId;
-    db.journal.collapsedGroups=o.collapsedGroups||{}; db.journal.accordions=o.accordions||db.journal.accordions;
-    if(o.darkMode) db.darkMode=true; } }catch(e){}
-  try{ const t=localStorage.getItem('timecard_v1'); if(t){ const o=JSON.parse(t);
-    db.timecard.days=o.days||{}; db.timecard.currentDate=o.currentDate; if(o.darkMode) db.darkMode=true; } }catch(e){}
-}
+// CTT: drop PJT's one-time audit-section backfills (Tech Review / Client Conferences /
+// legacy numbered-name fixes) — they were legacy migrations and would inject audit
+// sections into every CTT project. normalizeProject + status mapping are all CTT needs.
+function runMigrations(){ db.journal.projects.forEach(normalizeProject); migrateStatuses(); }
+// CTT intentionally does NOT inherit PJT's standalone-app data — a new, separate
+// key means CTT can never collide with or absorb PJT data (CLAUDE.md non-neg #2).
+// Kept as a no-op seam in case a future CTT-native legacy key ever needs pickup.
+function migrateFromOldKeys(){ /* no-op by design */ }
 
 /* =====================================================================
    LOCAL-FILE STORAGE (desktop / Tauri) — a durable on-disk mirror of the
@@ -890,7 +916,7 @@ function migrateFromOldKeys(){
    ===================================================================== */
 const FS_ENABLED = (typeof window!=='undefined') && !!(window.__TAURI__ && window.__TAURI__.fs);
 const FS  = FS_ENABLED ? window.__TAURI__.fs : null;
-const APP_DIR    = 'PJT';
+const APP_DIR    = 'CTT';
 const STATE_FILE = APP_DIR + '/journal.json';
 const BACKUP_DIR = APP_DIR + '/backups';
 const KEEP_BACKUPS = 30;
@@ -925,12 +951,12 @@ async function bootDisk(){ if(!FS_ENABLED){ renderLocalStore(); return; }
     await fsEnsureDirs();
     const fileDb = await diskLoad();
     if(fileDb && (fileDb.lastEdit||0) > (db.lastEdit||0)){
-      const keepSync=db.sync; db=mergeDefaults(fileDb); if(keepSync && !(db.sync&&db.sync.journalId)) db.sync=keepSync;
+      const keepSync=db.sync; db=normalize(fileDb); if(keepSync && !(db.sync&&db.sync.journalId)) db.sync=keepSync;
       db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
       if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
       if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
       document.body.classList.toggle('dark',!!db.darkMode);
-      booting=true; try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){} booting=false;
+      booting=true; try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){} booting=false;
       renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
       diskFlash('Loaded the newer local file from disk.');
     }
@@ -961,7 +987,7 @@ async function restoreBackup(name){ if(!FS_ENABLED||!name) return;
   if(!confirm('Restore "'+name+'"?\n\nThis replaces the current journal on this device. A safety backup of the current state is taken first.')) return;
   try{ await backupNow();
     const txt=await encReadMaybe(await FS.readTextFile(BACKUP_DIR+'/'+name, diskOpts()));
-    const keepSync=db.sync; db=mergeDefaults(JSON.parse(txt)); if(keepSync) db.sync=keepSync;
+    const keepSync=db.sync; db=normalize(JSON.parse(txt)); if(keepSync) db.sync=keepSync;
     db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
@@ -1013,7 +1039,7 @@ async function renderLocalStore(){ const st=document.getElementById('lsStatus');
    backups, and the localStorage cache are all encrypted. The cloud gist is
    left as-is (unencrypted) by design.
    ===================================================================== */
-const ENC_META_KEY  = 'pj_enc';                 // small, non-secret metadata (salt + wrapped keys)
+const ENC_META_KEY  = 'ctt_enc';                // small, non-secret metadata (salt + wrapped keys)
 const ENC_META_FILE = APP_DIR + '/enc.json';    // mirrored to disk so a cleared cache can still unlock
 const PBKDF2_ITER = 210000, PBKDF2_HASH='SHA-256';
 const SUB = (typeof crypto!=='undefined' && crypto.subtle) ? crypto.subtle : null;
@@ -1049,9 +1075,9 @@ function persistLocal(){
   if(encState.enabled && !encState.unlocked) return;   // never write plaintext while locked
   if(encState.enabled && encState.unlocked){
     const snap=JSON.stringify(db);
-    _persistChain=_persistChain.then(async ()=>{ try{ localStorage.setItem('projtime_v8', await encEncrypt(snap)); }catch(e){ console.error('enc persist',e); } });
+    _persistChain=_persistChain.then(async ()=>{ try{ localStorage.setItem(STORE_KEY, await encEncrypt(snap)); }catch(e){ console.error('enc persist',e); } });
   } else {
-    try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){ console.error(e); }
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){ console.error(e); }
   }
 }
 
@@ -1073,7 +1099,7 @@ async function encBootstrap(){
   encState.enabled=true; encState.meta=meta;
   await promptUnlock(meta);                  // resolves only once a correct passphrase or recovery key is entered
   // pre-decrypt the localStorage cache so the (sync) load() can read it
-  try{ const raw=localStorage.getItem('projtime_v8'); if(raw && isEnvelope(raw)) _bootRaw=await encDecrypt(raw); }catch(e){ console.error('boot decrypt',e); }
+  try{ const raw=localStorage.getItem(STORE_KEY); if(raw && isEnvelope(raw)) _bootRaw=await encDecrypt(raw); }catch(e){ console.error('boot decrypt',e); }
 }
 function promptUnlock(meta){
   return new Promise(resolve=>{
@@ -1264,12 +1290,37 @@ function sortKey(s,i){ if(!s.custom){ const o=PREFIX_ORDER[extractPrefix(s.name)
 function makeSection(name,custom=false){ return {id:uid(),name,status:'In Prep',budget:0,actual:0,preparer:'',reviewer:'',scratch:'',custom,updated:'',timeSync:{}}; }
 function createAuditProject(name='New Project'){ return {id:uid(),name,clientCode:'',role:'both',archived:false,notes:'',createdDate:now(),modifiedDate:now(),template:'audit',sections:AUDIT_TEMPLATE.map(n=>makeSection(n,false))}; }
 function createBlankProject(name='Blank Project'){ return {id:uid(),name,clientCode:'',role:'both',archived:false,notes:'',createdDate:now(),modifiedDate:now(),template:'blank',sections:[]}; }
+
+/* ---- CTT project types + template registry ----
+   Two orthogonal dimensions: TYPE = life-domain (organize/filter), TEMPLATE =
+   structure (initial sections). flat templates render as a clean ordered list;
+   audit keeps the grouped A–Z binder display. */
+const PROJECT_TYPES=['ORDO','Tinker','Family','Personal'];
+const ORDO_TEMPLATE=['1 - Reconcile accounts','2 - Month close','3 - Filings',
+  '4 - Financial analysis & forecasting','5 - Meeting agenda prep',
+  '6 - Present / host meeting','7 - Meeting follow-up'];
+const SIMPLE_TEMPLATE=['Plan','Execute','Review'];
+const TEMPLATES={
+  ordo:  {label:'ORDO Monthly', sections:ORDO_TEMPLATE, flat:true},
+  simple:{label:'Simple',       sections:SIMPLE_TEMPLATE, flat:true},
+  audit: {label:'Audit Binder', sections:AUDIT_TEMPLATE, flat:false},
+};
+function templateOf(p){ return TEMPLATES[p&&p.template] || TEMPLATES.simple; }
+function isFlat(p){ return !!templateOf(p).flat; }
+function makeProject(template,name,type){
+  const t=TEMPLATES[template]||TEMPLATES.simple;
+  return {id:uid(),name:name||'New Project',type:PROJECT_TYPES.indexOf(type)>=0?type:'ORDO',
+    clientCode:'',role:'both',archived:false,notes:'',createdDate:now(),modifiedDate:now(),
+    template:(TEMPLATES[template]?template:'simple'),sections:t.sections.map(n=>makeSection(n,false))};
+}
 function currentProject(){ return db.journal.projects.find(p=>p.id===db.journal.currentProjectId)||db.journal.projects[0]; }
 function normalizeProject(p){
   if(p.clientCode===undefined) p.clientCode='';
   if(p.notes===undefined) p.notes='';
   if(p.role===undefined) p.role='both';
   if(p.archived===undefined) p.archived=false;
+  if(PROJECT_TYPES.indexOf(p.type)<0) p.type='ORDO';   // legacy/imported projects → ORDO (work)
+  if(p.template===undefined) p.template='simple';       // keeps 'audit'/'blank' if already set
   (p.sections||[]).forEach(s=>{ if(!s.timeSync) s.timeSync={}; });
 }
 function syncedTotal(s){ let t=0; const m=s.timeSync||{}; for(const k in m) t+=Number(m[k]||0); return t; }
@@ -1292,7 +1343,7 @@ function renderJournal(){
   const notesOpen=!!db.journal.notesOpen;
   document.getElementById('projectNotesPanel').classList.toggle('hidden',!notesOpen);
   document.getElementById('notesToggle').textContent='📝 Project Notes '+(notesOpen?'▾':'▸');
-  renderProjectPicker(); renderRecent(); renderStats(); renderSections();
+  renderTypeFilter(); renderProjectPicker(); renderRecent(); renderStats(); renderSections();
 }
 function updateRole(v){ currentProject().role=v; currentProject().modifiedDate=now(); renderJournal(); save(); }
 function updateArchived(c){ currentProject().archived=!!c; currentProject().modifiedDate=now(); renderJournal(); renderTimecard(); save(); }
@@ -1307,6 +1358,7 @@ function renderProjectPicker(){
   const showArch=!!db.journal.showArchived;
   db.journal.projects.forEach(p=>{
     if(p.archived && !showArch && p.id!==db.journal.currentProjectId) return;
+    if(!projectMatchesFilter(p) && p.id!==db.journal.currentProjectId) return;
     const o=document.createElement('option'); o.value=p.id;
     o.textContent=p.name+(p.clientCode?(' ['+p.clientCode+']'):'')+(p.archived?' · archived':'');
     sel.appendChild(o); });
@@ -1316,7 +1368,7 @@ function renderProjectPicker(){
 function renderRecent(){
   const wrap=document.getElementById('recentProjects'); wrap.innerHTML='';
   const showArch=!!db.journal.showArchived;
-  [...db.journal.projects].filter(p=>showArch || !p.archived || p.id===db.journal.currentProjectId)
+  [...db.journal.projects].filter(p=>(showArch || !p.archived || p.id===db.journal.currentProjectId) && (projectMatchesFilter(p) || p.id===db.journal.currentProjectId))
     .sort((a,b)=>new Date(b.modifiedDate)-new Date(a.modifiedDate)).slice(0,5).forEach(p=>{
     const d=document.createElement('div'); d.className='recent-project'+(p.id===currentProject().id?' active':'');
     d.innerHTML='<strong></strong><br><small class="muted"></small>';
@@ -1325,6 +1377,20 @@ function renderRecent(){
   });
 }
 function toggleShowArchived(c){ db.journal.showArchived=!!c; renderJournal(); save(); }
+
+/* ---- project type chips: sidebar filter + new-project select ---- */
+let newProjectType='ORDO';
+function renderTypeChips(containerId, current, onPick, withAll){
+  const el=document.getElementById(containerId); if(!el) return; el.innerHTML='';
+  (withAll?['all',...PROJECT_TYPES]:PROJECT_TYPES).forEach(t=>{
+    const b=document.createElement('div'); b.className='chip'+(t===current?' active':'');
+    b.textContent=(t==='all'?'All':t); b.onclick=()=>onPick(t); el.appendChild(b); });
+}
+function renderTypeFilter(){ renderTypeChips('typeFilterChips', db.journal.typeFilter||'all',
+  t=>{ db.journal.typeFilter=t; renderJournal(); save(); }, true); }
+function projectMatchesFilter(p){ const tf=db.journal.typeFilter||'all'; return tf==='all' || (p.type||'ORDO')===tf; }
+function pickNewType(t){ newProjectType=t; renderTypeChips('newTypeChips', t, pickNewType, false);
+  document.getElementById('templateType').value=(t==='ORDO'?'ordo':'simple'); }   // smart default
 function rollForwardProject(){
   const src=currentProject(); if(!src) return;
   const name=prompt('Name for the new (next-year) project:', src.name); if(name===null) return;
@@ -1360,7 +1426,12 @@ function buildGroups(sections){
 function renderSections(){
   const tbody=document.getElementById('sectionsTable'); tbody.innerHTML='';
   const search=document.getElementById('searchBox').value.toLowerCase().trim(); const searching=search.length>0;
-  buildGroups(currentProject().sections).forEach(group=>{
+  const proj=currentProject();
+  if(isFlat(proj)){   // ORDO / Simple: one clean ordered list, no accounting group headers
+    proj.sections.forEach(s=>{ if(searching && !JSON.stringify(s).toLowerCase().includes(search)) return; tbody.appendChild(buildSectionRow(s)); });
+    return;
+  }
+  buildGroups(proj.sections).forEach(group=>{
     const rows=group.rows.filter(r=>!searching||JSON.stringify(r.s).toLowerCase().includes(search));
     if(searching && !rows.length) return;
     const collapsed=!searching && !!db.journal.collapsedGroups[group.def.id];
@@ -1431,12 +1502,14 @@ document.querySelectorAll('.card[data-acc] .card-header').forEach(h=>h.addEventL
   if(!db.journal.accordions) db.journal.accordions={}; db.journal.accordions[k]=!c.classList.contains('collapsed'); save(); }));
 
 function openNewProjectModal(){ document.getElementById('newProjectName').value=''; document.getElementById('newClientCode').value='';
-  document.getElementById('templateType').value='audit'; document.getElementById('newRole').value='both'; openModal('projectModalBg'); setTimeout(()=>document.getElementById('newProjectName').focus(),50); }
+  newProjectType='ORDO'; renderTypeChips('newTypeChips','ORDO',pickNewType,false);
+  document.getElementById('templateType').value='ordo'; document.getElementById('newRole').value='both';
+  openModal('projectModalBg'); setTimeout(()=>document.getElementById('newProjectName').focus(),50); }
 function createProject(){
   const name=document.getElementById('newProjectName').value.trim()||'New Project';
   const code=document.getElementById('newClientCode').value.trim();
-  const type=document.getElementById('templateType').value;
-  const p=(type==='blank')?createBlankProject(name):createAuditProject(name); p.clientCode=code; p.role=document.getElementById('newRole').value||'both';
+  const template=document.getElementById('templateType').value;
+  const p=makeProject(template,name,newProjectType); p.clientCode=code; p.role=document.getElementById('newRole').value||'both';
   db.journal.projects.push(p); db.journal.currentProjectId=p.id; closeModal('projectModalBg'); renderJournal(); save();
 }
 function renameProject(){ const n=prompt('Rename project',currentProject().name); if(!n) return; currentProject().name=n.trim(); currentProject().modifiedDate=now(); renderJournal(); save(); }
@@ -1971,7 +2044,7 @@ function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle(
    touches your file, so coworkers never clobber each other.
    ===================================================================== */
 const BAKED_CONFIG = { gistId:'', token:'' };   // optional; blank = use the Team code
-const TEAM_KEY = 'pj_team';                      // localStorage slot (kept out of journal data)
+const TEAM_KEY = 'ctt_team';                     // localStorage slot (kept out of journal data)
 
 function getTeam(){
   if(BAKED_CONFIG.gistId && BAKED_CONFIG.token) return { gistId:BAKED_CONFIG.gistId, token:BAKED_CONFIG.token };
@@ -2089,7 +2162,7 @@ async function gistPull(manual){
     const j=await (await ghFetch('/gists/'+getTeam().gistId)).json();
     const content=await readGistFile(j, myFile());
     if(content==null) throw new Error('No file '+myFile()+' in the team gist — wrong Journal ID, or not created yet.');
-    const incoming=JSON.parse(content); incoming.sync=db.sync; db=mergeDefaults(incoming);
+    const incoming=JSON.parse(content); incoming.sync=db.sync; db=normalize(incoming);
     db.sync.myHash=hashStr(content); db.sync.lastSync=Date.now();
     db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
     document.body.classList.toggle('dark',!!db.darkMode);
@@ -2195,26 +2268,17 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeGearMenu(); 
    to start their own. Runs only when there's no local data.
    ===================================================================== */
 function seedDemo(){
-  const p=createAuditProject('★ ACME Co — Example (delete me)'); p.clientCode='ACME';
-  p.notes='This is a sample project showing how the journal works — section **statuses**, **budget vs. actual**, **preparer/reviewer notes**, and **open items**.\n\nWhen you\'re ready: click **Delete Project** to remove this, then **New Project** to start your own. Nothing here is real.';
+  const p=makeProject('ordo','★ Example Client — Monthly (delete me)','ORDO'); p.clientCode='ACME';
+  p.notes='A sample **ORDO Monthly** project — the seven recurring steps of the monthly cycle. Each step will double as a time code.\n\nWhen you\'re ready: **Delete Project** to clear this, then **New Project** to start your own. Nothing here is real.';
   const set=(name,fields)=>{ const s=p.sections.find(x=>x.name===name); if(s) Object.assign(s,fields); };
-  set('1 - Permanent File', {budget:1, actual:1, status:'Complete',        preparer:'Org docs & PBC list filed.'});
-  set('A - Cash',           {budget:4, actual:3, status:'Complete',        preparer:'Tied to bank recs & confirmations.', reviewer:'Reviewed — no exceptions.'});
-  set('B - Receivables',    {budget:6, actual:2, status:'In Prep',         preparer:'AR aging received from client.', scratch:'- [ ] Confirm top 5 customer balances\n- [ ] Test subsequent cash receipts'});
-  set('M - Payables',       {budget:5, actual:5, status:'Review Comments', reviewer:'Cutoff note: verify late-Dec invoices posted to the right period.'});
+  set('1 - Reconcile accounts',             {status:'Complete', preparer:'Bank & credit-card feeds tied out.'});
+  set('3 - Filings',                        {scratch:'- [ ] Excise return — waiting on the June true-up figure'});
+  set('4 - Financial analysis & forecasting',{preparer:'Rolling 13-week cash forecast refreshed.'});
   db.journal.projects=[p]; db.journal.currentProjectId=p.id;
 
-  // Example time-card day (today). Codes a & b link to sections to show time-sync.
-  const codes=[
-    {letter:'a',client:'ACME',billing:'A',type:'billable',linkProjectId:p.id,linkSection:'A - Cash'},
-    {letter:'b',client:'ACME',billing:'B',type:'billable',linkProjectId:p.id,linkSection:'B - Receivables'},
-    ...standardCodes()
-  ];
-  const E=(code,stop,desc='')=>({id:uid(),code,stop,desc});
-  const entries=[E('x','08:30','Example: admin & email'),E('a','10:00','Example: cash workpapers'),
-    E('v','10:45'),E('b','12:00','Example: AR aging review'),E('x','12:20','Example: team check-in')];
+  // Minimal example time-card day (standard codes only for now — code model is a later layer).
   const d=todayStr();
-  db.timecard.days[d]={dayStart:'08:00',codes,entries,win:[]};
+  db.timecard.days[d]={dayStart:'08:00',codes:standardCodes(),entries:[],win:[]};
   db.timecard.currentDate=d;
 }
 

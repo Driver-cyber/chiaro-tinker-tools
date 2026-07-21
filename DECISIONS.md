@@ -60,11 +60,72 @@
       generated and maintained by Claude Code during the build, when code can
       be their source of truth.
 
+* **[2026-07-21] Phase 1 build underway (Claude Code, in-repo).**
+    * *Storage seam (L1):* new localStorage key `ctt_v1` + `schema:'ctt-1'` +
+      `normalize()` forward-compat path; CTT starts clean, never adopts PJT
+      data. Clarified: the "storage key" is *browser localStorage*, not a gist —
+      cloud sync (gist or Worker+KV) stays parked until a second device joins.
+    * *Templates + types (L2a):* two orthogonal dimensions. **Template** =
+      structure — ORDO Monthly (7 steps → future codes 1–7: reconcile, month
+      close, filings, financial analysis & forecasting, meeting agenda prep,
+      present/host meeting, follow-up), Simple (Plan · Execute · Review), and
+      Audit (kept as an option, no longer default). **Type** = life-domain for
+      organizing/filtering: ORDO · Tinker · Family · Personal — a project
+      property + filter chips (not separate tab-screens; reversible, tab-split
+      parked). Non-audit templates render as a clean flat list; audit keeps its
+      grouped A–Z binder. Dropped PJT's audit-section backfill migrations.
+    * *Carry-forward (planned L4):* dual checkbox per open note — left "carry"
+      (default on), right "resolved" (checking it clears carry); resolving is a
+      completion, so it gets the happy animation. One reusable animated-checkbox
+      primitive for all of Chiaro; lives at the month-close threshold, not the
+      day-grid.
+    * *Single-file reaffirmed:* stay single-file HTML through Phase 1–2; revisit
+      only when the ritual engine + bell push editing size, or a real PWA build
+      pipeline is wanted. Chad is open to splitting if a constraint appears.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * **Intention-on-open / enough-on-close ritual** — Chad names what a session is
   for; when met, CTT acts as a *mirror, not a wall*: names the "five more
   minutes" impulse and points at the door ("this is held — go be with them").
   Never blocks. Experimental; design after MVP proves the daily loop.
+* **Brand illustration — "Plagued by Concepts."** *[2026-07-19]* Rodin's
+  *Thinker*, seated on his plinth, contemplating a plague-doctor mask instead of
+  resting his chin — art-historical, dry-witted, memento-mori; the literate,
+  myth-soaked voice made visible. Two original renderings exist: a clean
+  single-continuous-line version (the *animatable* asset) and a richer
+  cross-hatched engraving (static frontispiece — and effectively the Atelier /
+  Alchemist's-Ledger palette incarnate). **The plague mask alone = the app
+  icon**; the full figure = the between-states "mental canvas." Original art
+  only; renders ink-on-cream or gilt-on-walnut from one file. Working direction:
+  *Atelier as the surface, Plagued-by-Concepts as the soul.*
+* **Line-draw ritual screens — boot + think mode.** *[2026-07-19]* The single-
+  line art animated in code (SVG `stroke-dashoffset`, staggered per path),
+  **duration as a parameter**: ~6s draw on boot, slow/looping in "think" mode,
+  pause-on-tap as a fidget-lamp for re-centering. One drawing, two rituals.
+  Intentionally-slow boot as anti-engagement in its purest form — it *spends*
+  the wait asking "what did you come for?" (this is the concrete embodiment of
+  the intention-on-open ritual above), never apologizing for it. Intention
+  prompts live in the `db` as a growable pool, drawn at random — open-mode sets
+  intention ("What is this session for?", "What would be enough, today?"),
+  think-mode re-centers ("Held, not solved. That is also progress."). **Not
+  video** (Veo caps ~8s; baked timing, heavy files, compression smears fine
+  line-work): centerline-trace the clean art → stroked paths → `stroke-
+  dashoffset`, duration as a parameter. Image-gen (Gemini) is the renewable
+  style engine for more figures (mask solo, the tinker's bell), each traced into
+  the same draw-engine. **Working proof-of-concept now lives in the repo:
+  `assets/chiaro-ritual-screen.html` (8s Open + 2min Think + tap-to-pause) and
+  the traced art `assets/thinker-single-line.svg` (~40 stroked paths).** Open
+  art-direction question: should the mask draw *last*, arriving in his open hand
+  as the final gesture? (probably yes — decide when it ships.) On graduation
+  into the single-file app: do an archival-quality retrace, and inline the fonts
+  (the demo links Google Fonts — the app's CSP forbids external calls).
+  Deliberately parked until the MVP daily loop is real.
+* **Brand line language** — *[2026-07-20]* one continuous line, no fills,
+  generous negative space: the style rule is that the man and his plague are
+  literally the *same stroke*. Amber (#F2A24A) on near-black in-app; ink on
+  cream for exports. The mask-alone glyph is a candidate capture button — "tap
+  the plague to set it down." The etched/lithograph rendering is a separate
+  *tattoo track*, not the app. Not locked.
 * **Personal task surface** — separate tab or other form; mechanism
   deliberately undecided. Don't over-spec.
 * **Tinker's bell** — focus timer; interaction, sound, tie-in to time entries
