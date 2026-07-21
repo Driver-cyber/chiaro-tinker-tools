@@ -763,11 +763,13 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Project Journal & Timecard (PJT) v3.3.0 — Project Journal + Time Card, one file.
-   Single shared db, single localStorage key 'projtime_v8', JSON backups.
-   Desktop (Tauri) build adds a durable on-disk copy + rolling daily backups,
-   and optional passphrase encryption at rest (AES-GCM via Web Crypto). Both
-   are feature-detected / opt-in, so the plain-browser single file is unchanged.
+   Chiaro Tinker Tools (CTT) — forked from PJT v3.3.0. Single-file HTML.
+   Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
+   the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
+   compat path. JSON export/import unchanged. CTT uses its own key so it can
+   never collide with PJT's 'projtime_v8'. Desktop (Tauri) on-disk mirror +
+   optional passphrase encryption are still feature-detected / opt-in, so the
+   plain-browser single file is unchanged.
    ===================================================================== */
 
 /* ---------- shared helpers ---------- */
@@ -792,8 +794,14 @@ let flashT=null;
 function flash(msg){ const t=document.getElementById('saveStatus'); t.textContent=msg; clearTimeout(flashT); flashT=setTimeout(()=>t.textContent='Saved',1400); }
 
 /* ---------- state ---------- */
+/* ---------- CTT storage seam ----------
+   One localStorage key + a schema string on the db from the first commit; all
+   reads/writes flow through STORE_KEY, and normalize() is the forward-compat
+   path (bump SCHEMA and add a migration branch there when the shape changes). */
+const STORE_KEY = 'ctt_v1';   // new CTT key — never collides with PJT's 'projtime_v8'
+const SCHEMA    = 'ctt-1';
 let db = {
-  version:'8.0', darkMode:false, lastEdit:0,
+  version:'8.0', schema:SCHEMA, darkMode:false, lastEdit:0,
   journal:{ projects:[], currentProjectId:null, collapsedGroups:{}, accordions:{projects:true,export:false} },
   timecard:{ days:{}, currentDate:null },
   sync:{ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null }
@@ -815,10 +823,10 @@ function save(){
 function load(){
   booting=true;
   // When encryption is on, encBootstrap has already decrypted the cache into _bootRaw.
-  let raw = (_bootRaw!=null) ? _bootRaw : localStorage.getItem('projtime_v8');
+  let raw = (_bootRaw!=null) ? _bootRaw : localStorage.getItem(STORE_KEY);
   _bootRaw=null;
-  if(raw){ try{ db=mergeDefaults(JSON.parse(raw)); }catch(e){ console.error(e); } }
-  else { migrateFromOldKeys(); }
+  if(raw){ try{ db=normalize(JSON.parse(raw)); }catch(e){ console.error(e); } }
+  // CTT starts clean under its own key — it deliberately does NOT adopt PJT data.
   if(!db.journal.projects.length && !Object.keys(db.timecard.days).length) seedDemo();
   if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
   if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
@@ -837,6 +845,11 @@ function mergeDefaults(p){
   p.sync=Object.assign({journalId:null,journalName:'',auto:false,lastSync:null,myHash:null}, p.sync||{});
   return p;
 }
+// CTT schema normalizer — the single forward-compat seam. Fills defaults, then
+// stamps/migrates the schema string. Add `if(p.schema===<old>){ …migrate… }`
+// branches here (before the stamp) as the db shape evolves. Verify each new
+// branch against legacy-shaped data — the most load-bearing migration step.
+function normalize(p){ p=mergeDefaults(p); if(p.schema!==SCHEMA){ /* future migrations key off p.schema here */ p.schema=SCHEMA; } return p; }
 // One-time cleanup of old numbered-section names; also fixes any time-card links to them.
 function migrateLegacySectionNames(){
   const map={ '4':'4 - Financial Statements', '5':'5 - Profit Vision', '5 - FS / Financial Statement Workpapers':'5 - Profit Vision' };
@@ -865,15 +878,10 @@ function migrateStatuses(){ db.journal.projects.forEach(p=>p.sections.forEach(s=
   if(STATUS_MAP[s.status]) s.status=STATUS_MAP[s.status];
   if(STATUSES.indexOf(s.status)<0) s.status='In Prep'; })); }
 function runMigrations(){ db.journal.projects.forEach(normalizeProject); migrateLegacySectionNames(); ensureTechReviewSection(); ensureClientConfSection(); migrateStatuses(); }
-// Best-effort pickup of the older standalone apps (works only if the browser shares file:// storage).
-function migrateFromOldKeys(){
-  try{ const j=localStorage.getItem('pj73'); if(j){ const o=JSON.parse(j);
-    db.journal.projects=(o.projects||[]); db.journal.currentProjectId=o.currentProjectId;
-    db.journal.collapsedGroups=o.collapsedGroups||{}; db.journal.accordions=o.accordions||db.journal.accordions;
-    if(o.darkMode) db.darkMode=true; } }catch(e){}
-  try{ const t=localStorage.getItem('timecard_v1'); if(t){ const o=JSON.parse(t);
-    db.timecard.days=o.days||{}; db.timecard.currentDate=o.currentDate; if(o.darkMode) db.darkMode=true; } }catch(e){}
-}
+// CTT intentionally does NOT inherit PJT's standalone-app data — a new, separate
+// key means CTT can never collide with or absorb PJT data (CLAUDE.md non-neg #2).
+// Kept as a no-op seam in case a future CTT-native legacy key ever needs pickup.
+function migrateFromOldKeys(){ /* no-op by design */ }
 
 /* =====================================================================
    LOCAL-FILE STORAGE (desktop / Tauri) — a durable on-disk mirror of the
@@ -890,7 +898,7 @@ function migrateFromOldKeys(){
    ===================================================================== */
 const FS_ENABLED = (typeof window!=='undefined') && !!(window.__TAURI__ && window.__TAURI__.fs);
 const FS  = FS_ENABLED ? window.__TAURI__.fs : null;
-const APP_DIR    = 'PJT';
+const APP_DIR    = 'CTT';
 const STATE_FILE = APP_DIR + '/journal.json';
 const BACKUP_DIR = APP_DIR + '/backups';
 const KEEP_BACKUPS = 30;
@@ -925,12 +933,12 @@ async function bootDisk(){ if(!FS_ENABLED){ renderLocalStore(); return; }
     await fsEnsureDirs();
     const fileDb = await diskLoad();
     if(fileDb && (fileDb.lastEdit||0) > (db.lastEdit||0)){
-      const keepSync=db.sync; db=mergeDefaults(fileDb); if(keepSync && !(db.sync&&db.sync.journalId)) db.sync=keepSync;
+      const keepSync=db.sync; db=normalize(fileDb); if(keepSync && !(db.sync&&db.sync.journalId)) db.sync=keepSync;
       db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
       if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
       if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
       document.body.classList.toggle('dark',!!db.darkMode);
-      booting=true; try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){} booting=false;
+      booting=true; try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){} booting=false;
       renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
       diskFlash('Loaded the newer local file from disk.');
     }
@@ -961,7 +969,7 @@ async function restoreBackup(name){ if(!FS_ENABLED||!name) return;
   if(!confirm('Restore "'+name+'"?\n\nThis replaces the current journal on this device. A safety backup of the current state is taken first.')) return;
   try{ await backupNow();
     const txt=await encReadMaybe(await FS.readTextFile(BACKUP_DIR+'/'+name, diskOpts()));
-    const keepSync=db.sync; db=mergeDefaults(JSON.parse(txt)); if(keepSync) db.sync=keepSync;
+    const keepSync=db.sync; db=normalize(JSON.parse(txt)); if(keepSync) db.sync=keepSync;
     db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
@@ -1013,7 +1021,7 @@ async function renderLocalStore(){ const st=document.getElementById('lsStatus');
    backups, and the localStorage cache are all encrypted. The cloud gist is
    left as-is (unencrypted) by design.
    ===================================================================== */
-const ENC_META_KEY  = 'pj_enc';                 // small, non-secret metadata (salt + wrapped keys)
+const ENC_META_KEY  = 'ctt_enc';                // small, non-secret metadata (salt + wrapped keys)
 const ENC_META_FILE = APP_DIR + '/enc.json';    // mirrored to disk so a cleared cache can still unlock
 const PBKDF2_ITER = 210000, PBKDF2_HASH='SHA-256';
 const SUB = (typeof crypto!=='undefined' && crypto.subtle) ? crypto.subtle : null;
@@ -1049,9 +1057,9 @@ function persistLocal(){
   if(encState.enabled && !encState.unlocked) return;   // never write plaintext while locked
   if(encState.enabled && encState.unlocked){
     const snap=JSON.stringify(db);
-    _persistChain=_persistChain.then(async ()=>{ try{ localStorage.setItem('projtime_v8', await encEncrypt(snap)); }catch(e){ console.error('enc persist',e); } });
+    _persistChain=_persistChain.then(async ()=>{ try{ localStorage.setItem(STORE_KEY, await encEncrypt(snap)); }catch(e){ console.error('enc persist',e); } });
   } else {
-    try{ localStorage.setItem('projtime_v8', JSON.stringify(db)); }catch(e){ console.error(e); }
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){ console.error(e); }
   }
 }
 
@@ -1073,7 +1081,7 @@ async function encBootstrap(){
   encState.enabled=true; encState.meta=meta;
   await promptUnlock(meta);                  // resolves only once a correct passphrase or recovery key is entered
   // pre-decrypt the localStorage cache so the (sync) load() can read it
-  try{ const raw=localStorage.getItem('projtime_v8'); if(raw && isEnvelope(raw)) _bootRaw=await encDecrypt(raw); }catch(e){ console.error('boot decrypt',e); }
+  try{ const raw=localStorage.getItem(STORE_KEY); if(raw && isEnvelope(raw)) _bootRaw=await encDecrypt(raw); }catch(e){ console.error('boot decrypt',e); }
 }
 function promptUnlock(meta){
   return new Promise(resolve=>{
@@ -1971,7 +1979,7 @@ function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle(
    touches your file, so coworkers never clobber each other.
    ===================================================================== */
 const BAKED_CONFIG = { gistId:'', token:'' };   // optional; blank = use the Team code
-const TEAM_KEY = 'pj_team';                      // localStorage slot (kept out of journal data)
+const TEAM_KEY = 'ctt_team';                     // localStorage slot (kept out of journal data)
 
 function getTeam(){
   if(BAKED_CONFIG.gistId && BAKED_CONFIG.token) return { gistId:BAKED_CONFIG.gistId, token:BAKED_CONFIG.token };
@@ -2089,7 +2097,7 @@ async function gistPull(manual){
     const j=await (await ghFetch('/gists/'+getTeam().gistId)).json();
     const content=await readGistFile(j, myFile());
     if(content==null) throw new Error('No file '+myFile()+' in the team gist — wrong Journal ID, or not created yet.');
-    const incoming=JSON.parse(content); incoming.sync=db.sync; db=mergeDefaults(incoming);
+    const incoming=JSON.parse(content); incoming.sync=db.sync; db=normalize(incoming);
     db.sync.myHash=hashStr(content); db.sync.lastSync=Date.now();
     db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
     document.body.classList.toggle('dark',!!db.darkMode);
