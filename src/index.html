@@ -557,7 +557,7 @@ body.modal-open{overflow:hidden;}
 
 <div class="modal-bg" id="settingsModalBg"><div class="modal wide">
   <h2 style="margin-top:0">🗄 Storage &amp; Cloud Sync</h2>
-  <p class="muted" style="margin-top:0">Everyone using this build shares one private team gist; each person gets their own journal file inside it. Your <strong>Journal ID</strong> is all you need to restore on another machine. Time entries &amp; project notes only — keep client-identifying data out.</p>
+  <p class="muted" style="margin-top:0">Sync your journal across devices through your own <strong>Cloudflare KV</strong>. Your Worker URL + secret are entered here and stored on this device only — never in the app's code. One-time setup lives in the repo at <code>sync/SYNC-SETUP.md</code>.</p>
 
   <div class="sync-row" id="localStoreRow">
     <h3>💾 Local storage (this device)</h3>
@@ -590,36 +590,37 @@ body.modal-open{overflow:hidden;}
     <h3 id="syncStatusHead">Not connected</h3>
     <p class="sync-note" id="syncStatusDetail"></p>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap" id="syncConnectedBtns" class="hidden">
-      <button class="small" onclick="gistPull(true)">⬇ Pull from cloud</button>
-      <button class="small ghost" onclick="gistPush(true)">⬆ Push to cloud</button>
+      <button class="small" onclick="syncPull(true)">⬇ Pull from cloud</button>
+      <button class="small ghost" onclick="syncPush(true)">⬆ Push to cloud</button>
       <label class="muted" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;">
         <input type="checkbox" id="autoSyncChk" style="width:auto" onchange="toggleCloudAuto()"> Auto pull on open / push on save
       </label>
     </div>
   </div>
 
-  <div class="sync-row hidden" id="teamSetupBlock">
-    <h3>Team code</h3>
-    <p class="sync-note">Paste the one-time <strong>Team code</strong> your admin gave you. It connects this device to the shared team gist. You only do this once (or again after a token rotation).</p>
-    <input id="teamCodeInput" placeholder="PJT1-… (from your admin)" style="margin-top:8px" />
-    <div style="margin-top:8px"><button class="small" onclick="connectTeam()">Connect</button></div>
-    <p class="sync-note" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px"><strong>First-time setup (admin)?</strong> Enter the team gist ID + token to connect. Your shareable Team code then appears in the box below.</p>
-    <input id="adminGistId" placeholder="Team gist ID" style="margin-top:6px" />
-    <input id="adminToken" placeholder="ghp_… (classic token, gist scope)" style="margin-top:6px" />
-    <div style="margin-top:8px"><button class="small ghost" onclick="adminConnect()">Connect</button></div>
+  <div class="sync-row" id="kvConnectBlock">
+    <h3>Connect to your Cloudflare sync</h3>
+    <p class="sync-note">Set up once in Cloudflare (see the repo's <code>sync/SYNC-SETUP.md</code>). Paste your <strong>Worker URL</strong> + <strong>secret</strong> — stored on this device only, never in the app.</p>
+    <input id="kvUrl" placeholder="https://chiaro-sync.&lt;you&gt;.workers.dev" style="margin-top:8px" />
+    <input id="kvSecret" type="password" placeholder="Your sync secret" style="margin-top:6px" />
+    <div style="margin-top:8px"><button class="small" onclick="kvConnect()">Connect</button></div>
+    <p class="sync-note" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">Already set up on another device? Paste its <strong>Sync code</strong> to connect &amp; join in one step.</p>
+    <input id="syncCodeInput" placeholder="CHIARO1-… (from your other device)" style="margin-top:6px" />
+    <div style="margin-top:8px"><button class="small ghost" onclick="applySyncCode()">Use Sync code</button></div>
   </div>
 
-  <div class="sync-row hidden" id="teamManageBlock">
-    <h3>Team code (admin)</h3>
-    <p class="sync-note">This device's Team code — hand it to a coworker to onboard them, or keep it to reconnect after rotating the token. Treat it like a password.</p>
-    <div class="keybox"><code id="teamCodeText">—</code>
-      <button class="small ghost" onclick="copyTeamCode()">Copy</button>
-      <button class="small ghost" onclick="changeTeamCode()">Change / disconnect</button></div>
+  <div class="sync-row hidden" id="kvManageBlock">
+    <h3>Cloudflare sync</h3>
+    <p class="sync-note">Connected to <code id="kvUrlText">—</code> · stored on this device only.</p>
+    <p class="sync-note" style="margin-top:8px"><strong>Sync code</strong> — paste on another device to set it up in one step. Treat it like a password (it contains your secret).</p>
+    <div class="keybox"><code id="syncCodeText">—</code>
+      <button class="small ghost" onclick="copySyncCode()">Copy</button>
+      <button class="small ghost" onclick="kvDisconnect()">Disconnect</button></div>
   </div>
 
   <div class="sync-row" id="syncKeyRow">
     <h3>Your Journal ID</h3>
-    <p class="sync-note">Save this (password manager / sticky note). Paste it on another machine to pull your journal down. Anyone with the build + this ID can open your journal.</p>
+    <p class="sync-note">The key your data lives under. On another device, connect (above) then Join with this ID — or just use the Sync code, which already includes it.</p>
     <div class="keybox"><code id="journalKeyText">— not set up yet —</code>
       <button class="small ghost" id="copyKeyBtn" onclick="copyJournalKey()">Copy</button></div>
   </div>
@@ -627,15 +628,15 @@ body.modal-open{overflow:hidden;}
   <div id="syncSetupBlocks">
     <div class="sync-row">
       <h3>Create a new journal</h3>
-      <p class="sync-note">First time on this device? Make your journal — it adds your own file to the team gist from your current data.</p>
-      <input id="newJournalName" placeholder="Name (optional, e.g. Chad)" style="margin-top:8px" />
+      <p class="sync-note">First device? Create your journal — it uploads your current data to your Cloudflare KV.</p>
+      <input id="newJournalName" placeholder="Journal name (e.g. chad)" style="margin-top:8px" />
       <div style="margin-top:8px"><button class="small" onclick="createJournal()">Create my journal</button></div>
     </div>
 
     <div class="sync-row">
       <h3>Join an existing journal</h3>
-      <p class="sync-note">New machine, or recovering? Paste your Journal ID and pull it down.</p>
-      <input id="restoreId" placeholder="j… (your Journal ID)" style="margin-top:8px" />
+      <p class="sync-note">New device, or recovering? Paste your Journal ID and pull it down.</p>
+      <input id="restoreId" placeholder="Your Journal ID" style="margin-top:8px" />
       <div style="margin-top:8px"><button class="small" onclick="restoreFromId()">Join &amp; pull</button>
         <button class="small ghost" onclick="leaveJournal()" style="margin-left:6px">Leave journal (this device)</button></div>
     </div>
@@ -2108,36 +2109,28 @@ function switchTcTab(name){ document.querySelectorAll('#main-timecard .tab').for
 function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle('dark',db.darkMode); save(); }
 
 /* =====================================================================
-   CLOUD SYNC (B-mode) — ONE shared team Gist; each person = one file.
-   Config (team gist ID + token) is entered by each user ONCE as a "Team
-   code" in Sync settings — it is NOT baked into the build. That keeps the
-   file / exe / repo free of secrets, and lets you rotate the token by
-   handing out a new code (no rebuild, no touching anyone's file).
-   An optional BAKED_CONFIG can hardcode it for a private build if you ever
-   prefer that; leave it blank to use the Team-code flow.
-   Each install owns 'journal-<journalId>.json' in the one gist; PATCH only
-   touches your file, so coworkers never clobber each other.
+   CLOUD SYNC — Cloudflare KV via a tiny Worker (see sync/chiaro-sync-worker.js).
+   The Worker stores one JSON blob per journal key, guarded by a shared secret.
+   Config (Worker URL + secret) is entered ONCE in Sync settings and lives only
+   in this device's localStorage — NEVER in src/ or the repo. A one-paste
+   "sync code" (CHIARO1-…) packs URL + secret + Journal ID to set up another
+   device in a single paste. Reuses db.sync {journalId, journalName, auto,
+   lastSync, myHash} + the conflict dialog; last-write-wins by lastEdit.
    ===================================================================== */
-const BAKED_CONFIG = { gistId:'', token:'' };   // optional; blank = use the Team code
-const TEAM_KEY = 'ctt_team';                     // localStorage slot (kept out of journal data)
-
-function getTeam(){
-  if(BAKED_CONFIG.gistId && BAKED_CONFIG.token) return { gistId:BAKED_CONFIG.gistId, token:BAKED_CONFIG.token };
-  try{ const o=JSON.parse(localStorage.getItem(TEAM_KEY)||'null'); if(o&&o.g&&o.t) return { gistId:o.g, token:o.t }; }catch(e){}
-  return { gistId:'', token:'' };
-}
-function setTeam(gistId,token){ localStorage.setItem(TEAM_KEY, JSON.stringify({g:gistId,t:token})); }
-function clearTeam(){ localStorage.removeItem(TEAM_KEY); }
-function encTeam(gistId,token){ return 'PJT1-'+btoa(JSON.stringify({g:gistId,t:token})).replace(/=+$/,''); }
-function decTeam(code){ code=String(code||'').trim(); if(code.startsWith('PJT1-')) code=code.slice(5);
+const KV_KEY = 'ctt_kv';                         // localStorage slot for {url, secret} — never committed
+function kvCfg(){ try{ const o=JSON.parse(localStorage.getItem(KV_KEY)||'null'); if(o&&o.url&&o.secret) return {url:o.url, secret:o.secret}; }catch(e){} return {url:'',secret:''}; }
+function kvSetCfg(url,secret){ localStorage.setItem(KV_KEY, JSON.stringify({url:url,secret:secret})); }
+function kvClearCfg(){ localStorage.removeItem(KV_KEY); }
+// One-paste device setup: pack {url, secret, journal} into a CHIARO1- code.
+function encSyncCode(url,secret,journal){ return 'CHIARO1-'+btoa(JSON.stringify({u:url,s:secret,j:journal||''})).replace(/=+$/,''); }
+function decSyncCode(code){ code=String(code||'').trim(); if(code.startsWith('CHIARO1-')) code=code.slice(8);
   const pad=code.length%4? '='.repeat(4-code.length%4):''; const o=JSON.parse(atob(code+pad));
-  if(!o.g||!o.t) throw new Error('bad code'); return { gistId:o.g, token:o.t }; }
+  if(!o.u||!o.s) throw new Error('bad code'); return { url:o.u, secret:o.s, journal:o.j||'' }; }
 
 let pushTimer=null, syncing=false;
 function syncMsg(m,isErr){ const el=document.getElementById('syncMsg'); if(el){ el.textContent=m||''; el.style.color=isErr?'var(--danger)':'var(--muted)'; } }
-function isConfigured(){ const t=getTeam(); return !!(t.gistId && t.token); }
+function isConfigured(){ const c=kvCfg(); return !!(c.url && c.secret); }
 function isConnected(){ return !!(isConfigured() && db.sync && db.sync.journalId); }
-function myFile(){ return 'journal-'+db.sync.journalId+'.json'; }
 function newJournalId(){ return 'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function hashStr(s){ let h=5381; for(let i=0;i<s.length;i++){ h=((h<<5)+h)^s.charCodeAt(i); } return (h>>>0).toString(36); }
 function setSyncDot(state){ const d=document.getElementById('syncDot'), s=document.getElementById('syncStatus'); if(!d) return;
@@ -2145,64 +2138,58 @@ function setSyncDot(state){ const d=document.getElementById('syncDot'), s=docume
   const map={on:'Synced',busy:'Syncing…',err:'Sync error',off:'Local only'};
   if(s) s.textContent=(state==='on'&&db.sync.lastSync)? ('Synced '+new Date(db.sync.lastSync).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})) : (map[state]||'Local only'); }
 
-async function ghFetch(path, opts={}){
+// Transport: GET/PUT one journal blob to the Worker. Returns {status, text}.
+async function kvFetch(method, journal, body){
+  const c=kvCfg(); if(!c.url) throw new Error('No Worker URL set.');
+  const u=c.url.replace(/\/+$/,'')+'?journal='+encodeURIComponent(journal||'default');
   let r;
-  try{
-    r=await fetch('https://api.github.com'+path, Object.assign({}, opts, {
-      headers: Object.assign({ 'Authorization':'Bearer '+getTeam().token, 'Accept':'application/vnd.github+json',
-        'X-GitHub-Api-Version':'2022-11-28' }, opts.headers||{}) }));
-  }catch(e){ throw new Error('Could not reach GitHub (network/CORS). If running as file://, your browser may block it — the desktop build fixes this.'); }
-  if(r.status===401) throw new Error('Token rejected (401) — your Team code has a wrong or expired token. Ask your admin for a fresh code.');
-  if(r.status===403) throw new Error('Forbidden (403) — the token lacks the gist scope or is rate-limited.');
-  if(r.status===404) throw new Error('Gist not found (404) — the Team code has a wrong gist ID.');
-  if(!r.ok){ let t=''; try{t=await r.text();}catch(_){} throw new Error('GitHub '+r.status+': '+t.slice(0,160)); }
-  return r;
-}
-
-// Read one file's text out of a gist GET response (handles GitHub's >1MB truncation).
-async function readGistFile(gistJson, fname){
-  const f=gistJson.files && gistJson.files[fname]; if(!f) return null;
-  if(f.truncated && f.raw_url) return await (await fetch(f.raw_url)).text();
-  return f.content;
+  try{ r=await fetch(u, {method:method, headers:{'X-Sync-Secret':c.secret, 'Content-Type':'application/json'}, body:body}); }
+  catch(e){ throw new Error('Could not reach the sync Worker (network/CORS). Check the URL and that the Worker is deployed.'); }
+  if(r.status===401) throw new Error('Rejected (401) — wrong sync secret.');
+  if(r.status===500) throw new Error('Worker error (500) — is the CHIARO_KV namespace bound and redeployed?');
+  let text=''; try{ text=await r.text(); }catch(_){}
+  return {status:r.status, text:text};
 }
 
 async function createJournal(){
-  if(!isConfigured()){ syncMsg('Enter your Team code first (below) to connect to the team gist.',true); return; }
+  if(!isConfigured()){ syncMsg('Connect to your Cloudflare sync first (above).',true); return; }
   const name=(document.getElementById('newJournalName').value||'').trim();
-  const id=newJournalId(); syncing=true; setSyncDot('busy'); syncMsg('Creating your journal in the team gist…');
+  const id=(name? name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') : '') || newJournalId();
+  syncing=true; setSyncDot('busy'); syncMsg('Creating your journal…');
   try{
-    db.sync.journalId=id; db.sync.journalName=name||('Journal '+id.slice(-4)); db.sync.auto=true;
+    db.sync.journalId=id; db.sync.journalName=name||('Journal '+id); db.sync.auto=true;
     const content=JSON.stringify(dbWithoutSecrets());
-    const body={ files:{ [myFile()]:{ content } } };   // PATCH adds just my file; others untouched
-    const j=await (await ghFetch('/gists/'+getTeam().gistId,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })).json();
-    db.sync.myHash=hashStr(await readGistFile(j, myFile())||content); db.sync.lastSync=Date.now();
+    const r=await kvFetch('PUT', id, content);
+    if(r.status!==200 && r.status!==204) throw new Error('Worker returned '+r.status+(r.text?(': '+r.text.slice(0,120)):''));
+    db.sync.myHash=hashStr(content); db.sync.lastSync=Date.now();
     document.getElementById('newJournalName').value=''; save(); renderSync(); setSyncDot('on');
-    syncMsg('Journal created. Your Journal ID is shown above — save it to restore on another machine.');
+    syncMsg('Journal created and uploaded. Copy your Sync code above to set up another device in one paste.');
   }catch(e){ db.sync.journalId=null; setSyncDot('err'); syncMsg(e.message,true); }
   finally{ syncing=false; }
 }
 
-async function gistPush(manual){
+async function syncPush(manual){
   if(!isConnected()){ if(manual) syncMsg('No journal connected.',true); return; }
   syncing=true; setSyncDot('busy'); if(manual) syncMsg('Pushing…');
   try{
-    // Conflict guard keyed to MY file only (coworkers writing other files won't trip it).
-    const cur=await readGistFile(await (await ghFetch('/gists/'+getTeam().gistId)).json(), myFile());
-    if(cur!=null && db.sync.myHash && hashStr(cur)!==db.sync.myHash){
-      let cloudEdit=0; try{ cloudEdit=(JSON.parse(cur)||{}).lastEdit||0; }catch(_){}
+    // Conflict guard vs my last-known hash of the cloud copy.
+    const cur=await kvFetch('GET', db.sync.journalId);
+    if(cur.status===200 && cur.text && db.sync.myHash && hashStr(cur.text)!==db.sync.myHash){
+      let cloudEdit=0; try{ cloudEdit=(JSON.parse(cur.text)||{}).lastEdit||0; }catch(_){}
       if(!manual){
         // Auto-sync: never pop a surprise dialog mid-edit. Pause and flag it.
-        setSyncDot('err'); document.getElementById('syncStatus').textContent='Out of sync — open Sync';
+        setSyncDot('err'); const s=document.getElementById('syncStatus'); if(s) s.textContent='Out of sync — open Sync';
         syncing=false; return;
       }
       const choice=await showConflict(cloudEdit, db.lastEdit||0);
-      if(choice==='pull'){ syncing=false; setSyncDot('on'); await gistPull(true); return; }
+      if(choice==='pull'){ syncing=false; setSyncDot('on'); await syncPull(true); return; }
       if(choice!=='push'){ setSyncDot('on'); syncMsg('Push cancelled.'); return; }
       // choice==='push' → fall through and overwrite the cloud copy
     }
     const content=JSON.stringify(dbWithoutSecrets());
-    const j=await (await ghFetch('/gists/'+getTeam().gistId,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ files:{ [myFile()]:{ content } } }) })).json();
-    db.sync.myHash=hashStr(await readGistFile(j, myFile())||content); db.sync.lastSync=Date.now();
+    const r=await kvFetch('PUT', db.sync.journalId, content);
+    if(r.status!==200 && r.status!==204) throw new Error('Worker returned '+r.status);
+    db.sync.myHash=hashStr(content); db.sync.lastSync=Date.now();
     save(); setSyncDot('on'); renderSync(); if(manual) syncMsg('Pushed to cloud.');
   }catch(e){ setSyncDot('err'); syncMsg(e.message,true); }
   finally{ syncing=false; }
@@ -2230,16 +2217,16 @@ function showConflict(cloudEdit, localEdit){
 }
 function conflictChoose(choice){ closeModal('conflictModalBg'); const r=conflictResolver; conflictResolver=null; if(r) r(choice); }
 
-async function gistPull(manual){
+async function syncPull(manual){
   if(!isConnected()){ if(manual) syncMsg('No journal connected.',true); return; }
   syncing=true; setSyncDot('busy'); if(manual) syncMsg('Pulling…');
   try{
-    const j=await (await ghFetch('/gists/'+getTeam().gistId)).json();
-    const content=await readGistFile(j, myFile());
-    if(content==null) throw new Error('No file '+myFile()+' in the team gist — wrong Journal ID, or not created yet.');
-    const incoming=JSON.parse(content); incoming.sync=db.sync; db=normalize(incoming);
-    db.sync.myHash=hashStr(content); db.sync.lastSync=Date.now();
-    db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
+    const r=await kvFetch('GET', db.sync.journalId);
+    if(r.status===404 || !r.text){ throw new Error('No journal in the cloud for that ID yet — create it first, or check the ID.'); }
+    if(r.status!==200) throw new Error('Worker returned '+r.status);
+    const incoming=JSON.parse(r.text); incoming.sync=db.sync; db=normalize(incoming);
+    db.sync.myHash=hashStr(r.text); db.sync.lastSync=Date.now();
+    runMigrations();
     document.body.classList.toggle('dark',!!db.darkMode);
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
@@ -2253,11 +2240,11 @@ async function restoreFromId(){
   const id=(document.getElementById('restoreId').value||'').trim();
   if(!id){ syncMsg('Paste a Journal ID first.',true); return; }
   db.sync.journalId=id; db.sync.myHash=null; db.sync.auto=true;
-  document.getElementById('restoreId').value=''; save(); renderSync(); await gistPull(true);
+  document.getElementById('restoreId').value=''; save(); renderSync(); await syncPull(true);
 }
 
 function leaveJournal(){
-  if(!confirm('Leave this journal on THIS device? Local data stays and the team gist is untouched. Rejoin anytime with your Journal ID.')) return;
+  if(!confirm('Leave this journal on THIS device? Local data stays and the cloud copy is untouched. Rejoin anytime with your Journal ID.')) return;
   db.sync={ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null };
   save(); renderSync(); setSyncDot('off'); syncMsg('Left the journal on this device.');
 }
@@ -2272,63 +2259,69 @@ function renderSync(){
   const det=document.getElementById('syncStatusDetail'), btns=document.getElementById('syncConnectedBtns');
   const keyTxt=document.getElementById('journalKeyText'), chk=document.getElementById('autoSyncChk');
   const setup=document.getElementById('syncSetupBlocks');
-  const teamBlock=document.getElementById('teamSetupBlock'), teamMgmt=document.getElementById('teamManageBlock');
-  const teamCodeTxt=document.getElementById('teamCodeText');
+  const connBlock=document.getElementById('kvConnectBlock'), mgmt=document.getElementById('kvManageBlock');
+  const urlText=document.getElementById('kvUrlText'), codeTxt=document.getElementById('syncCodeText');
   if(!isConfigured()){
-    head.textContent='Enter your Team code to connect';
-    det.textContent='Your admin gives you a one-time Team code. Paste it below to connect this device to the team.';
+    head.textContent='Connect to your Cloudflare sync';
+    det.textContent='Paste your Worker URL + secret (or a Sync code from another device) below to connect.';
     btns.classList.add('hidden'); if(setup) setup.classList.add('hidden');
-    if(teamBlock) teamBlock.classList.remove('hidden'); if(teamMgmt) teamMgmt.classList.add('hidden');
+    if(connBlock) connBlock.classList.remove('hidden'); if(mgmt) mgmt.classList.add('hidden');
     keyTxt.textContent='— connect first —'; return;
   }
-  if(teamBlock) teamBlock.classList.add('hidden');
-  if(teamMgmt){ teamMgmt.classList.remove('hidden'); const t=getTeam(); if(teamCodeTxt) teamCodeTxt.textContent=encTeam(t.gistId,t.token); }
+  if(connBlock) connBlock.classList.add('hidden');
+  if(mgmt){ mgmt.classList.remove('hidden'); if(urlText) urlText.textContent=kvCfg().url;
+    if(codeTxt) codeTxt.textContent = isConnected()? encSyncCode(kvCfg().url, kvCfg().secret, db.sync.journalId) : '— create or join a journal first —'; }
   if(setup) setup.classList.remove('hidden');
   if(isConnected()){
     head.textContent='Connected · '+escapeHtml(db.sync.journalName||'this journal');
     btns.classList.remove('hidden');
-    det.innerHTML='File <code>'+escapeHtml(myFile())+'</code> in the team gist · last sync: '+(db.sync.lastSync? new Date(db.sync.lastSync).toLocaleString():'never');
+    det.innerHTML='Journal <code>'+escapeHtml(db.sync.journalId)+'</code> · last sync: '+(db.sync.lastSync? new Date(db.sync.lastSync).toLocaleString():'never');
     keyTxt.textContent=db.sync.journalId; if(chk) chk.checked=!!db.sync.auto;
   }else{
-    head.textContent='Team connected — no journal yet';
+    head.textContent='Connected — no journal yet';
     btns.classList.add('hidden');
     det.textContent='Create a new journal, or join an existing one with its Journal ID.';
     keyTxt.textContent='— create or join below —';
   }
 }
 
-async function connectTeam(){
-  const raw=document.getElementById('teamCodeInput').value;
-  let cfg; try{ cfg=decTeam(raw); }catch(e){ syncMsg('That does not look like a valid Team code.',true); return; }
-  setSyncDot('busy'); syncMsg('Checking Team code…');
-  setTeam(cfg.gistId, cfg.token);   // temporarily set so ghFetch uses it
+async function kvConnect(){
+  const url=(document.getElementById('kvUrl').value||'').trim();
+  const secret=(document.getElementById('kvSecret').value||'').trim();
+  if(!url||!secret){ syncMsg('Enter both the Worker URL and the secret.',true); return; }
+  setSyncDot('busy'); syncMsg('Checking the sync Worker…');
+  kvSetCfg(url,secret);
   try{
-    await ghFetch('/gists/'+cfg.gistId);   // validates both gist ID and token
-    document.getElementById('teamCodeInput').value='';
-    renderSync(); setSyncDot('off'); syncMsg('Team code accepted — now create or join your journal below.');
-  }catch(e){ clearTeam(); renderSync(); setSyncDot('err'); syncMsg(e.message,true); }
+    await kvFetch('GET','__healthcheck__');   // 200 or 404 both mean the secret was accepted
+    document.getElementById('kvSecret').value='';
+    renderSync(); setSyncDot(isConnected()?'on':'off');
+    syncMsg('Connected to your Cloudflare sync — now create or join your journal below.');
+  }catch(e){ kvClearCfg(); renderSync(); setSyncDot('err'); syncMsg(e.message,true); }
 }
-async function adminConnect(){
-  const g=document.getElementById('adminGistId').value.trim(), t=document.getElementById('adminToken').value.trim();
-  if(!g||!t){ syncMsg('Enter both the gist ID and the token.',true); return; }
-  setSyncDot('busy'); syncMsg('Checking gist + token…'); setTeam(g,t);
+// One-paste setup from another device's Sync code: sets config + journal, then pulls.
+async function applySyncCode(){
+  const raw=document.getElementById('syncCodeInput').value;
+  let cfg; try{ cfg=decSyncCode(raw); }catch(e){ syncMsg('That does not look like a valid Sync code.',true); return; }
+  setSyncDot('busy'); syncMsg('Applying Sync code…'); kvSetCfg(cfg.url,cfg.secret);
   try{
-    await ghFetch('/gists/'+g);
-    document.getElementById('adminGistId').value=''; document.getElementById('adminToken').value='';
-    renderSync(); setSyncDot('off'); syncMsg('Connected. Your Team code is shown below — copy it to onboard coworkers.');
-  }catch(e){ clearTeam(); renderSync(); setSyncDot('err'); syncMsg(e.message,true); }
+    await kvFetch('GET','__healthcheck__');
+    document.getElementById('syncCodeInput').value='';
+    if(cfg.journal){ db.sync.journalId=cfg.journal; db.sync.myHash=null; db.sync.auto=true; save(); renderSync(); await syncPull(true); }
+    else { renderSync(); setSyncDot('off'); syncMsg('Connected — now create or join your journal below.'); }
+  }catch(e){ kvClearCfg(); renderSync(); setSyncDot('err'); syncMsg(e.message,true); }
 }
-function copyTeamCode(){ const t=getTeam(); if(!t.gistId) return;
-  navigator.clipboard.writeText(encTeam(t.gistId,t.token)).then(()=>syncMsg('Team code copied — share it with a coworker to onboard them.'),()=>syncMsg('Copy failed — select it manually.',true)); }
-function changeTeamCode(){
-  if(!confirm('Disconnect this device from the team? Your local journal stays. You can paste a Team code again to reconnect (use this after a token rotation).')) return;
-  clearTeam(); db.sync={ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null };
-  save(); renderSync(); setSyncDot('off'); syncMsg('Disconnected. Paste a Team code to reconnect.');
+function kvDisconnect(){
+  if(!confirm('Disconnect this device from cloud sync? Local data stays; your cloud copy is untouched. Reconnect anytime.')) return;
+  kvClearCfg(); db.sync={ journalId:null, journalName:'', auto:false, lastSync:null, myHash:null };
+  save(); renderSync(); setSyncDot('off'); syncMsg('Disconnected on this device.');
 }
+function copySyncCode(){ if(!isConnected()){ syncMsg('Create or join a journal first.',true); return; }
+  const code=encSyncCode(kvCfg().url, kvCfg().secret, db.sync.journalId);
+  navigator.clipboard.writeText(code).then(()=>syncMsg('Sync code copied — paste it on another device to set it up in one step.'),()=>syncMsg('Copy failed — select it manually.',true)); }
 function openSettings(){ renderSync(); if(typeof renderLocalStore==='function') renderLocalStore(); if(typeof renderEncRow==='function') renderEncRow(); syncMsg(''); openModal('settingsModalBg'); }
 function openStorageSettings(){ openSettings(); const r=document.getElementById('localStoreRow'); if(r) setTimeout(()=>{ try{ r.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} },80); }
-function syncBoot(){ if(isConnected()){ setSyncDot('on'); if(db.sync.auto) gistPull(false); } else setSyncDot('off'); }
-function scheduleAutoPush(){ if(syncing||!isConnected()||!db.sync.auto) return; clearTimeout(pushTimer); pushTimer=setTimeout(()=>gistPush(false), 4000); }
+function syncBoot(){ if(isConnected()){ setSyncDot('on'); if(db.sync.auto) syncPull(false); } else setSyncDot('off'); }
+function scheduleAutoPush(){ if(syncing||!isConnected()||!db.sync.auto) return; clearTimeout(pushTimer); pushTimer=setTimeout(()=>syncPush(false), 4000); }
 document.addEventListener('click',()=>closeGearMenu());
 function cancelPendingConflict(){ if(conflictResolver){ const r=conflictResolver; conflictResolver=null; r('cancel'); } }
 document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('mousedown',e=>{ if(e.target===bg){ bg.classList.remove('open'); bg.style.zIndex=''; updateModalLock(); if(bg.id==='conflictModalBg') cancelPendingConflict(); } }));
