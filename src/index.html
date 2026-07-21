@@ -3,25 +3,32 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Project Journal &amp; Timecard</title>
+<title>Chiaro Tinker Tools</title>
 <style>
+/* Chiaroscuro: dark is the material, not a mode. Near-black walnut field,
+   one warm lamp (#F2A24A). body.cream is the ink-on-parchment alternate. */
 :root{
-  --bg:#f4f6fb; --panel:#ffffff; --text:#1f2937; --muted:#6b7280;
-  --border:#dbe2ea; --accent:#2563eb; --accent2:#1d4ed8;
+  --bg:#14100B; --panel:#1D1710; --text:#EFE3CC; --muted:#9C8A6E;
+  --border:#3A2E1D; --accent:#F2A24A; --accent2:#FFBE73;
+  --success:#55C97E; --warn:#E8A24A; --danger:#F0705F;
+  --bill:#55C97E; --nonbill:#E8A24A; --unpaid:#9C8A6E;
+  --group:#251C11; --btn-ink:#201709;
+}
+body.cream{
+  --bg:#F4EDDC; --panel:#FBF6EA; --text:#241C12; --muted:#6E5F4B;
+  --border:#D8CBB0; --accent:#A86518; --accent2:#8A5212;
   --success:#16a34a; --warn:#d97706; --danger:#dc2626;
   --bill:#16a34a; --nonbill:#d97706; --unpaid:#6b7280;
-  --group:#eef2f9;
-}
-body.dark{
-  --bg:#0f172a; --panel:#111827; --text:#f3f4f6; --muted:#94a3b8;
-  --border:#253046; --accent:#3b82f6; --accent2:#2563eb; --group:#0b1220;
+  --group:#EDE4D0; --btn-ink:#FBF6EA;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;}
-button,.btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 14px;cursor:pointer;font-size:14px;}
+body{margin:0;color:var(--text);font-family:Segoe UI,Arial,sans-serif;
+  background:radial-gradient(90vmax 60vmax at 28% -12%, rgba(242,162,74,.08), transparent 60%) fixed, var(--bg);}
+body.cream{background:var(--bg);}
+button,.btn{background:var(--accent);color:var(--btn-ink);border:none;border-radius:10px;padding:9px 14px;cursor:pointer;font-size:14px;font-weight:600;}
 button:hover{background:var(--accent2)}
-button.ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
-button.ghost:hover{background:rgba(37,99,235,.08)}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--border);font-weight:500;}
+button.ghost:hover{background:rgba(242,162,74,.10)}
 button.danger{background:var(--danger)} button.danger:hover{filter:brightness(.92)}
 button.small{padding:5px 10px;font-size:12px;}
 select,input,textarea{border:1px solid var(--border);background:var(--panel);color:var(--text);
@@ -31,20 +38,26 @@ select,input,textarea{border:1px solid var(--border);background:var(--panel);col
 /* App chrome */
 .appbar{display:flex;align-items:center;gap:18px;padding:12px 22px;border-bottom:1px solid var(--border);
   background:var(--panel);position:sticky;top:0;z-index:30;flex-wrap:wrap;}
-.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:800;}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;
+  font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;letter-spacing:.01em;}
 .brand-icon{width:34px;height:34px;border-radius:9px;display:block;flex:none;}
+/* the lamp: a small warm light in honored dark — the whole brand in one dot */
+.brand-lamp{width:34px;height:34px;border-radius:9px;flex:none;border:1px solid var(--border);
+  background:radial-gradient(circle at 50% 44%, var(--accent2) 0 4px, rgba(242,162,74,.55) 7px, rgba(242,162,74,.14) 12px, transparent 17px), var(--group);
+  box-shadow:inset 0 0 10px rgba(0,0,0,.35);}
+.project-title,.modal h2{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-weight:600;letter-spacing:-.01em;}
 .brand small{display:block;font-size:11px;color:var(--muted);font-weight:500;}
 .maintabs{display:flex;gap:8px;}
 .maintab{padding:8px 16px;border-radius:10px;cursor:pointer;border:1px solid var(--border);
   background:transparent;font-weight:700;font-size:14px;}
-.maintab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.maintab.active{background:var(--accent);color:var(--btn-ink);border-color:var(--accent);}
 .spacer{flex:1}
 .save-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
 .save-dot{width:8px;height:8px;border-radius:50%;background:var(--success);}
 .save-dot.saving{background:var(--warn);}
 .sync-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;
   border:1px solid var(--border);border-radius:999px;padding:4px 11px;}
-.sync-pill:hover{background:rgba(37,99,235,.06);}
+.sync-pill:hover{background:rgba(242,162,74,.06);}
 .gear-wrap{position:relative;}
 .gear-btn{font-size:16px;line-height:1;padding:7px 10px;}
 .gear-menu{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--border);
@@ -52,7 +65,7 @@ select,input,textarea{border:1px solid var(--border);background:var(--panel);col
 .gear-menu.open{display:block;}
 .gear-menu button{display:block;width:100%;text-align:left;background:transparent;color:var(--text);border:none;
   border-radius:8px;padding:9px 12px;font-size:14px;cursor:pointer;}
-.gear-menu button:hover{background:rgba(37,99,235,.08);}
+.gear-menu button:hover{background:rgba(242,162,74,.08);}
 .gear-menu .menu-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 12px 4px;}
 .gear-menu .divider{height:1px;background:var(--border);margin:6px 4px;}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--unpaid);}
@@ -82,8 +95,10 @@ select,input,textarea{border:1px solid var(--border);background:var(--panel);col
 .title-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 8px;}
 .project-title{font-size:38px;font-weight:800;margin:0;}
 .health{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;}
-.health.under{background:#dcfce7;color:#166534} .health.near{background:#fef3c7;color:#92400e}
-.health.over{background:#fee2e2;color:#991b1b} .health.none{background:var(--group);color:var(--muted)}
+.health.under{background:rgba(85,201,126,.16);color:var(--success)} .health.near{background:rgba(232,162,74,.16);color:var(--warn)}
+.health.over{background:rgba(240,112,95,.18);color:var(--danger)} .health.none{background:var(--group);color:var(--muted)}
+body.cream .health.under{background:#dcfce7;color:#166534} body.cream .health.near{background:#fef3c7;color:#92400e}
+body.cream .health.over{background:#fee2e2;color:#991b1b}
 .clientcode-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
 .clientcode-row input{width:140px;}
 .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
@@ -110,13 +125,13 @@ table.role-reviewer .col-prep{display:none}
 .var-pos{color:var(--success);font-weight:600} .var-neg{color:var(--danger);font-weight:600}
 .synced-note{font-size:11px;color:var(--accent);margin-top:4px;font-weight:600;}
 .recent-project{padding:9px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:13px;}
-.recent-project:hover{background:rgba(37,99,235,.08);} .recent-project.active{border-color:var(--accent);}
+.recent-project:hover{background:rgba(242,162,74,.08);} .recent-project.active{border-color:var(--accent);}
 
 /* ---------- Time Card ---------- */
 .wrap{max-width:1180px;margin:0 auto;padding:22px;}
 .tabs{display:flex;gap:8px;margin:6px 0 16px;}
 .tab{padding:8px 16px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:var(--panel);font-weight:600;font-size:14px;}
-.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tab.active{background:var(--accent);color:var(--btn-ink);border-color:var(--accent);}
 .datectrl{display:flex;gap:6px;align-items:center;} .datectrl input{width:auto;}
 .dow{font-size:15px;font-weight:700;margin-left:6px;}
 .tcards{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
@@ -126,7 +141,7 @@ table.role-reviewer .col-prep{display:none}
 .tcard.bill .val{color:var(--bill)} .tcard.nonbill .val{color:var(--nonbill)}
 .tcard.unpaid .val{color:var(--unpaid)} .tcard.total .val{color:var(--accent)}
 .tcard.clickable{cursor:pointer;transition:border-color .15s,box-shadow .15s;}
-.tcard.clickable:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(37,99,235,.12);}
+.tcard.clickable:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(242,162,74,.12);}
 .catbreak{display:flex;flex-direction:column;gap:10px;margin:8px 0;}
 .catrow{display:grid;grid-template-columns:14px 84px 1fr 62px;align-items:center;gap:10px;font-size:14px;}
 .catrow .catbar{height:10px;border-radius:6px;background:var(--group);overflow:hidden;}
@@ -153,7 +168,7 @@ th.sortable:hover{color:var(--accent);}
 .start-cell{color:var(--muted);font-variant-numeric:tabular-nums;}
 .drag-cell{width:26px;padding-left:6px;padding-right:0;vertical-align:middle;}
 .drag-handle{cursor:grab;color:var(--muted);user-select:none;font-size:16px;line-height:1;display:inline-block;padding:4px 3px;border-radius:6px;}
-.drag-handle:hover{background:rgba(37,99,235,.12);color:var(--text);}
+.drag-handle:hover{background:rgba(242,162,74,.12);color:var(--text);}
 .drag-handle:active{cursor:grabbing;}
 tr.dragging{opacity:.4;}
 tr.drop-above>td{box-shadow:inset 0 2px 0 0 var(--accent);}
@@ -164,10 +179,11 @@ tr.drop-below>td{box-shadow:inset 0 -2px 0 0 var(--accent);}
 .linkcell select{margin-bottom:5px;}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
 .pill.none{background:var(--group);color:var(--muted)}
-.pill.warn{background:#fef3c7;color:#92400e}
-.pill.ok{background:#dcfce7;color:#166534}
+.pill.warn{background:rgba(232,162,74,.16);color:var(--warn)}
+.pill.ok{background:rgba(85,201,126,.16);color:var(--success)}
+body.cream .pill.warn{background:#fef3c7;color:#92400e} body.cream .pill.ok{background:#dcfce7;color:#166534}
 .daychip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--panel);cursor:pointer;}
-.daychip:hover{background:rgba(37,99,235,.08);} .daychip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.daychip:hover{background:rgba(242,162,74,.10);} .daychip.active{background:var(--accent);color:var(--btn-ink);border-color:var(--accent);}
 .bar{height:10px;border-radius:6px;background:var(--group);overflow:hidden;display:flex;}
 .bar i{display:block;height:100%;} .bar .b{background:var(--bill)} .bar .nb{background:var(--nonbill)}
 .tab-pane{display:none}.tab-pane.active{display:block}
@@ -176,8 +192,8 @@ tr.drop-below>td{box-shadow:inset 0 -2px 0 0 var(--accent);}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chip{font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--border);
   background:var(--panel);color:var(--text);cursor:pointer;user-select:none;line-height:1.2;}
-.chip:hover{background:rgba(37,99,235,.08);}
-.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.chip:hover{background:rgba(242,162,74,.10);}
+.chip.active{background:var(--accent);color:var(--btn-ink);border-color:var(--accent);}
 
 /* ---------- Chiaro happy-checkbox (reusable primitive; recolors with the theme) ---------- */
 .ck-wrap{position:relative;display:inline-flex;align-items:center;}
@@ -191,21 +207,21 @@ tr.drop-below>td{box-shadow:inset 0 -2px 0 0 var(--accent);}
   stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .4s ease .85s;}
 .ck-wrap.done .ck{background:var(--accent);border-color:var(--accent);animation:ckbreathe .8s ease-out .85s;}
 .ck-wrap.done .ck svg path{stroke-dashoffset:0;}
-@keyframes ckbreathe{0%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}100%{box-shadow:0 0 0 15px rgba(37,99,235,0)}}
+@keyframes ckbreathe{0%{box-shadow:0 0 0 0 rgba(242,162,74,.45)}100%{box-shadow:0 0 0 15px rgba(242,162,74,0)}}
 .ck-label{position:relative;display:inline-block;transition:color .5s;}
 .ck-label::after{content:"";position:absolute;left:0;top:56%;height:1.5px;width:100%;background:var(--muted);
   transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.42,.5,.2,1);}
 .ck-label.ck-done{color:var(--muted);}
 .ck-label.ck-done::after{transform:scaleX(1);}
 .ck-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--accent);pointer-events:none;
-  opacity:0;box-shadow:0 0 8px 2px rgba(37,99,235,.6);}
+  opacity:0;box-shadow:0 0 8px 2px rgba(242,162,74,.6);}
 @media(prefers-reduced-motion:reduce){
   .ck,.ck svg path,.ck-label,.ck-label::after{transition:none!important}
   .ck-wrap.done .ck{animation:none!important}
 }
 
 /* ---------- Modals ---------- */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;overscroll-behavior:contain;}
+.modal-bg{position:fixed;inset:0;background:rgba(5,4,2,.62);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;overscroll-behavior:contain;}
 body.modal-open{overflow:hidden;}
 .modal-bg.open{display:flex}
 .modal{background:var(--panel);border-radius:18px;padding:22px;width:480px;max-width:100%;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;}
@@ -226,7 +242,7 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><img class="brand-icon" alt="PJT" src="data:image/png;base64,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" /><span>Project Journal &amp; Timecard<small>Project journal + timecard, team-synced · v3.3.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.1.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
     <div class="maintab" data-m="timecard" onclick="switchMain('timecard')">Time Card</div>
@@ -247,7 +263,7 @@ body.modal-open{overflow:hidden;}
       <button onclick="gearGo(triggerImport)">📥&nbsp; Import Backup</button>
       <button onclick="gearGo(exportJournalMarkdown)">📄&nbsp; Save Journal Markdown</button>
       <div class="divider"></div>
-      <button onclick="gearGo(toggleDark)">🌓&nbsp; Dark / Light</button>
+      <button onclick="gearGo(toggleDark)">🕯&nbsp; Dark / Cream</button>
     </div>
   </div>
 </div>
@@ -293,13 +309,6 @@ body.modal-open{overflow:hidden;}
       <label class="muted">Time-card client code
         <input id="clientCodeInput" placeholder="e.g. ACME" onchange="updateClientCode(this.value)">
       </label>
-      <label class="muted">My role
-        <select id="roleSelect" style="width:auto" onchange="updateRole(this.value)">
-          <option value="both">Both notes</option>
-          <option value="preparer">Preparer</option>
-          <option value="reviewer">Reviewer</option>
-        </select>
-      </label>
       <label class="muted" style="display:inline-flex;align-items:center;gap:6px">
         <input type="checkbox" id="archiveChk" style="width:auto" onchange="updateArchived(this.checked)"> Archived (done — hides from both pickers)
       </label>
@@ -321,7 +330,7 @@ body.modal-open{overflow:hidden;}
       <button onclick="expandAll()">Expand All</button>
       <button class="ghost" onclick="collapseAll()">Collapse All</button>
       <button class="ghost" onclick="exportProjectMarkdown()">Export Project Markdown</button>
-      <button class="ghost" onclick="copyOpenItems()">Copy Open Items</button>
+      <button class="ghost" onclick="copyOpenItems()">Copy Scratchpad</button>
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-label">TOTAL BUDGET</div><div class="stat-value" id="totalBudget">0.0</div></div>
@@ -336,7 +345,7 @@ body.modal-open{overflow:hidden;}
         <thead><tr>
           <th class="section-col">Section</th><th>Status</th>
           <th class="col-num">Budget</th><th class="col-num">Actual</th><th class="col-num">Variance</th>
-          <th class="col-prep">Preparer Notes</th><th class="col-rev">Reviewer Notes</th><th>Open Items</th>
+          <th>Scratchpad</th>
         </tr></thead>
         <tbody id="sectionsTable"></tbody>
       </table>
@@ -485,7 +494,6 @@ body.modal-open{overflow:hidden;}
     <option value="audit">Audit Binder</option>
   </select>
   <input id="newClientCode" placeholder="Time-card client code (optional, e.g. ACME)" style="margin-top:10px" />
-  <select id="newRole" style="margin-top:10px"><option value="both">Both notes columns</option><option value="preparer">Preparer role</option><option value="reviewer">Reviewer role</option></select>
   <div class="modal-actions">
     <button class="ghost" onclick="closeModal('projectModalBg')">Cancel</button>
     <button onclick="createProject()">Create</button>
@@ -503,8 +511,8 @@ body.modal-open{overflow:hidden;}
   </div>
   <textarea id="bigEditor"></textarea>
   <div class="modal-actions">
-    <button class="ghost" onclick="closeModal('editorModalBg')">Cancel</button>
-    <button onclick="saveExpanded()">Save &amp; Close</button>
+    <span class="muted" style="align-self:center;margin-right:auto">auto-saves as you type</span>
+    <button onclick="saveExpanded()">Close</button>
   </div>
 </div></div>
 
@@ -679,11 +687,11 @@ body.modal-open{overflow:hidden;}
   <details class="sync-row">
     <summary style="cursor:pointer;font-weight:600;font-size:14px">Project Journal — full detail</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      <strong>Creating projects.</strong> <em>New Project</em> uses the Audit Template (comes with the firm-standard sections). <em>Blank Project</em> starts empty. Each project has a name, an optional <strong>Time-card client code</strong> (links it to your time card), a role (Preparer / Reviewer / Both), and free-form <strong>Project Notes</strong>.<br><br>
-      <strong>Sections.</strong> Each row is a workpaper section with: a <strong>Status</strong> (In Prep → Tech Review → Review Comments → Complete), a <strong>Budget</strong>, an <strong>Actual</strong>, an auto-calculated <strong>Variance</strong>, <strong>Preparer Notes</strong>, <strong>Reviewer Notes</strong>, and <strong>Open Items</strong>. Expand any note box for a bigger editor, or use Copy to grab its text. Sections are grouped (Numbered &amp; Review, Assets, Liabilities, Equity, Income &amp; Expenses, Custom) and you can collapse groups.<br><br>
+      <strong>Creating projects.</strong> <em>New Project</em> asks for a <strong>Type</strong> (ORDO · Tinker · Family · Personal — how it's organized and counted) and a <strong>Template</strong> (ORDO Monthly's 7 steps, Simple's Plan · Execute · Review, or the Audit Binder). Each project also has a name, an optional <strong>Time-card client code</strong>, and free-form <strong>Project Notes</strong>.<br><br>
+      <strong>Steps.</strong> Each row is a step with: a <strong>done checkbox</strong> (audit projects keep a status dropdown), a <strong>Budget</strong>, an <strong>Actual</strong>, an auto-calculated <strong>Variance</strong>, and a <strong>Scratchpad</strong> — one free space for whatever the step needs to remember. Notes auto-save as you type (in the row and in the expanded editor). Expand any note for a bigger editor, or use Copy to grab its text.<br><br>
       <strong>Stat cards.</strong> The cards across the top sum the whole project — Total Budget, Total Actual, Variance, Complete count, and Open items — and update live.<br><br>
       <strong>Project actions</strong> (left panel): <em>Rename</em>, <em>Duplicate Project</em>, <em>Copy to New Year</em> (fresh copy with actuals cleared for a new engagement), <em>Add Custom Section</em>, <em>Delete Project</em>, and an <em>Archived</em> toggle to hide finished projects from the pickers.<br><br>
-      <strong>Export.</strong> <em>Export Project Markdown</em> gives a clean text summary of the project; <em>Copy Open Items</em> grabs just the open items — handy for status emails or review notes. <em>Search sections, notes…</em> filters within the open project.
+      <strong>Export.</strong> <em>Export Project Markdown</em> gives a clean text summary of the project; <em>Copy Scratchpad</em> grabs every step's scratchpad — handy for status emails. <em>Search sections, notes…</em> filters within the open project.
     </div>
   </details>
 
@@ -814,7 +822,7 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) — forked from PJT v3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.1.0 — forked from PJT 3.3.0. Single-file HTML.
    Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
    the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
    compat path. JSON export/import unchanged. CTT uses its own key so it can
@@ -882,7 +890,7 @@ function load(){
   if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
   if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
   runMigrations();
-  document.body.classList.toggle('dark', !!db.darkMode);
+  document.body.classList.toggle('cream', !!db.darkMode);
   document.getElementById('monthPicker').value=(db.timecard.currentDate||todayStr()).slice(0,7);
   applyAccordionState(); renderJournal(); renderTimecard(); save();
   booting=false;
@@ -931,7 +939,10 @@ function migrateStatuses(){ db.journal.projects.forEach(p=>p.sections.forEach(s=
 // CTT: drop PJT's one-time audit-section backfills (Tech Review / Client Conferences /
 // legacy numbered-name fixes) — they were legacy migrations and would inject audit
 // sections into every CTT project. normalizeProject + status mapping are all CTT needs.
-function runMigrations(){ db.journal.projects.forEach(normalizeProject); migrateStatuses(); migrateCodeTypes(); }
+function runMigrations(){ db.journal.projects.forEach(normalizeProject); migrateStatuses(); migrateCodeTypes();
+  // One-time landing on the chiaroscuro theme: dark is the material. (db.darkMode
+  // now means "cream / ink-on-parchment mode"; the toggle still flips it.)
+  if(!db.chiaroTheme){ db.chiaroTheme=1; db.darkMode=false; } }
 // CTT intentionally does NOT inherit PJT's standalone-app data — a new, separate
 // key means CTT can never collide with or absorb PJT data (CLAUDE.md non-neg #2).
 // Kept as a no-op seam in case a future CTT-native legacy key ever needs pickup.
@@ -991,7 +1002,7 @@ async function bootDisk(){ if(!FS_ENABLED){ renderLocalStore(); return; }
       db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
       if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
       if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
-      document.body.classList.toggle('dark',!!db.darkMode);
+      document.body.classList.toggle('cream',!!db.darkMode);
       booting=true; try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){} booting=false;
       renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
       diskFlash('Loaded the newer local file from disk.');
@@ -1027,7 +1038,7 @@ async function restoreBackup(name){ if(!FS_ENABLED||!name) return;
     db.journal.techReviewMigrated=false; db.journal.clientConfMigrated=false; runMigrations();
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
-    document.body.classList.toggle('dark',!!db.darkMode);
+    document.body.classList.toggle('cream',!!db.darkMode);
     save(); renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
     diskFlash('Restored from '+name+'.'); renderLocalStore(); }
   catch(e){ diskFlash('Restore failed: '+(e.message||e), true); } }
@@ -1372,16 +1383,13 @@ function renderJournal(){
     ? 'In time-card library — syncable as “'+p.clientCode.trim()+'”'
     : 'Blank = notes-only. Hidden from the time card, never syncs.';
   document.getElementById('projectNotes').value=p.notes||'';
-  document.getElementById('roleSelect').value=p.role||'both';
   document.getElementById('archiveChk').checked=!!p.archived;
-  document.getElementById('journalTable').className='role-'+(p.role||'both');
   document.getElementById('showArchivedChk').checked=!!db.journal.showArchived;
   const notesOpen=!!db.journal.notesOpen;
   document.getElementById('projectNotesPanel').classList.toggle('hidden',!notesOpen);
   document.getElementById('notesToggle').textContent='📝 Project Notes '+(notesOpen?'▾':'▸');
   renderTypeFilter(); renderProjectPicker(); renderRecent(); renderStats(); renderSections();
 }
-function updateRole(v){ currentProject().role=v; currentProject().modifiedDate=now(); renderJournal(); save(); }
 function updateArchived(c){ currentProject().archived=!!c; currentProject().modifiedDate=now(); renderJournal(); renderTimecard(); save(); }
 function toggleProjectNotes(){ db.journal.notesOpen=!db.journal.notesOpen; renderJournal(); save(); }
 function updateProjectNotes(v){ currentProject().notes=v; currentProject().modifiedDate=now(); renderRecent(); save(); }
@@ -1472,7 +1480,7 @@ function renderSections(){
     if(searching && !rows.length) return;
     const collapsed=!searching && !!db.journal.collapsedGroups[group.def.id];
     const gtr=document.createElement('tr'); gtr.className='group-row'+(collapsed?' collapsed':'');
-    const gtd=document.createElement('td'); gtd.colSpan=8;
+    const gtd=document.createElement('td'); gtd.colSpan=6;
     gtd.innerHTML='<span class="chev">▼</span> <span></span><span class="group-count"></span>';
     gtd.querySelectorAll('span')[1].textContent=group.def.label;
     gtd.querySelector('.group-count').textContent='('+rows.length+')';
@@ -1545,13 +1553,15 @@ function buildSectionRow(s){
   const tdV=document.createElement('td'); tdV.textContent=variance.toFixed(2);
   tdV.className=variance>0?'var-pos':(variance<0?'var-neg':'');
 
-  const tdPrep=noteCell(s,'preparer'); tdPrep.classList.add('col-prep');
-  const tdRev=noteCell(s,'reviewer'); tdRev.classList.add('col-rev');
-  tr.append(tdName,tdStatus,tdB,tdA,tdV, tdPrep, tdRev, noteCell(s,'scratch',true));
+  tr.append(tdName,tdStatus,tdB,tdA,tdV, noteCell(s,'scratch',true));
   return tr;
 }
 function noteCell(s,field,withCopy=false){
   const td=document.createElement('td'); const ta=document.createElement('textarea'); ta.className='note-box'; ta.value=s[field]||'';
+  // Auto-save as you type (debounced) — data + cloud only, no re-render so focus survives.
+  let tt=null; ta.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(()=>{
+    const live=currentProject().sections.find(x=>x.id===s.id); if(!live || live[field]===ta.value) return;
+    live[field]=ta.value; live.updated=now(); currentProject().modifiedDate=now(); save(); },800); });
   ta.onchange=()=>updateField(s.id,field,ta.value);
   const actions=document.createElement('div'); actions.className='cell-actions';
   const exp=document.createElement('button'); exp.className='small ghost'; exp.textContent='Expand ↗'; exp.onclick=()=>openExpanded(s.id,field); actions.appendChild(exp);
@@ -1576,7 +1586,7 @@ document.querySelectorAll('.card[data-acc] .card-header').forEach(h=>h.addEventL
 
 function openNewProjectModal(){ document.getElementById('newProjectName').value=''; document.getElementById('newClientCode').value='';
   newProjectType='ORDO'; renderTypeChips('newTypeChips','ORDO',pickNewType,false);
-  document.getElementById('templateType').value='ordo'; document.getElementById('newRole').value='both';
+  document.getElementById('templateType').value='ordo';
   openModal('projectModalBg'); setTimeout(()=>document.getElementById('newProjectName').focus(),50); }
 function nextCodeLetters(day,count){ const used=new Set(day.codes.map(c=>c.letter)); const out=[];
   for(const ch of 'abcdefghijklmnopqrstu'){ if(out.length>=count) break; if(!used.has(ch)){ out.push(ch); used.add(ch); } }
@@ -1595,7 +1605,7 @@ function createProject(){
   const name=document.getElementById('newProjectName').value.trim()||'New Project';
   const code=document.getElementById('newClientCode').value.trim();
   const template=document.getElementById('templateType').value;
-  const p=makeProject(template,name,newProjectType); p.clientCode=code; p.role=document.getElementById('newRole').value||'both';
+  const p=makeProject(template,name,newProjectType); p.clientCode=code;
   db.journal.projects.push(p); db.journal.currentProjectId=p.id;
   seedProjectCodes(p);
   closeModal('projectModalBg'); renderJournal(); renderTimecard(); save();
@@ -1634,9 +1644,9 @@ function projectToMarkdown(p){
   md+='| **Total** | **'+budget.toFixed(1)+'** | **'+actual.toFixed(1)+'** | **'+(budget-actual).toFixed(1)+'** |\n\n';
   buildGroups(p.sections).forEach(g=>{ md+='## '+g.def.label+'\n\n'; g.rows.forEach(r=>{ const s=r.s;
     md+='### '+s.name+'\n- Status: '+s.status+'\n- Budget: '+s.budget+' · Actual: '+effActual(s).toFixed(2)+'\n\n';
-    if(p.role!=='reviewer' && (s.preparer||'').trim()) md+='**Preparer Notes**\n\n'+s.preparer+'\n\n';
-    if(p.role!=='preparer' && (s.reviewer||'').trim()) md+='**Reviewer Notes**\n\n'+s.reviewer+'\n\n';
-    if((s.scratch||'').trim()) md+='**Open Items**\n\n'+s.scratch+'\n\n'; }); });
+    if((s.preparer||'').trim()) md+='**Notes (legacy preparer)**\n\n'+s.preparer+'\n\n';
+    if((s.reviewer||'').trim()) md+='**Notes (legacy reviewer)**\n\n'+s.reviewer+'\n\n';
+    if((s.scratch||'').trim()) md+='**Scratchpad**\n\n'+s.scratch+'\n\n'; }); });
   return md;
 }
 function safeName(s){ return String(s||'project').replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase()||'project'; }
@@ -1645,26 +1655,33 @@ function exportProjectMarkdown(){ const p=currentProject(); if(!p) return;
 function exportJournalMarkdown(){
   const md=db.journal.projects.map(p=>projectToMarkdown(p)).join('\n---\n\n');
   download('work-journal-all-'+todayStr()+'.md', md, 'text/markdown'); }
-// Open Items across the current project, formatted for pasting into a client email.
+// Scratchpad notes across the current project, formatted for pasting into an email.
 function copyOpenItems(){ const p=currentProject();
-  const plain=[p.name+' — Open Items',''], html=['<b>'+escapeHtml(p.name)+' — Open Items</b>',''];
+  const plain=[p.name+' — Scratchpad',''], html=['<b>'+escapeHtml(p.name)+' — Scratchpad</b>',''];
   let any=false;
   buildGroups(p.sections).forEach(g=>g.rows.forEach(r=>{ const s=r.s; const t=(s.scratch||'').trim(); if(!t) return; any=true;
     plain.push(s.name+':', t, ''); html.push('<b>'+escapeHtml(s.name)+':</b>', escapeHtml(t).replace(/\n/g,'<br>'), ''); }));
-  if(!any){ plain.push('(No open items recorded.)'); html.push('(No open items recorded.)'); }
-  showCopy('Open Items — '+p.name, plain.join('\n'), html.join('\n')); }
+  if(!any){ plain.push('(Nothing on the scratchpad.)'); html.push('(Nothing on the scratchpad.)'); }
+  showCopy('Scratchpad — '+p.name, plain.join('\n'), html.join('\n')); }
 
 /* expanded editor (shared) */
 function openExpanded(id,field){ const s=currentProject().sections.find(x=>x.id===id); if(!s) return; editorCtx={scope:'section',id,field};
-  const L={preparer:'Preparer Notes',reviewer:'Reviewer Notes',scratch:'Open Items'}; const p=currentProject();
+  const L={preparer:'Notes (legacy)',reviewer:'Notes (legacy)',scratch:'Scratchpad'}; const p=currentProject();
   document.getElementById('editorTitle').textContent=L[field]+' — '+s.name;
   document.getElementById('editorMeta').innerHTML='Project: '+escapeHtml(p.name)+'<br>Section: '+escapeHtml(s.name)+'<br>Created: '+escapeHtml(p.createdDate)+'<br>Modified: '+escapeHtml(p.modifiedDate);
   const ed=document.getElementById('bigEditor'); ed.value=s[field]||''; openModal('editorModalBg'); setTimeout(()=>ed.focus(),50); }
-function saveExpanded(){ if(!editorCtx) return;
-  if(editorCtx.scope==='project'){ currentProject().notes=document.getElementById('bigEditor').value; currentProject().modifiedDate=now(); }
+// Expanded editor auto-saves: commitExpanded writes the current text through the
+// normal save path (which also schedules the cloud push). Closing any way —
+// Close button, backdrop click, Escape — commits first, so nothing is ever lost.
+function commitExpanded(){ if(!editorCtx) return;
+  const v=document.getElementById('bigEditor').value;
+  if(editorCtx.scope==='project'){ const p=currentProject();
+    if(p.notes!==v){ p.notes=v; p.modifiedDate=now(); save(); } }
   else { const s=currentProject().sections.find(x=>x.id===editorCtx.id);
-    if(s){ s[editorCtx.field]=document.getElementById('bigEditor').value; s.updated=now(); currentProject().modifiedDate=now(); } }
-  editorCtx=null; closeModal('editorModalBg'); renderJournal(); save(); }
+    if(s && s[editorCtx.field]!==v){ s[editorCtx.field]=v; s.updated=now(); currentProject().modifiedDate=now(); save(); } } }
+function saveExpanded(){ commitExpanded(); editorCtx=null; closeModal('editorModalBg'); renderJournal(); }
+(function(){ const ed=document.getElementById('bigEditor'); let t=null;
+  ed.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(commitExpanded,800); }); })();
 function copyEditor(){ copyText(document.getElementById('bigEditor').value); }
 function mdWrap(tok){ const ed=document.getElementById('bigEditor'); const a=ed.selectionStart,b=ed.selectionEnd; const sel=ed.value.slice(a,b)||'text';
   ed.value=ed.value.slice(0,a)+tok+sel+tok+ed.value.slice(b); ed.focus(); ed.selectionStart=a+tok.length; ed.selectionEnd=a+tok.length+sel.length; }
@@ -2009,7 +2026,7 @@ function codeBreakdown(label,type){
       const lh='LINKED JOURNAL — '+section+'  ('+p.name+')';
       plain.push('',lh); html.push('','<b>'+escapeHtml(lh)+'</b>');
       let any=false;
-      [['Preparer Notes',s.preparer],['Reviewer Notes',s.reviewer],['Open Items',s.scratch]].forEach(([t,v])=>{
+      [['Notes (legacy preparer)',s.preparer],['Notes (legacy reviewer)',s.reviewer],['Scratchpad',s.scratch]].forEach(([t,v])=>{
         v=(v||'').trim(); if(!v) return; any=true;
         plain.push(t+':','  '+v.replace(/\n/g,'\n  '));
         html.push('<b>'+escapeHtml(t)+':</b>',escapeHtml(v).replace(/\n/g,'<br>')); });
@@ -2142,7 +2159,7 @@ function switchMain(name){ document.querySelectorAll('.maintab').forEach(t=>t.cl
 function switchTcTab(name){ document.querySelectorAll('#main-timecard .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('#main-timecard .tab-pane').forEach(p=>p.classList.remove('active')); document.getElementById('tc-'+name).classList.add('active');
   if(name==='report') renderReport(); }
-function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle('dark',db.darkMode); save(); }
+function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle('cream',db.darkMode); save(); }
 
 /* =====================================================================
    CLOUD SYNC — Cloudflare KV via a tiny Worker (see sync/chiaro-sync-worker.js).
@@ -2263,7 +2280,7 @@ async function syncPull(manual){
     const incoming=JSON.parse(r.text); incoming.sync=db.sync; db=normalize(incoming);
     db.sync.myHash=hashStr(r.text); db.sync.lastSync=Date.now();
     runMigrations();
-    document.body.classList.toggle('dark',!!db.darkMode);
+    document.body.classList.toggle('cream',!!db.darkMode);
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
     save(); renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
@@ -2360,8 +2377,12 @@ function syncBoot(){ if(isConnected()){ setSyncDot('on'); if(db.sync.auto) syncP
 function scheduleAutoPush(){ if(syncing||!isConnected()||!db.sync.auto) return; clearTimeout(pushTimer); pushTimer=setTimeout(()=>syncPush(false), 4000); }
 document.addEventListener('click',()=>closeGearMenu());
 function cancelPendingConflict(){ if(conflictResolver){ const r=conflictResolver; conflictResolver=null; r('cancel'); } }
-document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('mousedown',e=>{ if(e.target===bg){ bg.classList.remove('open'); bg.style.zIndex=''; updateModalLock(); if(bg.id==='conflictModalBg') cancelPendingConflict(); } }));
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeGearMenu(); document.querySelectorAll('.modal-bg.open').forEach(m=>{ m.classList.remove('open'); m.style.zIndex=''; }); updateModalLock(); cancelPendingConflict(); }
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('mousedown',e=>{ if(e.target===bg){
+  if(bg.id==='editorModalBg'){ commitExpanded(); editorCtx=null; renderJournal(); }   // never lose notes on a stray click
+  bg.classList.remove('open'); bg.style.zIndex=''; updateModalLock(); if(bg.id==='conflictModalBg') cancelPendingConflict(); } }));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeGearMenu();
+  if(document.getElementById('editorModalBg').classList.contains('open')){ commitExpanded(); editorCtx=null; renderJournal(); }
+  document.querySelectorAll('.modal-bg.open').forEach(m=>{ m.classList.remove('open'); m.style.zIndex=''; }); updateModalLock(); cancelPendingConflict(); }
   const ed=document.getElementById('bigEditor'); if(document.getElementById('editorModalBg').classList.contains('open')&&document.activeElement===ed){
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='b'){ e.preventDefault(); mdWrap('**'); }
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='i'){ e.preventDefault(); mdWrap('*'); } } });

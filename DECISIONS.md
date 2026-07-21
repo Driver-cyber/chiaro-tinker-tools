@@ -83,6 +83,29 @@
       only when the ritual engine + bell push editing size, or a real PWA build
       pipeline is wanted. Chad is open to splitting if a constraint appears.
 
+* **[2026-07-21] Cloud sync live + five categories + chiaroscuro v0.1.0.**
+    * *Sync (SHIPPED, un-parked):* Cloudflare Worker + KV (`sync/`), deployed by
+      Chad (`chiaro-sync.cstewch.workers.dev`) and verified across devices.
+      Secrets stay out of the repo: URL + secret entered at runtime, stored
+      per-device; a one-paste **Sync code** (`CHIARO1-…`) onboards a new device.
+      This clears the constitution's off-device-durability gate — the iPhone
+      may now graduate to primary whenever Chad wants.
+    * *Time categories:* codes now carry a **derived** category — the linked
+      project's type (ORDO/Tinker/Family/Personal), else Admin. Summary is one
+      clickable **Total**; a resizable popup shows the 5-way breakdown. Standard
+      codes trimmed to Admin + Break (baked-in, out of the way). Lunch dropped.
+    * *Notes model:* Preparer/Reviewer retired (legacy data preserved, exports
+      label it "legacy"); one **Scratchpad** per step — named for creative space,
+      not "Open Items" open-endedness. **Auto-save everywhere**: inline and
+      expanded editor commit as you type (~0.8s debounce); closing the editor
+      any way (button/backdrop/Escape) commits first. Editor button is just
+      "Close." Fixes a real data-loss bug Chad hit while dogfooding.
+    * *Chiaroscuro shipped (CTT v0.1.0):* dark is the material — near-black
+      walnut field, one amber lamp (#F2A24A), lamp-glyph brand, serif titles,
+      happy checkbox now glows amber. "Light mode" is now **Cream** — ink on
+      parchment, per the brand's export face. One-time migration lands everyone
+      on dark; the toggle (🕯 Dark / Cream) remains.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * **Intention-on-open / enough-on-close ritual** — Chad names what a session is
   for; when met, CTT acts as a *mirror, not a wall*: names the "five more
@@ -131,8 +154,8 @@
 * **Tinker's bell** — focus timer; interaction, sound, tie-in to time entries
   all open. Never called "pomodoro."
 * **Project templates** (Phase 2) — bookkeeping cadence, advisory framework.
-* **Cross-device sync** — Worker+KV (house pattern) vs. PJT's Gist/Team-code.
-  Decide when a second device actually joins; the storage seam is ready.
+* ~~**Cross-device sync**~~ — **SHIPPED 2026-07-21** as Worker+KV (see change
+  log). Remaining follow-on: at-rest encryption of the KV blob (below).
 * **At-rest encryption** — PJT's AES-GCM + PBKDF2 pattern, if/when warranted.
 * **CTT macOS bundle identifier** — pick deliberately at Phase 3 wrap
   (e.g. `com.chiarotinkertools.ctt`); Phase 0 keeps PJT's.
