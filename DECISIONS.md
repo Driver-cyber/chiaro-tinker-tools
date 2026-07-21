@@ -82,16 +82,27 @@
   Intentionally-slow boot as anti-engagement in its purest form — it *spends*
   the wait asking "what did you come for?" (this is the concrete embodiment of
   the intention-on-open ritual above), never apologizing for it. Intention
-  prompts live in the `db` as a growable pool ("What is this session for?",
-  "Name the one thing", "What gets set down after?"), drawn at random. Uses
-  `currentColor` so it inherits any palette. **Deliberately NOT video** (Veo
-  caps ~8s; baked timing, heavy files, compression smears fine line-work).
-  Vectorize the clean line art via Inkscape *centerline* trace → stroked paths.
-  Image-gen (Gemini) is the renewable style engine for more figures (the mask
-  solo, the tinker's bell) — each traced later into the same draw-engine.
-  Deliberately unbuilt until the MVP daily loop exists; first move when ready =
-  a tiny two-speed proof-of-concept HTML so the pattern is inherited, not
-  described.
+  prompts live in the `db` as a growable pool, drawn at random — open-mode sets
+  intention ("What is this session for?", "What would be enough, today?"),
+  think-mode re-centers ("Held, not solved. That is also progress."). **Not
+  video** (Veo caps ~8s; baked timing, heavy files, compression smears fine
+  line-work): centerline-trace the clean art → stroked paths → `stroke-
+  dashoffset`, duration as a parameter. Image-gen (Gemini) is the renewable
+  style engine for more figures (mask solo, the tinker's bell), each traced into
+  the same draw-engine. **Working proof-of-concept now lives in the repo:
+  `assets/chiaro-ritual-screen.html` (8s Open + 2min Think + tap-to-pause) and
+  the traced art `assets/thinker-single-line.svg` (~40 stroked paths).** Open
+  art-direction question: should the mask draw *last*, arriving in his open hand
+  as the final gesture? (probably yes — decide when it ships.) On graduation
+  into the single-file app: do an archival-quality retrace, and inline the fonts
+  (the demo links Google Fonts — the app's CSP forbids external calls).
+  Deliberately parked until the MVP daily loop is real.
+* **Brand line language** — *[2026-07-20]* one continuous line, no fills,
+  generous negative space: the style rule is that the man and his plague are
+  literally the *same stroke*. Amber (#F2A24A) on near-black in-app; ink on
+  cream for exports. The mask-alone glyph is a candidate capture button — "tap
+  the plague to set it down." The etched/lithograph rendering is a separate
+  *tattoo track*, not the app. Not locked.
 * **Personal task surface** — separate tab or other form; mechanism
   deliberately undecided. Don't over-spec.
 * **Tinker's bell** — focus timer; interaction, sound, tie-in to time entries
