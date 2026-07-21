@@ -171,6 +171,31 @@ tr.drop-below>td{box-shadow:inset 0 -2px 0 0 var(--accent);}
 .chip:hover{background:rgba(37,99,235,.08);}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
+/* ---------- Chiaro happy-checkbox (reusable primitive; recolors with the theme) ---------- */
+.ck-wrap{position:relative;display:inline-flex;align-items:center;}
+.ck{width:22px;height:22px;flex:none;border-radius:6px;border:1.5px solid var(--muted);
+  background:transparent;cursor:pointer;display:grid;place-items:center;padding:0;
+  transition:border-color .3s, background .45s ease .8s;}
+.ck:hover{border-color:var(--accent);}
+.ck:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.ck svg{width:13px;height:13px;pointer-events:none;}
+.ck svg path{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .4s ease .85s;}
+.ck-wrap.done .ck{background:var(--accent);border-color:var(--accent);animation:ckbreathe .8s ease-out .85s;}
+.ck-wrap.done .ck svg path{stroke-dashoffset:0;}
+@keyframes ckbreathe{0%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}100%{box-shadow:0 0 0 15px rgba(37,99,235,0)}}
+.ck-label{position:relative;display:inline-block;transition:color .5s;}
+.ck-label::after{content:"";position:absolute;left:0;top:56%;height:1.5px;width:100%;background:var(--muted);
+  transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.42,.5,.2,1);}
+.ck-label.ck-done{color:var(--muted);}
+.ck-label.ck-done::after{transform:scaleX(1);}
+.ck-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--accent);pointer-events:none;
+  opacity:0;box-shadow:0 0 8px 2px rgba(37,99,235,.6);}
+@media(prefers-reduced-motion:reduce){
+  .ck,.ck svg path,.ck-label,.ck-label::after{transition:none!important}
+  .ck-wrap.done .ck{animation:none!important}
+}
+
 /* ---------- Modals ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;overscroll-behavior:contain;}
 body.modal-open{overflow:hidden;}
@@ -1445,21 +1470,58 @@ function renderSections(){
     rows.forEach(r=>tbody.appendChild(buildSectionRow(r.s)));
   });
 }
+/* Chiaro happy-checkbox — one reusable primitive for every checkbox in CTT:
+   progress-sweep cross-out on its label + a warm ember burst at completion. */
+function ckBurst(wrap){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for(let i=0;i<6;i++){ const s=document.createElement('span'); s.className='ck-spark';
+    s.style.left='11px'; s.style.top='11px'; wrap.appendChild(s);
+    const ang=(-70+Math.random()*140)*Math.PI/180, dist=15+Math.random()*22;
+    const dx=Math.sin(ang)*dist, dy=-Math.abs(Math.cos(ang))*dist-6;
+    s.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px) scale(0)',opacity:0}],
+      {duration:600+Math.random()*240,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ s.remove(); };
+  }
+}
+function makeCheck(isDone, label, onToggle){
+  const wrap=document.createElement('span'); wrap.className='ck-wrap'+(isDone?' done':'');
+  const box=document.createElement('button'); box.type='button'; box.className='ck';
+  box.setAttribute('role','checkbox'); box.setAttribute('aria-checked', isDone?'true':'false');
+  box.setAttribute('title','Mark done'); box.innerHTML='<svg viewBox="0 0 18 18"><path d="M3.5 9.5 L7.5 13 L14.5 5"/></svg>';
+  wrap.appendChild(box);
+  if(label && isDone) label.classList.add('ck-done');
+  box.addEventListener('click',function(){
+    const d=!wrap.classList.contains('done');
+    wrap.classList.toggle('done',d); box.setAttribute('aria-checked', d?'true':'false');
+    if(label) label.classList.toggle('ck-done',d);
+    if(d) setTimeout(function(){ ckBurst(wrap); }, 820);   // celebration lands as the sweep completes
+    onToggle(d);
+  });
+  return {wrap, box};
+}
 function buildSectionRow(s){
   const tr=document.createElement('tr');
   const variance=Number(s.budget||0)-effActual(s);
+  const flat=isFlat(currentProject()); const isDone=s.status==='Complete';
 
   const tdName=document.createElement('td'); tdName.className='section-col';
   const nm=document.createElement('div'); nm.textContent=(s.custom?'★ ':'')+s.name;
+  if(flat){ nm.className='ck-label'+(isDone?' ck-done':''); }
   const upd=document.createElement('div'); upd.style.cssText='font-size:12px;color:var(--muted);margin-top:6px'; upd.textContent='Updated: '+(s.updated||'--');
   const acts=document.createElement('div'); acts.className='cell-actions'; acts.style.marginTop='5px';
   const ren=document.createElement('button'); ren.className='small ghost'; ren.textContent='✎ Rename'; ren.onclick=()=>renameSection(s.id); acts.appendChild(ren);
   if(s.custom){ const dl=document.createElement('button'); dl.className='small ghost'; dl.textContent='✕ Delete'; dl.onclick=()=>deleteSection(s.id); acts.appendChild(dl); }
   tdName.append(nm,upd,acts);
 
-  const tdStatus=document.createElement('td'); const sel=document.createElement('select');
-  STATUSES.forEach(st=>{ const o=document.createElement('option'); o.textContent=st; if(s.status===st)o.selected=true; sel.appendChild(o); });
-  sel.onchange=()=>updateField(s.id,'status',sel.value); tdStatus.appendChild(sel);
+  const tdStatus=document.createElement('td');
+  if(flat){
+    // ORDO / Simple: the happy checkbox — checking a step marks it done (status Complete).
+    const c=makeCheck(isDone, nm, d=>updateField(s.id,'status', d?'Complete':'In Prep'));
+    tdStatus.appendChild(c.wrap);
+  } else {
+    const sel=document.createElement('select');
+    STATUSES.forEach(st=>{ const o=document.createElement('option'); o.textContent=st; if(s.status===st)o.selected=true; sel.appendChild(o); });
+    sel.onchange=()=>updateField(s.id,'status',sel.value); tdStatus.appendChild(sel);
+  }
 
   const tdB=document.createElement('td'); const inB=document.createElement('input'); inB.type='number'; inB.value=s.budget;
   inB.onchange=()=>updateField(s.id,'budget',inB.value); tdB.appendChild(inB);
