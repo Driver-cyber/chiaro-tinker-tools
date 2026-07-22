@@ -124,13 +124,29 @@
       one unchecks the other). Begin → old period archives, steps reset, carried
       lines land in the fresh period, time codes re-seed, name auto-bumps
       (July→August, 2026-07→2026-08).
-    * *Next big move — Open/Close tab architecture (design phase):* Chad's
-      direction: Journal · Time · Blueprint · an **Opening** surface (vector art,
-      "returning or starting?", ≤3 session goals with from–to time boxes) · a
-      **Closing** surface (calm screen; "the important stuff is held — log off
-      well"). Cannibalize his `garden-app` (calm screen) and `project-dashboard`
-      (der Hain grove). Fear is the torrent; open and close on purpose. Proposal
-      before build.
+    * *Next big move — Open/Close tab architecture:* Chad's direction: open and
+      close the day on purpose — fear is the torrent. Cannibalize his
+      `garden-app` (calm screen) and `project-dashboard` (der Hain grove) for
+      the Closing surface. **Revised (Chad, same day):** the original
+      "returning or starting?" popup idea is retired — a gate is a wall, not a
+      mirror. Opening is a *tab* and the default landing, never a click-through.
+
+* **[2026-07-22] Opening tab shipped (v0.3.0).**
+    * *The threshold room:* new first tab, **default on every load**. The
+      single-line Thinker (from `assets/`, inlined — no external calls) draws
+      himself in over ~6s, tap to pause; an intention prompt fades in, drawn
+      at random from a growable pool in the db (`db.prompts.open`).
+    * *Today's intentions:* up to three, each with a from→to time box
+      (e.g. 1100 → 1230) and the happy checkbox; progress reads "n / m met."
+      Stored per-date in `db.intentions` — **deliberately separate from the
+      Blueprint** (Chad: the board holds the week's small reminders; Opening
+      names today's few big rocks; no merging or overriding). A read-only
+      "week at a glance" panel mirrors the Blueprint with a jump link.
+    * *Mask + glow:* original plague-mask glyph (line style, amber) is now the
+      favicon — first appearance of Plagued-by-Concepts in the app chrome. The
+      brand lamp breathes on an 8s flicker. Both honor reduced-motion.
+    * *Still open:* Closing tab (calm screen) — waiting on repo access to
+      `garden-app` / `project-dashboard` to study what to cannibalize.
 
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * **Intention-on-open / enough-on-close ritual** — Chad names what a session is
