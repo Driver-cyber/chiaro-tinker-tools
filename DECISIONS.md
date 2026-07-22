@@ -106,6 +106,32 @@
       parchment, per the brand's export face. One-time migration lands everyone
       on dark; the toggle (🕯 Dark / Cream) remains.
 
+* **[2026-07-22] Daily W.I.N. retired · Blueprint · recurring carry-forward ritual (v0.2.0).**
+    * *Daily W.I.N. removed on sight:* firm-specific form Chad explicitly hates —
+      the moniker and the daily imposition, not the idea of naming intentions.
+      Replaced by **Blueprint**: a 7-day board (Sun–Sat), **three slots per day**,
+      happy checkboxes, week nav, Copy Week Plan. Fill it Sunday; return to it
+      when the day goes sideways to re-ground instead of spiraling. Data note:
+      slots reuse the legacy `day.win` field (existing entries preserved; legacy
+      days with >3 filled slots still show them all). "Today's three" mini panel
+      stays on the Time Card.
+    * *Carry-forward generalized (L4 SHIPPED):* not ORDO-only — any project can
+      toggle **Recurring** (project header + create modal; ORDO template defaults
+      on, cadence is Chad's business — monthly close, weekly budget, whatever).
+      Recurring projects get **🔄 Start next period**: the ritual lists every
+      scratchpad line with dual checks — *Carry* (default on, the safeguard) and
+      *Resolved* (strikes ✓ into the archive, with the happy animation; checking
+      one unchecks the other). Begin → old period archives, steps reset, carried
+      lines land in the fresh period, time codes re-seed, name auto-bumps
+      (July→August, 2026-07→2026-08).
+    * *Next big move — Open/Close tab architecture (design phase):* Chad's
+      direction: Journal · Time · Blueprint · an **Opening** surface (vector art,
+      "returning or starting?", ≤3 session goals with from–to time boxes) · a
+      **Closing** surface (calm screen; "the important stuff is held — log off
+      well"). Cannibalize his `garden-app` (calm screen) and `project-dashboard`
+      (der Hain grove). Fear is the torrent; open and close on purpose. Proposal
+      before build.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * **Intention-on-open / enough-on-close ritual** — Chad names what a session is
   for; when met, CTT acts as a *mirror, not a wall*: names the "five more
