@@ -264,6 +264,34 @@ body.cream #openArt{filter:none}
   .ck,.ck svg path,.ck-label,.ck-label::after{transition:none!important}
   .ck-wrap.done .ck{animation:none!important}
 }
+/* Closing — the log-off room */
+#main-closing{position:relative;overflow:hidden;min-height:calc(100vh - 58px)}
+.close-room{max-width:680px;margin:0 auto;padding:34px 20px 30vh;position:relative;z-index:2}
+.close-title{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-size:clamp(24px,3.4vw,32px);text-align:center;letter-spacing:-.01em}
+.close-sub{font-family:Georgia,'Iowan Old Style',serif;font-style:italic;text-align:center;color:var(--muted);margin:8px auto 24px;max-width:44ch;line-height:1.6;font-size:14.5px}
+.close-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:0 6px 30px rgba(0,0,0,.25)}
+body.cream .close-card{box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.close-sec{margin:0 0 18px}
+.close-sec:last-child{margin-bottom:2px}
+.close-sec h4{margin:0 0 8px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.close-row{display:flex;align-items:baseline;gap:9px;padding:5px 2px;font-size:13.5px;line-height:1.5;border-bottom:1px solid var(--border)}
+.close-row:last-child{border-bottom:none}
+.close-mark{flex:0 0 auto;width:16px;text-align:center;color:var(--accent)}
+.close-row .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.close-row.met .txt{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(242,162,74,.5)}
+.entrust{flex:0 0 auto;font-size:11px;font-style:italic;color:var(--muted)}
+.close-line{font-size:13.5px;line-height:1.6}
+.grove{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.grove-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:4px 11px 4px 7px;font-size:12px;background:var(--bg)}
+.grove-lamp{width:14px;height:14px;border-radius:50%;flex:none;background:radial-gradient(circle at 50% 50%, var(--accent2) 0 2px, rgba(242,162,74,.45) 5px, transparent 9px)}
+.grove-chip .cnt{color:var(--muted)}
+.night-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80vmin;height:34vmin;background:radial-gradient(ellipse at 50% 100%, rgba(242,162,74,.10), transparent 68%);pointer-events:none;z-index:0}
+.night-field{position:absolute;bottom:0;left:0;right:0;height:max(150px,22vh);display:flex;align-items:flex-end;overflow:hidden;pointer-events:none;z-index:1}
+.nf-blade{flex:1;margin:0 .5px;border-radius:3px 3px 0 0;transform-origin:50% 100%;
+  background:linear-gradient(to top, transparent 0%, var(--border) 45%, var(--accent) 100%);
+  animation:nfSway 3.4s ease-in-out infinite}
+@keyframes nfSway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@media (prefers-reduced-motion: reduce){ .nf-blade{animation:none} }
 
 /* ---------- Modals ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(5,4,2,.62);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;overscroll-behavior:contain;}
@@ -293,6 +321,7 @@ body.modal-open{overflow:hidden;}
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
     <div class="maintab" data-m="timecard" onclick="switchMain('timecard')">Time Card</div>
     <div class="maintab" data-m="blueprint" onclick="switchMain('blueprint')">Blueprint</div>
+    <div class="maintab" data-m="closing" onclick="switchMain('closing')">Closing</div>
   </div>
   <div class="spacer"></div>
   <div class="save-pill"><span class="save-dot" id="saveDot"></span><span id="saveStatus">Saved</span></div>
@@ -593,6 +622,17 @@ body.modal-open{overflow:hidden;}
     <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral.</div>
   </div>
 </div>
+</div>
+
+<!-- ============================= CLOSING ============================= -->
+<div class="main-pane" id="main-closing">
+  <div class="close-room">
+    <div class="close-title">The day is held.</div>
+    <div class="close-sub" id="closePrompt">Everything below keeps until you return. Take the lamp — go be with them.</div>
+    <div class="close-card" id="closeLedger"></div>
+  </div>
+  <div class="night-glow" aria-hidden="true"></div>
+  <div class="night-field" id="nightField" aria-hidden="true"></div>
 </div>
 
 <!-- Shared modals -->
@@ -2475,11 +2515,91 @@ function renderPlanMini(){
   prog.textContent=items.filter(w=>w.done).length+' / '+items.length+' done';
 }
 
+/* ---- Closing — the log-off room ----
+   The mirror at the door: a read-only ledger proving the day is held —
+   intentions met or entrusted, hours given, every shelf with its count,
+   tomorrow already bounded. It asks for nothing; it only shows. The field
+   below is garden-app's calm screen re-materialized in chiaroscuro: a
+   night meadow, each blade tipped in lamplight. */
+let nightBuilt=false;
+function buildNightField(){ if(nightBuilt) return; nightBuilt=true;
+  const field=document.getElementById('nightField'); const N=150, waves=4, period=3.4;
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<N;i++){ const b=document.createElement('div'); b.className='nf-blade';
+    b.style.height=(40+Math.random()*60).toFixed(1)+'%';
+    b.style.opacity=(0.28+Math.random()*0.34).toFixed(2);
+    b.style.animationDelay='-'+((i/N)*waves*period).toFixed(2)+'s';
+    b.style.animationDuration=(period+(Math.random()-0.5)*0.5).toFixed(2)+'s';
+    frag.appendChild(b); }
+  field.appendChild(frag);
+}
+function closeSec(title, extra){ const d=document.createElement('div'); d.className='close-sec';
+  const h=document.createElement('h4'); const s=document.createElement('span'); s.textContent=title; h.appendChild(s);
+  if(extra){ const e=document.createElement('span'); e.className='muted'; e.textContent=extra; h.appendChild(e); }
+  d.appendChild(h); return d; }
+function scratchLineCount(p){ return p.sections.reduce((a,s)=>a+(s.scratch||'').split('\n').filter(l=>l.trim()).length,0); }
+function renderClosing(){
+  buildNightField();
+  const el=document.getElementById('closeLedger'); el.innerHTML='';
+  const today=todayStr();
+
+  // Intentions — met or entrusted; "failed" is not a word this room knows.
+  const ints=(db.intentions[today]||[]).filter(x=>x&&(x.text||'').trim());
+  const met=ints.filter(x=>x.done).length;
+  const sec1=closeSec("Today's intentions", ints.length?(met+' / '+ints.length+' met'):'');
+  if(!ints.length){ const m=document.createElement('div'); m.className='muted'; m.style.padding='4px 2px';
+    m.textContent='None named today — that is allowed.'; sec1.appendChild(m); }
+  ints.forEach(it=>{ const r=document.createElement('div'); r.className='close-row'+(it.done?' met':'');
+    const mk=document.createElement('span'); mk.className='close-mark'; mk.textContent=it.done?'✓':'◦';
+    const tx=document.createElement('span'); tx.className='txt'; tx.textContent=it.text;
+    r.append(mk,tx);
+    if(!it.done){ const e=document.createElement('span'); e.className='entrust'; e.textContent='entrusted — waiting on the shelf'; r.appendChild(e); }
+    sec1.appendChild(r); });
+  el.appendChild(sec1);
+
+  // Hours given — a statement, never a comparison.
+  const day=db.timecard.days[today]; const mins=day?catGrand(dayTotals(day).t):0;
+  const sec2=closeSec('Hours given');
+  const hl=document.createElement('div'); hl.className='close-line';
+  hl.textContent=mins?('You gave '+fmtH(mins)+' hours today.'):'No hours on the card today — it does not mind.';
+  sec2.appendChild(hl); el.appendChild(sec2);
+
+  // The shelves — der Hain's gift: every project a small lamp, visibly held.
+  const projs=db.journal.projects.filter(p=>!p.archived);
+  const counts=projs.map(p=>({p,n:scratchLineCount(p)}));
+  const totalLines=counts.reduce((a,c)=>a+c.n,0); const shelves=counts.filter(c=>c.n>0).length;
+  const sec3=closeSec('The shelves', totalLines?(totalLines+' line'+(totalLines===1?'':'s')+' held on '+shelves+' shel'+(shelves===1?'f':'ves')):'');
+  if(!projs.length){ const m=document.createElement('div'); m.className='muted'; m.style.padding='4px 2px';
+    m.textContent='No projects yet — the bench is bare, and that is fine.'; sec3.appendChild(m); }
+  else{ const g=document.createElement('div'); g.className='grove';
+    counts.forEach(c=>{ const chip=document.createElement('span'); chip.className='grove-chip';
+      const lamp=document.createElement('span'); lamp.className='grove-lamp';
+      const nm=document.createElement('span'); nm.textContent=c.p.name;
+      chip.append(lamp,nm);
+      if(c.n){ const ct=document.createElement('span'); ct.className='cnt'; ct.textContent=c.n; chip.appendChild(ct); }
+      g.appendChild(chip); });
+    sec3.appendChild(g);
+    if(!totalLines){ const m=document.createElement('div'); m.className='muted'; m.style.padding='8px 2px 0';
+      m.textContent='Clean bench — nothing waiting on the shelves.'; sec3.appendChild(m); } }
+  el.appendChild(sec3);
+
+  // Tomorrow, at a glance — bounded before you leave.
+  const [ty,tmo,td]=today.split('-').map(Number); const tmS=iso(new Date(ty,tmo-1,td+1));
+  const tDay=db.timecard.days[tmS]; const tItems=((tDay&&tDay.win)||[]).filter(w=>w&&(w.text||'').trim());
+  const sec4=closeSec('Tomorrow, at a glance', dowName(tmS));
+  if(!tItems.length){ const m=document.createElement('div'); m.className='muted'; m.style.padding='4px 2px';
+    m.textContent='Unsketched — the Blueprint will hold it when you are ready.'; sec4.appendChild(m); }
+  tItems.forEach(w=>{ const r=document.createElement('div'); r.className='close-row'+(w.done?' met':'');
+    const mk=document.createElement('span'); mk.className='close-mark'; mk.textContent=w.done?'✓':'·';
+    const tx=document.createElement('span'); tx.className='txt'; tx.textContent=w.text; r.append(mk,tx); sec4.appendChild(r); });
+  el.appendChild(sec4);
+}
+
 /* ---- chrome: tabs, dark, modals ---- */
 function switchMain(name){ document.querySelectorAll('.maintab').forEach(t=>t.classList.toggle('active',t.dataset.m===name));
   document.querySelectorAll('.main-pane').forEach(p=>p.classList.remove('active')); document.getElementById('main-'+name).classList.add('active');
   if(name==='timecard') renderTimecard(); else if(name==='blueprint') renderBlueprint();
-  else if(name==='opening') renderOpening(); else renderJournal(); }
+  else if(name==='opening') renderOpening(); else if(name==='closing') renderClosing(); else renderJournal(); }
 function switchTcTab(name){ document.querySelectorAll('#main-timecard .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('#main-timecard .tab-pane').forEach(p=>p.classList.remove('active')); document.getElementById('tc-'+name).classList.add('active');
   if(name==='report') renderReport(); }
