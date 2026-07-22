@@ -213,6 +213,23 @@ body.cream .pill.warn{background:#fef3c7;color:#92400e} body.cream .pill.ok{back
   transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.42,.5,.2,1);}
 .ck-label.ck-done{color:var(--muted);}
 .ck-label.ck-done::after{transform:scaleX(1);}
+/* Blueprint week board */
+.week-board{display:grid;grid-template-columns:repeat(7,minmax(148px,1fr));gap:10px;overflow-x:auto;padding-bottom:4px}
+@media (max-width:980px){ .week-board{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))} }
+.wb-day{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 10px 6px;min-width:0}
+.wb-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.wb-day h4{margin:0 0 6px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.wb-day.today h4{color:var(--accent)}
+.wb-slot{display:flex;align-items:center;gap:7px;padding:3px 0}
+.wb-slot .ck-label{flex:1;min-width:0;display:block}
+.wb-slot input{width:100%;min-width:0;font-size:13px;background:transparent;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:3px 2px;color:inherit}
+.wb-slot input:focus{outline:none;border-bottom-color:var(--accent)}
+/* Carry-forward ritual */
+.carry-sec{margin:14px 0 2px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.carry-row{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:1px solid var(--border)}
+.carry-row.head{border-bottom:none;padding-bottom:0;position:sticky;top:0;background:var(--panel);z-index:1}
+.carry-row .txt{flex:1;min-width:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.carry-cell{width:72px;flex:0 0 auto;display:flex;justify-content:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .ck-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--accent);pointer-events:none;
   opacity:0;box-shadow:0 0 8px 2px rgba(242,162,74,.6);}
 @media(prefers-reduced-motion:reduce){
@@ -242,11 +259,11 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.1.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.2.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
     <div class="maintab" data-m="timecard" onclick="switchMain('timecard')">Time Card</div>
-    <div class="maintab" data-m="win" onclick="switchMain('win')">Daily W.I.N.</div>
+    <div class="maintab" data-m="blueprint" onclick="switchMain('blueprint')">Blueprint</div>
   </div>
   <div class="spacer"></div>
   <div class="save-pill"><span class="save-dot" id="saveDot"></span><span id="saveStatus">Saved</span></div>
@@ -312,6 +329,9 @@ body.modal-open{overflow:hidden;}
       <label class="muted" style="display:inline-flex;align-items:center;gap:6px">
         <input type="checkbox" id="archiveChk" style="width:auto" onchange="updateArchived(this.checked)"> Archived (done — hides from both pickers)
       </label>
+      <label class="muted" style="display:inline-flex;align-items:center;gap:6px">
+        <input type="checkbox" id="recurringChk" style="width:auto" onchange="updateRecurring(this.checked)"> Recurring (enables the period ritual)
+      </label>
       <span class="muted" id="clientCodeHint"></span>
     </div>
     <div style="margin-bottom:16px">
@@ -331,6 +351,7 @@ body.modal-open{overflow:hidden;}
       <button class="ghost" onclick="collapseAll()">Collapse All</button>
       <button class="ghost" onclick="exportProjectMarkdown()">Export Project Markdown</button>
       <button class="ghost" onclick="copyOpenItems()">Copy Scratchpad</button>
+      <button id="nextPeriodBtn" class="hidden" onclick="openCarryRitual()">🔄 Start next period</button>
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-label">TOTAL BUDGET</div><div class="stat-value" id="totalBudget">0.0</div></div>
@@ -424,8 +445,8 @@ body.modal-open{overflow:hidden;}
     </div>
 
     <div class="panel">
-      <h3><span>Today's W.I.N.</span><span class="muted" id="winMiniProgress"></span></h3>
-      <div class="body" id="winMiniRows"></div>
+      <h3><span>Today's three</span><span class="muted" id="planMiniProgress"></span></h3>
+      <div class="body" id="planMiniRows"></div>
     </div>
   </div>
 
@@ -459,24 +480,23 @@ body.modal-open{overflow:hidden;}
 </div>
 </div>
 
-<!-- ============================= DAILY W.I.N. ============================= -->
-<div class="main-pane" id="main-win">
+<!-- ============================= BLUEPRINT ============================= -->
+<div class="main-pane" id="main-blueprint">
 <div class="wrap">
   <div class="toolbar">
     <div class="datectrl">
-      <button class="ghost small" onclick="winShift(-1)">◀</button>
-      <input type="date" id="winDate" onchange="onWinDateChange()" />
-      <button class="ghost small" onclick="winShift(1)">▶</button>
-      <button class="ghost small" onclick="winToday()">Today</button>
-      <span class="dow" id="winDow"></span>
+      <button class="ghost small" onclick="weekShift(-7)">◀</button>
+      <span class="dow" id="weekLabel"></span>
+      <button class="ghost small" onclick="weekShift(7)">▶</button>
+      <button class="ghost small" onclick="weekToday()">This week</button>
     </div>
     <span class="spacer"></span>
-    <button class="ghost small" onclick="copyWin()">Copy / Export W.I.N.</button>
+    <button class="ghost small" onclick="copyWeekPlan()">Copy Week Plan</button>
   </div>
   <div class="panel">
-    <h3><span>Daily W.I.N. — What's Important Now</span><span class="muted" id="winProgress"></span></h3>
-    <div class="body" id="winRows"></div>
-    <div class="hint">Up to five things that matter most today. Check them off as you go — they show on the Time Card and in the CCH summary for the same date.</div>
+    <h3><span>The week's skeleton — three per day</span><span class="muted" id="weekProgress"></span></h3>
+    <div class="body"><div class="week-board" id="weekBoard"></div></div>
+    <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral.</div>
   </div>
 </div>
 </div>
@@ -488,15 +508,33 @@ body.modal-open{overflow:hidden;}
   <div class="muted" style="margin-bottom:6px">Type</div>
   <div id="newTypeChips" class="chips" style="margin-bottom:12px"></div>
   <div class="muted" style="margin-bottom:6px">Structure (template)</div>
-  <select id="templateType">
+  <select id="templateType" onchange="document.getElementById('newRecurringChk').checked=(this.value==='ordo')">
     <option value="ordo">ORDO Monthly — 7 steps</option>
     <option value="simple">Simple — Plan · Execute · Review</option>
     <option value="audit">Audit Binder</option>
   </select>
+  <label class="muted" style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:13px">
+    <input type="checkbox" id="newRecurringChk" style="width:auto"> Recurring — closes with the “Start next period” carry-forward ritual
+  </label>
   <input id="newClientCode" placeholder="Time-card client code (optional, e.g. ACME)" style="margin-top:10px" />
   <div class="modal-actions">
     <button class="ghost" onclick="closeModal('projectModalBg')">Cancel</button>
     <button onclick="createProject()">Create</button>
+  </div>
+</div></div>
+
+<!-- Carry-forward ritual: close a period; every scratchpad line is carried or resolved -->
+<div class="modal-bg" id="carryModalBg"><div class="modal wide">
+  <h2 id="carryTitle">Close the period</h2>
+  <div class="modal-meta">Everything below is held — nothing gets forgotten. <strong>Carry</strong> moves an item into the next period; <strong>Resolved</strong> means the real world already closed it (it stays in this period's archive, marked ✓). Uncheck both to let one go on purpose.</div>
+  <div style="margin:10px 0 14px">
+    <div class="muted" style="margin-bottom:6px">Name for the next period</div>
+    <input id="carryNewName" placeholder="e.g. ORDO Monthly — August 2026" />
+  </div>
+  <div id="carryList" style="max-height:50vh;overflow:auto"></div>
+  <div class="modal-actions">
+    <button class="ghost" onclick="closeModal('carryModalBg')">Not yet</button>
+    <button onclick="beginNextPeriod()">Begin next period</button>
   </div>
 </div></div>
 
@@ -669,7 +707,7 @@ body.modal-open{overflow:hidden;}
   <details class="sync-row" open>
     <summary style="cursor:pointer;font-weight:600;font-size:14px">About this app</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      PJT is one file that does three things, one per tab at the top: <strong>Project Journal</strong> (track workpaper sections, budgets, notes, open items), <strong>Time Card</strong> (log your day and roll hours into project sections), and <strong>Daily W.I.N.</strong> (a short "What's Important Now" list).<br><br>
+      CTT is one file that does three things, one per tab at the top: <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), and <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day).<br><br>
       Everything saves automatically — the dot in the top-right reads <strong>Saved</strong> after each change. Nothing leaves your machine unless you turn on cloud sync. Because it's a single file, it's portable and hard to break: if a build ever misbehaves, an earlier version still opens your data.
     </div>
   </details>
@@ -691,6 +729,7 @@ body.modal-open{overflow:hidden;}
       <strong>Steps.</strong> Each row is a step with: a <strong>done checkbox</strong> (audit projects keep a status dropdown), a <strong>Budget</strong>, an <strong>Actual</strong>, an auto-calculated <strong>Variance</strong>, and a <strong>Scratchpad</strong> — one free space for whatever the step needs to remember. Notes auto-save as you type (in the row and in the expanded editor). Expand any note for a bigger editor, or use Copy to grab its text.<br><br>
       <strong>Stat cards.</strong> The cards across the top sum the whole project — Total Budget, Total Actual, Variance, Complete count, and Open items — and update live.<br><br>
       <strong>Project actions</strong> (left panel): <em>Rename</em>, <em>Duplicate Project</em>, <em>Copy to New Year</em> (fresh copy with actuals cleared for a new engagement), <em>Add Custom Section</em>, <em>Delete Project</em>, and an <em>Archived</em> toggle to hide finished projects from the pickers.<br><br>
+      <strong>Recurring projects &amp; the period ritual.</strong> Mark a project <em>Recurring</em> (any cadence — monthly close, weekly budget) and a <strong>🔄 Start next period</strong> button appears. It opens the carry-forward ritual: every scratchpad line is listed with two checkboxes — <em>Carry</em> (on by default, the safeguard) and <em>Resolved</em> (already handled in the real world; it gets struck ✓ in the archive). Beginning the next period archives the old one, resets the steps, carries the carried lines into a fresh project, and seeds its time codes.<br><br>
       <strong>Export.</strong> <em>Export Project Markdown</em> gives a clean text summary of the project; <em>Copy Scratchpad</em> grabs every step's scratchpad — handy for status emails. <em>Search sections, notes…</em> filters within the open project.
     </div>
   </details>
@@ -719,9 +758,9 @@ body.modal-open{overflow:hidden;}
   </details>
 
   <details class="sync-row">
-    <summary style="cursor:pointer;font-weight:600;font-size:14px">Daily W.I.N.</summary>
+    <summary style="cursor:pointer;font-weight:600;font-size:14px">Blueprint</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      A lightweight "What's Important Now" checklist for the day — jot the few things that actually matter, check them off, and see a small progress indicator. It's intentionally simple; it's a focus list, not a full task manager.
+      A seven-day board with three slots per day — sketch the week's skeleton (Sunday works well), check things off as they land, and come back to re-ground when the day goes sideways. Today's three also show on the Time Card. It's a compass, not a task manager: three per day is the whole point.
     </div>
   </details>
 
@@ -822,7 +861,7 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.1.0 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.2.0 — forked from PJT 3.3.0. Single-file HTML.
    Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
    the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
    compat path. JSON export/import unchanged. CTT uses its own key so it can
@@ -1004,7 +1043,7 @@ async function bootDisk(){ if(!FS_ENABLED){ renderLocalStore(); return; }
       if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
       document.body.classList.toggle('cream',!!db.darkMode);
       booting=true; try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){} booting=false;
-      renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
+      renderJournal(); renderTimecard(); if(typeof renderBlueprint==='function') renderBlueprint();
       diskFlash('Loaded the newer local file from disk.');
     }
     await diskSave();          // make sure the working file exists / is current
@@ -1039,7 +1078,7 @@ async function restoreBackup(name){ if(!FS_ENABLED||!name) return;
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
     document.body.classList.toggle('cream',!!db.darkMode);
-    save(); renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
+    save(); renderJournal(); renderTimecard(); if(typeof renderBlueprint==='function') renderBlueprint();
     diskFlash('Restored from '+name+'.'); renderLocalStore(); }
   catch(e){ diskFlash('Restore failed: '+(e.message||e), true); } }
 function restoreFromSelected(){ const sel=document.getElementById('lsRestoreSel'); if(sel && sel.value) restoreBackup(sel.value); }
@@ -1357,7 +1396,7 @@ function isFlat(p){ return !!templateOf(p).flat; }
 function makeProject(template,name,type){
   const t=TEMPLATES[template]||TEMPLATES.simple;
   return {id:uid(),name:name||'New Project',type:PROJECT_TYPES.indexOf(type)>=0?type:'ORDO',
-    clientCode:'',role:'both',archived:false,notes:'',createdDate:now(),modifiedDate:now(),
+    clientCode:'',role:'both',archived:false,recurring:(template==='ordo'),notes:'',createdDate:now(),modifiedDate:now(),
     template:(TEMPLATES[template]?template:'simple'),sections:t.sections.map(n=>makeSection(n,false))};
 }
 function currentProject(){ return db.journal.projects.find(p=>p.id===db.journal.currentProjectId)||db.journal.projects[0]; }
@@ -1366,6 +1405,7 @@ function normalizeProject(p){
   if(p.notes===undefined) p.notes='';
   if(p.role===undefined) p.role='both';
   if(p.archived===undefined) p.archived=false;
+  if(p.recurring===undefined) p.recurring=(p.template==='ordo');   // monthly cadence is ORDO's default; toggle per-project
   if(PROJECT_TYPES.indexOf(p.type)<0) p.type='ORDO';   // legacy/imported projects → ORDO (work)
   if(p.template===undefined) p.template='simple';       // keeps 'audit'/'blank' if already set
   (p.sections||[]).forEach(s=>{ if(!s.timeSync) s.timeSync={}; });
@@ -1384,6 +1424,8 @@ function renderJournal(){
     : 'Blank = notes-only. Hidden from the time card, never syncs.';
   document.getElementById('projectNotes').value=p.notes||'';
   document.getElementById('archiveChk').checked=!!p.archived;
+  document.getElementById('recurringChk').checked=!!p.recurring;
+  document.getElementById('nextPeriodBtn').classList.toggle('hidden',!p.recurring);
   document.getElementById('showArchivedChk').checked=!!db.journal.showArchived;
   const notesOpen=!!db.journal.notesOpen;
   document.getElementById('projectNotesPanel').classList.toggle('hidden',!notesOpen);
@@ -1391,6 +1433,7 @@ function renderJournal(){
   renderTypeFilter(); renderProjectPicker(); renderRecent(); renderStats(); renderSections();
 }
 function updateArchived(c){ currentProject().archived=!!c; currentProject().modifiedDate=now(); renderJournal(); renderTimecard(); save(); }
+function updateRecurring(c){ currentProject().recurring=!!c; currentProject().modifiedDate=now(); renderJournal(); save(); }
 function toggleProjectNotes(){ db.journal.notesOpen=!db.journal.notesOpen; renderJournal(); save(); }
 function updateProjectNotes(v){ currentProject().notes=v; currentProject().modifiedDate=now(); renderRecent(); save(); }
 function openProjectNotesEditor(){ const p=currentProject(); editorCtx={scope:'project'};
@@ -1434,7 +1477,8 @@ function renderTypeFilter(){ renderTypeChips('typeFilterChips', db.journal.typeF
   t=>{ db.journal.typeFilter=t; renderJournal(); save(); }, true); }
 function projectMatchesFilter(p){ const tf=db.journal.typeFilter||'all'; return tf==='all' || (p.type||'ORDO')===tf; }
 function pickNewType(t){ newProjectType=t; renderTypeChips('newTypeChips', t, pickNewType, false);
-  document.getElementById('templateType').value=(t==='ORDO'?'ordo':'simple'); }   // smart default
+  document.getElementById('templateType').value=(t==='ORDO'?'ordo':'simple');   // smart default
+  document.getElementById('newRecurringChk').checked=(t==='ORDO'); }
 function rollForwardProject(){
   const src=currentProject(); if(!src) return;
   const name=prompt('Name for the new (next-year) project:', src.name); if(name===null) return;
@@ -1445,6 +1489,78 @@ function rollForwardProject(){
   src.archived=true;
   db.journal.projects.push(np); db.journal.currentProjectId=np.id;
   renderJournal(); renderTimecard(); save();
+}
+
+/* ---- Carry-forward ritual (recurring projects) ----
+   Closing a period the honest way: every scratchpad line is either CARRIED
+   into the next period or RESOLVED (struck ✓ in the archived period).
+   Default is carry — the safeguard — so nothing is silently forgotten. */
+let carryItems=[], carryProjectId=null;
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function bumpPeriodName(name){
+  let m=name.match(/\b(20\d{2})-(\d{2})\b/);                       // "2026-07" → "2026-08"
+  if(m){ let y=+m[1], mo=+m[2]; if(mo>=1&&mo<=12){ mo++; if(mo>12){mo=1;y++;} return name.replace(m[0], y+'-'+String(mo).padStart(2,'0')); } }
+  m=name.match(new RegExp('\\b('+MONTH_NAMES.join('|')+')\\b','i'));   // "July" → "August" (December bumps the year too)
+  if(m){ const i=MONTH_NAMES.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());
+    let out=name.replace(m[0], MONTH_NAMES[(i+1)%12]);
+    if(i===11){ const y=out.match(/\b20\d{2}\b/); if(y) out=out.replace(y[0], String(+y[0]+1)); }
+    return out; }
+  return name;
+}
+function openCarryRitual(){
+  const p=currentProject(); if(!p) return;
+  carryProjectId=p.id; carryItems=[];
+  p.sections.forEach((s,si)=>{ (s.scratch||'').split('\n').forEach(line=>{ const t=line.trim();
+    if(t && !/^✓ /.test(t)) carryItems.push({sec:si,secName:s.name,text:t,carry:true,resolved:false}); }); });
+  document.getElementById('carryTitle').textContent='Close the period — '+p.name;
+  document.getElementById('carryNewName').value=bumpPeriodName(p.name);
+  renderCarryList();
+  openModal('carryModalBg');
+}
+function renderCarryList(){
+  const el=document.getElementById('carryList'); el.innerHTML='';
+  if(!carryItems.length){ el.innerHTML='<div class="muted" style="padding:14px 4px">Clean bench — nothing left on the scratchpads. Begin whenever you like.</div>'; return; }
+  const head=document.createElement('div'); head.className='carry-row head';
+  head.innerHTML='<div class="txt"></div><div class="carry-cell">Carry</div><div class="carry-cell">Resolved</div>';
+  el.appendChild(head);
+  let lastSec=-1;
+  carryItems.forEach(it=>{
+    if(it.sec!==lastSec){ lastSec=it.sec; const h=document.createElement('div'); h.className='carry-sec'; h.textContent=it.secName; el.appendChild(h); }
+    const row=document.createElement('div'); row.className='carry-row';
+    const txt=document.createElement('div'); txt.className='txt'; txt.textContent=it.text;
+    const cCell=document.createElement('div'); cCell.className='carry-cell';
+    const rCell=document.createElement('div'); rCell.className='carry-cell';
+    // Two linked happy-checks: resolving un-carries (and strikes the text); un-resolving restores carry.
+    let guard=false;
+    const carry=makeCheck(it.carry, null, d=>{ if(guard) return; it.carry=d;
+      if(d && it.resolved){ it.resolved=false; guard=true; res.box.click(); guard=false; } });
+    const res=makeCheck(it.resolved, txt, d=>{ if(guard) return; it.resolved=d;
+      if(d===it.carry){ it.carry=!d; guard=true; carry.box.click(); guard=false; } });
+    cCell.appendChild(carry.wrap); rCell.appendChild(res.wrap);
+    row.append(txt,cCell,rCell); el.appendChild(row);
+  });
+}
+function beginNextPeriod(){
+  const src=db.journal.projects.find(p=>p.id===carryProjectId); if(!src) return;
+  const name=(document.getElementById('carryNewName').value||'').trim()||bumpPeriodName(src.name);
+  const np=JSON.parse(JSON.stringify(src));
+  np.id=uid(); np.name=name; np.archived=false; np.recurring=true; np.createdDate=now(); np.modifiedDate=now();
+  np.sections.forEach(s=>{ s.id=uid(); s.actual=0; s.scratch=''; s.preparer=''; s.reviewer=''; s.status='In Prep'; s.updated=''; s.timeSync={}; });
+  let carried=0, resolved=0;
+  carryItems.forEach(it=>{
+    if(it.resolved) resolved++;
+    if(it.carry){ carried++; const t=np.sections[it.sec]; if(t) t.scratch=(t.scratch?t.scratch+'\n':'')+it.text; }
+  });
+  // the closing period keeps the record: strike resolved lines in the archive
+  src.sections.forEach((s,si)=>{ if(!(s.scratch||'').trim()) return;
+    s.scratch=s.scratch.split('\n').map(line=>{ const t=line.trim();
+      return (t && carryItems.some(it=>it.sec===si && it.text===t && it.resolved)) ? line.replace(t,'✓ '+t) : line; }).join('\n'); });
+  src.archived=true; src.modifiedDate=now();
+  db.journal.projects.push(np); db.journal.currentProjectId=np.id;
+  seedProjectCodes(np);
+  carryItems=[]; carryProjectId=null;
+  closeModal('carryModalBg'); renderJournal(); renderTimecard(); save();
+  flash(carried+' carried · '+resolved+' resolved ✓');
 }
 function renderStats(){
   const p=currentProject();
@@ -1587,6 +1703,7 @@ document.querySelectorAll('.card[data-acc] .card-header').forEach(h=>h.addEventL
 function openNewProjectModal(){ document.getElementById('newProjectName').value=''; document.getElementById('newClientCode').value='';
   newProjectType='ORDO'; renderTypeChips('newTypeChips','ORDO',pickNewType,false);
   document.getElementById('templateType').value='ordo';
+  document.getElementById('newRecurringChk').checked=true;
   openModal('projectModalBg'); setTimeout(()=>document.getElementById('newProjectName').focus(),50); }
 function nextCodeLetters(day,count){ const used=new Set(day.codes.map(c=>c.letter)); const out=[];
   for(const ch of 'abcdefghijklmnopqrstu'){ if(out.length>=count) break; if(!used.has(ch)){ out.push(ch); used.add(ch); } }
@@ -1606,6 +1723,7 @@ function createProject(){
   const code=document.getElementById('newClientCode').value.trim();
   const template=document.getElementById('templateType').value;
   const p=makeProject(template,name,newProjectType); p.clientCode=code;
+  p.recurring=document.getElementById('newRecurringChk').checked;
   db.journal.projects.push(p); db.journal.currentProjectId=p.id;
   seedProjectCodes(p);
   closeModal('projectModalBg'); renderJournal(); renderTimecard(); save();
@@ -1760,7 +1878,7 @@ function renderTimecard(){
   document.getElementById('dayStart').value=fmt12(day.dayStart);
   document.getElementById('autoSyncBtn').textContent='Auto-sync: '+(db.timecard.autoSync?'On':'Off');
   document.getElementById('autoSyncBtn').classList.toggle('small', true);
-  renderLoggedDays(); renderLog(); renderCodesTable(); renderTotals(); renderWinMini();
+  renderLoggedDays(); renderLog(); renderCodesTable(); renderTotals(); renderPlanMini();
   scheduleAutoSync();
 }
 function renderLoggedDays(){
@@ -2044,8 +2162,8 @@ function copySummary(){ const day=curDay(); const {t,byCode}=dayTotals(day);
     plain.push(head); html.push('<b>'+escapeHtml(head)+'</b>');
     notesForCode(day,r.letter).forEach(n=>{ plain.push('    • '+n); html.push('    • '+escapeHtml(n)); }); });
   plain.push('', totals); html.push('', '<b>'+escapeHtml(totals)+'</b>');
-  ensureWin(day); const wins=day.win.filter(w=>w&&(w.text||'').trim());
-  if(wins.length){ plain.push('', "What's Important Now:"); html.push('', "<b>What's Important Now:</b>");
+  ensurePlan(day); const wins=day.win.filter(w=>w&&(w.text||'').trim());
+  if(wins.length){ plain.push('', 'Day plan:'); html.push('', '<b>Day plan:</b>');
     wins.forEach(w=>{ const mk=w.done?'[x]':'[ ]'; plain.push('  '+mk+' '+w.text); html.push('  '+mk+' '+escapeHtml(w.text)); }); }
   showCopy('Daily Summary for CCH', plain.join('\n'), html.join('\n')); }
 function copyReport(){ const rows=[...document.querySelectorAll('#reportBody tr')].map(tr=>{ const td=tr.querySelectorAll('td'); if(td.length<3) return ''; return td[0].textContent+' — '+td[2].textContent; }).filter(Boolean);
@@ -2101,61 +2219,81 @@ function migrateV7Project(p){ p=p||{}; if(!p.id)p.id=uid(); if(p.clientCode===un
     preparer:s.preparer??s.prep??'',reviewer:s.reviewer??s.review??'',scratch:s.scratch??'',custom:!!s.custom,updated:s.updated||'',timeSync:s.timeSync||{}}));
   delete p.created; delete p.modified; return p; }
 
-/* ---- Daily W.I.N. ---- */
-function ensureWin(day){ if(!Array.isArray(day.win)) day.win=[]; }
-function winSlot(day,i){ ensureWin(day); while(day.win.length<=i) day.win.push({text:'',done:false}); return day.win[i]; }
-function renderWin(){
-  const day=curDay(); ensureWin(day);
-  document.getElementById('winDate').value=db.timecard.currentDate;
-  document.getElementById('winDow').textContent=dowName(db.timecard.currentDate);
-  const wrap=document.getElementById('winRows'); wrap.innerHTML='';
-  for(let i=0;i<5;i++){
-    const item=day.win[i]||{text:'',done:false};
-    const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--border)';
-    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!item.done; cb.style.cssText='width:20px;height:20px;flex:0 0 auto;cursor:pointer';
-    cb.onchange=()=>{ winSlot(day,i).done=cb.checked; renderWin(); renderWinMini(); save(); };
-    const tx=document.createElement('input'); tx.type='text'; tx.className='wintext'; tx.value=item.text||''; tx.placeholder="What's important now #"+(i+1)+'…'; tx.style.fontSize='15px';
-    if(item.done){ tx.style.textDecoration='line-through'; tx.style.opacity='0.55'; }
-    let skip=false;
-    tx.onchange=()=>{ if(skip){ skip=false; return; } winSlot(day,i).text=tx.value; renderWin(); renderWinMini(); save(); };
-    tx.addEventListener('keydown',e=>{ if(e.key==='Enter' || (e.key==='Tab' && !e.shiftKey)){ e.preventDefault(); skip=true;
-      winSlot(day,i).text=tx.value; save(); updateWinProgress(); renderWinMini();
-      const fields=document.querySelectorAll('#winRows .wintext'); if(fields[i+1]){ fields[i+1].focus(); try{fields[i+1].select();}catch(_){} } } });
-    row.append(cb,tx); wrap.appendChild(row);
-  }
-  const items=day.win.filter(w=>w&&(w.text||'').trim());
-  document.getElementById('winProgress').textContent=items.length?(items.filter(w=>w.done).length+' / '+items.length+' done'):'';
+/* ---- Blueprint — the week board (three per day) ----
+   Storage: slots live on each day as day.win = [{text,done},…] — the field
+   name is PJT legacy kept for data compatibility; the old daily-list form is gone. */
+function ensurePlan(day){ if(!Array.isArray(day.win)) day.win=[]; }
+function planSlot(day,i){ ensurePlan(day); while(day.win.length<=i) day.win.push({text:'',done:false}); return day.win[i]; }
+let weekAnchor=null;   // any ISO date inside the viewed week; null = this week (view state, not persisted)
+function weekDates(){
+  const [y,m,d]=(weekAnchor||todayStr()).split('-').map(Number);
+  const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()-dt.getDay());   // back to Sunday
+  return Array.from({length:7},(_,i)=>{ const x=new Date(dt); x.setDate(dt.getDate()+i); return iso(x); });
 }
-function updateWinProgress(){ const day=curDay(); ensureWin(day); const items=day.win.filter(w=>w&&(w.text||'').trim());
-  const el=document.getElementById('winProgress'); if(el) el.textContent=items.length?(items.filter(w=>w.done).length+' / '+items.length+' done'):''; }
-function copyWin(){ const day=curDay(); ensureWin(day); const items=day.win.filter(w=>w&&(w.text||'').trim());
-  const head="Daily W.I.N. — "+dowName(db.timecard.currentDate);
-  const plain=[head,''], html=['<b>'+escapeHtml(head)+'</b>',''];
-  if(!items.length){ plain.push('(none set)'); html.push('(none set)'); }
-  items.forEach(w=>{ const mk=w.done?'[x]':'[ ]'; plain.push(mk+' '+w.text); html.push(mk+' '+escapeHtml(w.text)); });
-  showCopy('Daily W.I.N.', plain.join('\n'), html.join('\n')); }
-function renderWinMini(){
-  const day=curDay(); ensureWin(day);
-  const rows=document.getElementById('winMiniRows'); if(!rows) return; rows.innerHTML='';
+function renderBlueprint(){
+  const days=weekDates(); const today=todayStr();
+  document.getElementById('weekLabel').textContent='Week of '+dowName(days[0]);
+  const board=document.getElementById('weekBoard'); board.innerHTML='';
+  days.forEach(ds=>{
+    const day=db.timecard.days[ds];   // read-only peek; the day is only created once something is typed
+    const [y,m,d]=ds.split('-').map(Number);
+    const col=document.createElement('div'); col.className='wb-day'+(ds===today?' today':'');
+    const h=document.createElement('h4');
+    const wd=document.createElement('span'); wd.textContent=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short'});
+    const md=document.createElement('span'); md.textContent=m+'/'+d;
+    h.append(wd,md); col.appendChild(h);
+    let n=3; if(day&&Array.isArray(day.win)) day.win.forEach((w,i)=>{ if(w&&(w.text||'').trim()&&i>=n) n=i+1; });   // legacy days may hold >3
+    for(let i=0;i<n;i++){
+      const item=(day&&day.win&&day.win[i])||{text:'',done:false};
+      const row=document.createElement('div'); row.className='wb-slot';
+      const lw=document.createElement('span'); lw.className='ck-label'+(item.done?' ck-done':'');
+      const tx=document.createElement('input'); tx.type='text'; tx.value=item.text||''; tx.placeholder='·'; lw.appendChild(tx);
+      const ck=makeCheck(!!item.done, lw, dn=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; planSlot(dd,i).done=dn;
+        updateWeekProgress(); renderPlanMini(); save(); });
+      let tt=null; tx.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(()=>{ const dd=getDay(ds);
+        if(planSlot(dd,i).text!==tx.value){ planSlot(dd,i).text=tx.value; save(); } },800); });
+      tx.addEventListener('change',()=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; save(); updateWeekProgress(); renderPlanMini(); });
+      row.append(ck.wrap,lw); col.appendChild(row);
+    }
+    board.appendChild(col);
+  });
+  updateWeekProgress();
+}
+function updateWeekProgress(){ let done=0,total=0;
+  weekDates().forEach(ds=>{ const day=db.timecard.days[ds]; if(!day||!Array.isArray(day.win)) return;
+    day.win.forEach(w=>{ if(w&&(w.text||'').trim()){ total++; if(w.done) done++; } }); });
+  document.getElementById('weekProgress').textContent=total?(done+' / '+total+' done'):''; }
+function weekShift(n){ const [y,m,d]=(weekAnchor||todayStr()).split('-').map(Number);
+  const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+n); weekAnchor=iso(dt); renderBlueprint(); }
+function weekToday(){ weekAnchor=null; renderBlueprint(); }
+function copyWeekPlan(){ const plain=[],html=[];
+  weekDates().forEach(ds=>{ const day=db.timecard.days[ds]; const items=((day&&day.win)||[]).filter(w=>w&&(w.text||'').trim());
+    if(!items.length) return; const head=dowName(ds);
+    plain.push(head); html.push('<b>'+escapeHtml(head)+'</b>');
+    items.forEach(w=>{ const mk=w.done?'[x]':'[ ]'; plain.push('  '+mk+' '+w.text); html.push('  '+mk+' '+escapeHtml(w.text)); });
+    plain.push(''); html.push(''); });
+  if(!plain.length){ plain.push('(empty week)'); html.push('(empty week)'); }
+  showCopy('Week Plan', plain.join('\n'), html.join('\n')); }
+function renderPlanMini(){
+  const day=curDay(); ensurePlan(day);
+  const rows=document.getElementById('planMiniRows'); if(!rows) return; rows.innerHTML='';
   const items=day.win.filter(w=>w&&(w.text||'').trim());
-  if(!items.length){ rows.innerHTML='<div class="muted" style="padding:8px 6px">No W.I.N. set for this day — add up to five in the Daily W.I.N. tab.</div>';
-    document.getElementById('winMiniProgress').textContent=''; return; }
+  const prog=document.getElementById('planMiniProgress');
+  if(!items.length){ rows.innerHTML='<div class="muted" style="padding:8px 6px">Nothing sketched for today — the Blueprint tab holds the week.</div>';
+    prog.textContent=''; return; }
   day.win.forEach((w,i)=>{ if(!w||!(w.text||'').trim()) return;
     const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 6px;border-bottom:1px solid var(--border)';
-    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!w.done; cb.style.cssText='width:18px;height:18px;flex:0 0 auto;cursor:pointer';
-    cb.onchange=()=>{ winSlot(day,i).done=cb.checked; renderWinMini(); save(); };
-    const tx=document.createElement('span'); tx.textContent=w.text; if(w.done){ tx.style.textDecoration='line-through'; tx.style.opacity='0.55'; }
-    row.append(cb,tx); rows.appendChild(row); });
-  document.getElementById('winMiniProgress').textContent=items.filter(w=>w.done).length+' / '+items.length+' done';
+    const tx=document.createElement('span'); tx.className='ck-label'+(w.done?' ck-done':''); tx.textContent=w.text;
+    const ck=makeCheck(!!w.done, tx, dn=>{ planSlot(day,i).done=dn; save();
+      const its=day.win.filter(x=>x&&(x.text||'').trim()); prog.textContent=its.filter(x=>x.done).length+' / '+its.length+' done'; });
+    row.append(ck.wrap,tx); rows.appendChild(row); });
+  prog.textContent=items.filter(w=>w.done).length+' / '+items.length+' done';
 }
-function onWinDateChange(){ db.timecard.currentDate=document.getElementById('winDate').value; renderWin(); save(); }
-function winShift(n){ const [y,m,d]=db.timecard.currentDate.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+n); db.timecard.currentDate=iso(dt); renderWin(); save(); }
-function winToday(){ db.timecard.currentDate=todayStr(); renderWin(); save(); }
 
 /* ---- chrome: tabs, dark, modals ---- */
 function switchMain(name){ document.querySelectorAll('.maintab').forEach(t=>t.classList.toggle('active',t.dataset.m===name));
   document.querySelectorAll('.main-pane').forEach(p=>p.classList.remove('active')); document.getElementById('main-'+name).classList.add('active');
-  if(name==='timecard') renderTimecard(); else if(name==='win') renderWin(); else renderJournal(); }
+  if(name==='timecard') renderTimecard(); else if(name==='blueprint') renderBlueprint(); else renderJournal(); }
 function switchTcTab(name){ document.querySelectorAll('#main-timecard .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
   document.querySelectorAll('#main-timecard .tab-pane').forEach(p=>p.classList.remove('active')); document.getElementById('tc-'+name).classList.add('active');
   if(name==='report') renderReport(); }
@@ -2283,7 +2421,7 @@ async function syncPull(manual){
     document.body.classList.toggle('cream',!!db.darkMode);
     if(!currentProject()) db.journal.currentProjectId=(db.journal.projects[0]||{}).id;
     if(!db.timecard.currentDate) db.timecard.currentDate=todayStr();
-    save(); renderJournal(); renderTimecard(); if(typeof renderWin==='function') renderWin();
+    save(); renderJournal(); renderTimecard(); if(typeof renderBlueprint==='function') renderBlueprint();
     setSyncDot('on'); renderSync(); if(manual) syncMsg('Pulled latest from cloud.');
   }catch(e){ setSyncDot('err'); syncMsg(e.message,true); }
   finally{ syncing=false; }
