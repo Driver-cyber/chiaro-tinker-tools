@@ -148,11 +148,43 @@
     * *Still open:* Closing tab (calm screen) — waiting on repo access to
       `garden-app` / `project-dashboard` to study what to cannibalize.
 
+* **[2026-07-22] Closing tab shipped (v0.4.0) — the log-off room.**
+    * *Phase-gate red team (before building):* **Confirmed** — Closing is a tab,
+      not a summonable ritual (inspectable, skippable, never modal; matches the
+      Opening-tab architecture). **Confirmed** — cannibalize the *mechanism* of
+      garden-app's calm screen (traveling-wave field, one-job-per-element
+      restraint, breath-paced check), never its sage/sky palette; re-materialize
+      in chiaroscuro. **Scheduled** — "Opening as default on every load" may
+      grate on the eighth mid-day open; dogfood first, no conditional-landing
+      logic built (the app deciding for Chad would be worse than the friction).
+    * *The room:* a read-only **ledger of the held day** — intentions met or
+      *entrusted* (never "failed," never red), hours given (a statement, no
+      comparisons), **the shelves** (der Hain's gift: each active project a
+      small lamp chip with its count of held scratchpad lines), and tomorrow's
+      Blueprint glance so tomorrow is bounded before leaving. The room asks for
+      no input. Below it, a **night field**: 150 swaying blades tipped in
+      lamplight (garden-app's calm screen re-materialized), reduced-motion
+      honored.
+    * *"It was enough."* — the parking-lot enough-on-close ritual landed in its
+      smallest honest form: one optional check (happy-checkbox primitive),
+      keyed per-date in `db.closing`, history never surfaced — a streak is
+      impossible by construction. Mirror, not wall.
+    * *Closing prompts:* `db.prompts.close` pool mirroring the Opening pool,
+      drawn at random ("The bench will hold it." / "Take the lamp. The rest
+      keeps." …). Growable in the db.
+    * *Deliberately left out:* any capture input (scratchpads, Blueprint, and
+      intentions are the homes; a new inbox is a new unbounded thing), weekly/
+      monthly reflection (a different room), animation gating.
+    * *Deferred, on the table:* a per-line **"carry to tomorrow"** on unmet
+      intentions. Chad's call: wear the room in for a few days first.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
-* **Intention-on-open / enough-on-close ritual** — Chad names what a session is
-  for; when met, CTT acts as a *mirror, not a wall*: names the "five more
-  minutes" impulse and points at the door ("this is held — go be with them").
-  Never blocks. Experimental; design after MVP proves the daily loop.
+* ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
+  intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
+  Closing tab's "It was enough." check (v0.4.0). Still open from the original
+  idea: the *active* mirror that names the "five more minutes" impulse out
+  loud when the named intentions are met mid-session. Revisit after dogfooding
+  the Opening→Closing loop.
 * **Brand illustration — "Plagued by Concepts."** *[2026-07-19]* Rodin's
   *Thinker*, seated on his plinth, contemplating a plague-doctor mask instead of
   resting his chin — art-historical, dry-witted, memento-mori; the literate,
