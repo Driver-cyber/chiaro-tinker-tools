@@ -285,6 +285,11 @@ body.cream .close-card{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .grove-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:4px 11px 4px 7px;font-size:12px;background:var(--bg)}
 .grove-lamp{width:14px;height:14px;border-radius:50%;flex:none;background:radial-gradient(circle at 50% 50%, var(--accent2) 0 2px, rgba(242,162,74,.45) 5px, transparent 9px)}
 .grove-chip .cnt{color:var(--muted)}
+.close-enough{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:26px}
+.close-enough .ck{width:56px;height:56px;border-radius:15px}
+.close-enough .ck svg{width:32px;height:32px}
+.ce-caption{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-style:italic;font-size:15px;color:var(--muted)}
+.close-enough.done .ce-caption{color:var(--text)}
 .night-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80vmin;height:34vmin;background:radial-gradient(ellipse at 50% 100%, rgba(242,162,74,.10), transparent 68%);pointer-events:none;z-index:0}
 .night-field{position:absolute;bottom:0;left:0;right:0;height:max(150px,22vh);display:flex;align-items:flex-end;overflow:hidden;pointer-events:none;z-index:1}
 .nf-blade{flex:1;margin:0 .5px;border-radius:3px 3px 0 0;transform-origin:50% 100%;
@@ -315,7 +320,7 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.3.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.4.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -630,6 +635,10 @@ body.modal-open{overflow:hidden;}
     <div class="close-title">The day is held.</div>
     <div class="close-sub" id="closePrompt">Everything below keeps until you return. Take the lamp — go be with them.</div>
     <div class="close-card" id="closeLedger"></div>
+    <div class="close-enough">
+      <div id="enoughWrap"></div>
+      <div class="ce-caption">It was enough.</div>
+    </div>
   </div>
   <div class="night-glow" aria-hidden="true"></div>
   <div class="night-field" id="nightField" aria-hidden="true"></div>
@@ -841,7 +850,7 @@ body.modal-open{overflow:hidden;}
   <details class="sync-row" open>
     <summary style="cursor:pointer;font-weight:600;font-size:14px">About this app</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), and <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
+      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
       Everything saves automatically — the dot in the top-right reads <strong>Saved</strong> after each change. Nothing leaves your machine unless you turn on cloud sync. Because it's a single file, it's portable and hard to break: if a build ever misbehaves, an earlier version still opens your data.
     </div>
   </details>
@@ -995,7 +1004,7 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.3.0 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.4.0 — forked from PJT 3.3.0. Single-file HTML.
    Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
    the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
    compat path. JSON export/import unchanged. CTT uses its own key so it can
@@ -1078,13 +1087,21 @@ function mergeDefaults(p){
   p.journal=Object.assign({projects:[],currentProjectId:null,collapsedGroups:{},accordions:{projects:true,export:false}}, p.journal||{});
   p.timecard=Object.assign({days:{},currentDate:null}, p.timecard||{});
   p.intentions=p.intentions||{};   // Opening tab: per-date session intentions [{text,from,to,done}]
+  p.closing=p.closing||{};         // Closing tab: per-date {enough:bool} — never read after its day
   p.prompts=Object.assign({open:[
     "What is this session for?",
     "Name the one thing.",
     "What would be enough, today?",
     "What are you here to set down?",
     "One intention. The rest can wait on the shelf.",
-  ]}, p.prompts||{});   // growable pool — drawn at random on open
+  ], close:[
+    "The bench will hold it.",
+    "Take the lamp. The rest keeps.",
+    "Held, not solved. That is also progress.",
+    "You did what you came to do.",
+    "The clay stays clay — it waits well.",
+    "Everything below keeps until you return. Go be with them.",
+  ]}, p.prompts||{});   // growable pools — drawn at random on open/close
   p.sync=Object.assign({journalId:null,journalName:'',auto:false,lastSync:null,myHash:null}, p.sync||{});
   return p;
 }
@@ -1754,9 +1771,10 @@ function renderSections(){
    progress-sweep cross-out on its label + a warm ember burst at completion. */
 function ckBurst(wrap){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cx=(wrap.offsetWidth||22)/2, cy=(wrap.offsetHeight||22)/2;   // sparks rise from the box's center at any size
   for(let i=0;i<6;i++){ const s=document.createElement('span'); s.className='ck-spark';
-    s.style.left='11px'; s.style.top='11px'; wrap.appendChild(s);
-    const ang=(-70+Math.random()*140)*Math.PI/180, dist=15+Math.random()*22;
+    s.style.left=cx+'px'; s.style.top=cy+'px'; wrap.appendChild(s);
+    const ang=(-70+Math.random()*140)*Math.PI/180, dist=cx*1.4+Math.random()*cx*2;
     const dx=Math.sin(ang)*dist, dy=-Math.abs(Math.cos(ang))*dist-6;
     s.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px) scale(0)',opacity:0}],
       {duration:600+Math.random()*240,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ s.remove(); };
@@ -2540,8 +2558,20 @@ function closeSec(title, extra){ const d=document.createElement('div'); d.classN
 function scratchLineCount(p){ return p.sections.reduce((a,s)=>a+(s.scratch||'').split('\n').filter(l=>l.trim()).length,0); }
 function renderClosing(){
   buildNightField();
+  const pool=(db.prompts&&db.prompts.close&&db.prompts.close.length)?db.prompts.close:['The bench will hold it.'];
+  document.getElementById('closePrompt').textContent=pool[Math.floor(Math.random()*pool.length)];
   const el=document.getElementById('closeLedger'); el.innerHTML='';
   const today=todayStr();
+
+  // "It was enough." — the enough-on-close mirror in its smallest honest form.
+  // Optional, daily by date key, no history ever surfaced: a streak is
+  // impossible by construction.
+  const ew=document.getElementById('enoughWrap'); ew.innerHTML='';
+  const enough=!!(db.closing[today]&&db.closing[today].enough);
+  ew.parentElement.classList.toggle('done',enough);
+  const eck=makeCheck(enough, null, dn=>{ db.closing[today]={enough:dn};
+    ew.parentElement.classList.toggle('done',dn); save(); });
+  ew.appendChild(eck.wrap);
 
   // Intentions — met or entrusted; "failed" is not a word this room knows.
   const ints=(db.intentions[today]||[]).filter(x=>x&&(x.text||'').trim());
