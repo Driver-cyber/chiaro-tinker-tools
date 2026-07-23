@@ -178,6 +178,16 @@
     * *Deferred, on the table:* a per-line **"carry to tomorrow"** on unmet
       intentions. Chad's call: wear the room in for a few days first.
 
+* **[2026-07-23] Dogfood iteration 1 (v0.5.0) — two days in the rooms.**
+    * *Blueprint daily notes:* a ✎ notes drawer under each day's three slots —
+      default hidden, expands to a brain-dump textarea (autosave, `day.note`).
+      A subtle amber dot marks days that hold a note. The point: thoughts get
+      a home without crowding the three; the working surface stays crisp.
+    * *Closing field raised:* the night grass now grows to roughly the
+      "Tomorrow, at a glance" line, rising behind all windows (ledger stays
+      z-above). The "It was enough." check gained a quiet radial pool of dark
+      so it reads over the tall grass in both themes.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
