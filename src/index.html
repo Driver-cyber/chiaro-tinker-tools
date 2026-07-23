@@ -252,6 +252,9 @@ body.cream #openArt{filter:none}
 .wb-slot .ck-label{flex:1;min-width:0;display:block}
 .wb-slot input{width:100%;min-width:0;font-size:13px;background:transparent;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:3px 2px;color:inherit}
 .wb-slot input:focus{outline:none;border-bottom-color:var(--accent)}
+.wb-note-btn{width:100%;margin-top:7px;font-size:11px;color:var(--muted);padding:5px 8px}
+.wb-note-btn .wb-note-dot{color:var(--accent);font-weight:800}
+.wb-note{width:100%;margin-top:7px;min-height:96px;font-size:12.5px;line-height:1.5;resize:vertical}
 /* Carry-forward ritual */
 .carry-sec{margin:14px 0 2px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .carry-row{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:1px solid var(--border)}
@@ -266,7 +269,7 @@ body.cream #openArt{filter:none}
 }
 /* Closing — the log-off room */
 #main-closing{position:relative;overflow:hidden;min-height:calc(100vh - 58px)}
-.close-room{max-width:680px;margin:0 auto;padding:34px 20px 30vh;position:relative;z-index:2}
+.close-room{max-width:680px;margin:0 auto;padding:34px 20px 22vh;position:relative;z-index:2}
 .close-title{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-size:clamp(24px,3.4vw,32px);text-align:center;letter-spacing:-.01em}
 .close-sub{font-family:Georgia,'Iowan Old Style',serif;font-style:italic;text-align:center;color:var(--muted);margin:8px auto 24px;max-width:44ch;line-height:1.6;font-size:14.5px}
 .close-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:0 6px 30px rgba(0,0,0,.25)}
@@ -285,13 +288,16 @@ body.cream .close-card{box-shadow:0 6px 24px rgba(0,0,0,.08)}
 .grove-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:4px 11px 4px 7px;font-size:12px;background:var(--bg)}
 .grove-lamp{width:14px;height:14px;border-radius:50%;flex:none;background:radial-gradient(circle at 50% 50%, var(--accent2) 0 2px, rgba(242,162,74,.45) 5px, transparent 9px)}
 .grove-chip .cnt{color:var(--muted)}
-.close-enough{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:26px}
+.close-enough{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:26px;position:relative;padding:18px 0}
+/* a quiet pool of dark so the check reads over the tall grass */
+.close-enough::before{content:'';position:absolute;inset:-10px -80px;z-index:-1;
+  background:radial-gradient(ellipse at center, var(--bg) 28%, transparent 72%)}
 .close-enough .ck{width:56px;height:56px;border-radius:15px}
 .close-enough .ck svg{width:32px;height:32px}
 .ce-caption{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-style:italic;font-size:15px;color:var(--muted)}
 .close-enough.done .ce-caption{color:var(--text)}
 .night-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80vmin;height:34vmin;background:radial-gradient(ellipse at 50% 100%, rgba(242,162,74,.10), transparent 68%);pointer-events:none;z-index:0}
-.night-field{position:absolute;bottom:0;left:0;right:0;height:max(150px,22vh);display:flex;align-items:flex-end;overflow:hidden;pointer-events:none;z-index:1}
+.night-field{position:absolute;bottom:0;left:0;right:0;height:max(330px,55vh);display:flex;align-items:flex-end;overflow:hidden;pointer-events:none;z-index:1}
 .nf-blade{flex:1;margin:0 .5px;border-radius:3px 3px 0 0;transform-origin:50% 100%;
   background:linear-gradient(to top, transparent 0%, var(--border) 45%, var(--accent) 100%);
   animation:nfSway 3.4s ease-in-out infinite}
@@ -320,7 +326,7 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.4.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.5.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -850,7 +856,7 @@ body.modal-open{overflow:hidden;}
   <details class="sync-row" open>
     <summary style="cursor:pointer;font-weight:600;font-size:14px">About this app</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
+      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day, plus a hidden ✎ notes drawer under each day for brain-dumps that shouldn't crowd the three), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
       Everything saves automatically — the dot in the top-right reads <strong>Saved</strong> after each change. Nothing leaves your machine unless you turn on cloud sync. Because it's a single file, it's portable and hard to break: if a build ever misbehaves, an earlier version still opens your data.
     </div>
   </details>
@@ -1004,7 +1010,7 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.4.0 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.5.0 — forked from PJT 3.3.0. Single-file HTML.
    Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
    the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
    compat path. JSON export/import unchanged. CTT uses its own key so it can
@@ -2418,6 +2424,22 @@ function renderBlueprint(){
       tx.addEventListener('change',()=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; save(); updateWeekProgress(); renderPlanMini(); });
       row.append(ck.wrap,lw); col.appendChild(row);
     }
+    // Daily notes — a brain-dump drawer under the three things. Default
+    // hidden: thoughts are held, the day's focus stays the three. Lives on
+    // day.note (legacy days simply lack it).
+    const nbtn=document.createElement('button'); nbtn.type='button'; nbtn.className='ghost small wb-note-btn';
+    const setLbl=()=>{ const has=!!(((db.timecard.days[ds]||{}).note)||'').trim();
+      nbtn.innerHTML='✎ notes'+(has?' <span class="wb-note-dot">·</span>':''); };
+    const ta=document.createElement('textarea'); ta.className='wb-note';
+    ta.placeholder='Brain-dump for the day — held here, out of the way.';
+    ta.value=(day&&day.note)||''; ta.style.display='none';
+    let nt=null; const commitNote=()=>{ const dd=getDay(ds); if(dd.note!==ta.value){ dd.note=ta.value; save(); } setLbl(); };
+    ta.addEventListener('input',()=>{ clearTimeout(nt); nt=setTimeout(commitNote,800); });
+    ta.addEventListener('change',commitNote);
+    nbtn.onclick=()=>{ const open=ta.style.display!=='none';
+      ta.style.display=open?'none':'block'; if(!open) ta.focus(); };
+    setLbl();
+    col.append(nbtn,ta);
     board.appendChild(col);
   });
   updateWeekProgress();
