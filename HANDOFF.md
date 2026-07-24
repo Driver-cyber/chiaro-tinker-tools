@@ -28,13 +28,13 @@ its contents are absorbed.*
 
 ## Next up (tracker priorities)
 
-1. **Chad's call pending: desktop installability.** The old "make CTT a legit
-   PWA" priority was answered by the split (the iPhone on-ramp lives in the
-   mobile repo now). Open question: does the desktop surface *also* want a
-   manifest + SW for dock/desktop installs, or stay plain browser + Tauri?
-   A proposal was laid out for Chad 2026-07-24 — wait for his word; if yes,
-   the mobile repo's `manifest.webmanifest`/`sw.js` pattern ports over almost
-   verbatim (new CACHE name, desktop-flavored manifest).
+1. **Desktop installability: answered — Scheduled, not now** (Chad,
+   2026-07-24). The MacBook dock install is still the destination (his words:
+   CTT everywhere — dock, browser, phone; "my security blanket"), but
+   plain-browser iteration speed wins while changes are heavy. Don't build it
+   unbidden; when the churn settles and Chad says go, port the mobile repo's
+   `manifest.webmanifest`/`sw.js` pattern near-verbatim (new CACHE name,
+   desktop-flavored manifest).
 2. **Keep dogfooding the arc** — unchanged watch list: carry-to-tomorrow on
    unmet intentions (deferred by choice, ask first) · Opening-as-default on
    mid-day opens (red-team: Scheduled) · notes-drawer persistence (offered,

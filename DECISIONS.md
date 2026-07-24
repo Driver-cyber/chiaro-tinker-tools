@@ -206,11 +206,13 @@
       `normalize()` change must land on both sides (or be verified tolerated)
       before merging, verified with legacy-shaped data. Surface divergence:
       yes. Data-model divergence: never.
-    * *Open question (Chad's call, not made):* with the iPhone on-ramp now
-      living in the mobile repo, does the *desktop* surface still want its own
-      installability (manifest + SW for a dock/desktop install), or does it
-      stay plain browser + Tauri? Old tracker priority #1 ("make CTT a legit
-      PWA") is superseded pending that word.
+    * *Answered same day (Chad) — desktop installability: Scheduled, not now.*
+      The destination is confirmed: CTT everywhere — installed on the MacBook
+      (dock), in the browser, on the phone (eventually native iPhone). "My
+      security blanket — accessible everywhere, all the time." But while the
+      app is changing fast, the plain browser's iteration speed wins; the
+      dock install waits until the churn settles. When it's time, the mobile
+      repo's manifest/sw.js pattern ports over nearly verbatim.
 
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
