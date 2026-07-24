@@ -214,6 +214,15 @@
       dock install waits until the churn settles. When it's time, the mobile
       repo's manifest/sw.js pattern ports over nearly verbatim.
 
+* **[2026-07-25] Custom domains — both surfaces get real doors (Chad).**
+      **https://chiaro.chadstewartcpa.com** fronts this repo's Pages deploy;
+      **https://chiaromobile.chadstewartcpa.com** fronts the mobile sibling.
+      The `pages.dev` aliases still serve the same builds. No code changes —
+      all paths are relative. Per-origin note (matters when the dock install
+      lands, and already matters on the phone): PWA installs, localStorage,
+      and sync-code config are per-origin, so the custom domains are the
+      canonical doors to install and onboard from.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the

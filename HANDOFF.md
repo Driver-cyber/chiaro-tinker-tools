@@ -23,8 +23,12 @@ its contents are absorbed.*
   `normalize()` changes land on both sides together, verified with
   legacy-shaped data. Never let the data model drift between siblings.
 - **This repo's app is untouched** — still CTT v0.5.0, live at
-  https://chiaro-tinker-tools.pages.dev/. Chad dogfoods daily with real ORDO
-  data on cloud sync. Never ask for or commit his `SYNC_SECRET`.
+  **https://chiaro.chadstewartcpa.com** (custom domain added 2026-07-25; the
+  old https://chiaro-tinker-tools.pages.dev/ alias still serves). The mobile
+  sibling's canonical door is **https://chiaromobile.chadstewartcpa.com**.
+  PWA installs, localStorage, and sync config are per-origin — the custom
+  domains are the doors to install/onboard from. Chad dogfoods daily with
+  real ORDO data on cloud sync. Never ask for or commit his `SYNC_SECRET`.
 
 ## Next up (tracker priorities)
 
@@ -69,9 +73,10 @@ its contents are absorbed.*
 - CTT still isn't in the dashboard's `projects.json` registry (der Hain shows
   no CTT card). One-line adds would light up either or both repos — the mobile
   repo now has a tracker file too (`chiaro-tinker-tools-mobile-tracker.html`).
-- Cloudflare Pages check for the mobile project: confirm the build output
-  directory is `src` (mirrors this repo's setup). If the deploy 404s, that's
-  the knob.
+- ~~Cloudflare Pages check for the mobile project~~ — resolved: Chad wired
+  custom domains for both surfaces 2026-07-25 (this session's sandbox can't
+  reach the public web to verify the live pages; Chad confirms from his
+  devices).
 
 ## Parked (don't build unbidden)
 
