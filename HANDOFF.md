@@ -22,7 +22,17 @@ its contents are absorbed.*
   repos share one synced db (`SCHEMA='ctt-1'`) over Worker+KV. Schema or
   `normalize()` changes land on both sides together, verified with
   legacy-shaped data. Never let the data model drift between siblings.
-- **This repo's app is untouched** — still CTT v0.5.0, live at
+- **CTT v0.6.0 SHIPPED (2026-07-25, Chad's ask):** the **tinker's bell** —
+  collapsible ember-field timer atop the Time Card Day Entry (hidden by
+  default; 🔔 on any time block pre-fills its duration; one soft WebAudio
+  ring + a slow pulse-until-noticed; ephemeral, zero schema impact) — plus
+  **derived code hints** in the log dropdown ("a — VPS 1 · Reconcile
+  accounts", derived from linkSection at render time, never stored). A
+  hand-typed abbreviation field was deliberately deferred (schema change →
+  lockstep); revisit only if derived hints aren't enough. Bell follow-ons
+  parked: sound iteration, deeper bell⇄entry tie-in, lock-screen Live
+  Activity (iOS native, mobile M2). Backport both to mobile after dogfood.
+- **The desktop app is live at**
   **https://chiaro.chadstewartcpa.com** (custom domain added 2026-07-25; the
   old https://chiaro-tinker-tools.pages.dev/ alias still serves). The mobile
   sibling's canonical door is **https://chiaromobile.chadstewartcpa.com**.

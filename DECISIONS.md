@@ -223,6 +223,33 @@
       and sync-code config are per-origin, so the custom domains are the
       canonical doors to install and onboard from.
 
+* **[2026-07-25] v0.6.0 — the tinker's bell rings (un-parked by Chad) + code hints.**
+    * *Code hints (Chad's ask):* the log dropdown now reads
+      "a — VPS 1 · Reconcile accounts" — hint **derived at render time** from
+      the linked step name (prefix stripped, ~18-char truncation). Not stored:
+      step renames already propagate into `linkSection`, so hints can't go
+      stale and there's **no schema change** (mobile lockstep untouched).
+      A hand-typed abbreviation field was considered and deliberately deferred
+      — it would be a schema change; revisit only if derived names aren't
+      enough after dogfooding.
+    * *Tinker's bell (parked since founding, bid in by Chad):* a collapsible
+      panel atop the Time Card Day Entry — hidden by default, opened by its
+      carrot (default 25 min) or by a **🔔 on any time block** (left of ✕),
+      which pre-fills the block's computed duration and names what it's
+      keeping time for. The face is an **ember field**: 100 amber cells on
+      walnut, extinguishing in sequence as time passes; serif countdown
+      beside it. Pause/Resume/Reset; collapsed header shows the remaining
+      time small while running.
+    * *The ring (mirror, not wall):* one soft synthesized bell strike
+      (WebAudio, original instrument, mutable) and — Chad's addition — a
+      **slow breathing pulse + amber glow on the field until noticed**: a
+      signal that waits for your eyes instead of grabbing them. Deliberately
+      excluded: browser notifications, tab-title countdowns, auto-restarts,
+      overtime counters. Reduced-motion gets a static glow, no pulse.
+    * *Ephemeral by design:* no db fields, no sync traffic, nothing persisted.
+      A bell you set while present. The lock-screen Live Activity vision is
+      parked with the iOS-native phase (mobile repo M2).
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
@@ -270,8 +297,11 @@
   *tattoo track*, not the app. Not locked.
 * **Personal task surface** — separate tab or other form; mechanism
   deliberately undecided. Don't over-spec.
-* **Tinker's bell** — focus timer; interaction, sound, tie-in to time entries
-  all open. Never called "pomodoro."
+* ~~**Tinker's bell**~~ — **SHIPPED 2026-07-25 (v0.6.0)** in base form: ember-field
+  timer in the Time Card, block-linked durations, one ring + pulse-until-
+  noticed. Still open from the original idea: sound design iteration, a
+  bell⇄time-entry tie-in beyond duration pre-fill, and the lock-screen Live
+  Activity (parked with iOS native, mobile repo M2). Never "pomodoro."
 * **Project templates** (Phase 2) — bookkeeping cadence, advisory framework.
 * ~~**Cross-device sync**~~ — **SHIPPED 2026-07-21** as Worker+KV (see change
   log). Remaining follow-on: at-rest encryption of the KV blob (below).
