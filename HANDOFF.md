@@ -73,10 +73,14 @@ its contents are absorbed.*
 - CTT still isn't in the dashboard's `projects.json` registry (der Hain shows
   no CTT card). One-line adds would light up either or both repos — the mobile
   repo now has a tracker file too (`chiaro-tinker-tools-mobile-tracker.html`).
-- ~~Cloudflare Pages check for the mobile project~~ — resolved: Chad wired
-  custom domains for both surfaces 2026-07-25 (this session's sandbox can't
-  reach the public web to verify the live pages; Chad confirms from his
-  devices).
+- ~~Cloudflare Pages check for the mobile project~~ — RESOLVED 2026-07-25,
+  and the diagnosis is worth keeping: the domain first served a blank white
+  page even though CF's GitHub check said deploy success. Root cause: build
+  output directory was the repo root, not `src` (white, not walnut = the app
+  never loaded — a dark-material app that reaches the browser always paints
+  dark). Chad set output dir to `src`; confirmed live on his iPhone at
+  chiaromobile.chadstewartcpa.com, sync active. That setting must stay `src`
+  in both Pages projects.
 
 ## Parked (don't build unbidden)
 
