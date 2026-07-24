@@ -2014,6 +2014,14 @@ function entryStart(day,i){ return i===0?day.dayStart:day.entries[i-1].stop; }
 function entryMinutes(day,i){ const s=toMin(entryStart(day,i)),e=toMin(day.entries[i].stop); if(s==null||e==null) return 0; return Math.max(0,e-s); }
 function codeFor(day,letter){ return day.codes.find(c=>c.letter===letter); }
 function codeLabel(c){ return c?(c.client+(c.billing?(' '+c.billing):'')):'(unassigned)'; }
+/* Dropdown-only label: append a hint derived from the linked step name so
+   "VPS 2" answers "which step is that?" without leaving the row. Derived, not
+   stored — step renames already propagate into linkSection, so it can't go
+   stale, and there's no schema change to coordinate with the mobile sibling. */
+function codeOptionLabel(c){ let s=c.letter+' — '+codeLabel(c);
+  if(c && c.linkSection){ let hint=String(c.linkSection).replace(/^\s*[0-9A-Za-z]+\s*[-–—.:]?\s*/,'').trim();
+    if(hint){ if(hint.length>18) hint=hint.slice(0,17)+'…'; s+=' · '+hint; } }
+  return s; }
 function dayTotals(day){ const t=emptyCatTotals(); const byCode={};
   day.entries.forEach((en,i)=>{ const m=entryMinutes(day,i); const c=codeFor(day,en.code); const cat=c?categoryOf(c):'admin'; t[cat]+=m; byCode[en.code]=(byCode[en.code]||0)+m; });
   return {t,byCode}; }
@@ -2127,7 +2135,7 @@ function logRow(day,en,i){
     const insertBefore=below?i+1:i; const from=logDragFrom; logDragFrom=null; clearLogDropMarks();
     if(from!==insertBefore && from!==insertBefore-1){ moveLogEntry(day,from,insertBefore); renderTimecard(); save(); } });
   const tdCode=document.createElement('td'); const sel=document.createElement('select');
-  day.codes.forEach(c=>{ const o=document.createElement('option'); o.value=c.letter; o.textContent=c.letter+' — '+codeLabel(c); if(c.letter===en.code)o.selected=true; sel.appendChild(o); });
+  day.codes.forEach(c=>{ const o=document.createElement('option'); o.value=c.letter; o.textContent=codeOptionLabel(c); if(c.letter===en.code)o.selected=true; sel.appendChild(o); });
   // code change refreshes totals/codes only (NOT the log) so keyboard focus survives for fast Tab entry
   sel.onchange=()=>{ en.code=sel.value; save(); renderCodesTable(); renderTotals(); }; tdCode.appendChild(sel);
 
