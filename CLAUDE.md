@@ -94,7 +94,10 @@ place.** When proposing new features, state both answers explicitly.
    Do not scatter direct `localStorage` calls.
 3. **Schema version on the `db` from the first commit**, with a `normalize()`
    path for forward compatibility. When migrating, **verify with legacy-shaped
-   data** — the single most load-bearing migration step.
+   data** — the single most load-bearing migration step. Since the surface
+   split (2026-07-24), schema/`normalize()` changes must also stay in lockstep
+   with the mobile sibling (`chiaro-tinker-tools-mobile`) — both repos read
+   and write the same synced db; see DECISIONS.md.
 4. **No secrets in the repo or any distributable.** Runtime injection only.
    Credentials stripped from every backup and export (PJT pattern).
 5. **Off-device durability before iPhone becomes a primary device.** iOS can

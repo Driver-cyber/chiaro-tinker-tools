@@ -47,7 +47,7 @@
   <header>
     <h1>Chiaro Tinker Tools</h1>
     <p>Personal tool belt &amp; studio — timecard, journal, and whatever the belt grows. Ordo ab chao.</p>
-    <div class="updated">Updated 2026-07-23</div>
+    <div class="updated">Updated 2026-07-24</div>
   </header>
 
   <div class="col">
@@ -57,8 +57,8 @@
     <div class="pri">
       <div class="badge">1</div>
       <div>
-        <div class="t">Make it a legit PWA</div>
-        <div class="n">Manifest + service worker + Chiaro icons on the single file. The iPhone on-ramp; sync gate is already cleared.</div>
+        <div class="t">Decide: does the desktop surface want installability too?</div>
+        <div class="n">The PWA priority was answered by the surface split: CTT Mobile v0.1.0 SHIPPED as an installable PWA in the sibling repo (chiaro-tinker-tools-mobile — manifest, shell-only SW with silent updates, mask-glyph icons, iOS chrome). Open question for Chad: give this desktop repo a manifest + SW for dock/desktop installs, or stay plain browser + Tauri. Standing rule either way: schema lockstep with the sibling.</div>
       </div>
     </div>
     <div class="pri">
@@ -74,7 +74,7 @@
       <ul>
         <li>Phase 2 — project templates (bookkeeping cadence, advisory framework)</li>
         <li>macOS wrap of CTT proper (new bundle identifier)</li>
-        <li>iPhone: native build or PWA mobile supremacy</li>
+        <li>iPhone: PWA live in the mobile sibling; native build if PWA supremacy runs out of road (tracked there)</li>
         <li>Personal task surface (form deliberately undecided)</li>
         <li>Tinker's bell focus timer</li>
         <li>Intention-on-open / enough-on-close ritual (mirror, not wall)</li>
@@ -91,19 +91,19 @@
 {
   "project": "Chiaro Tinker Tools",
   "description": "Personal tool belt & studio — ORDO timecard + project journal, growing into tasks and the tinker's bell",
-  "updated": "2026-07-23",
+  "updated": "2026-07-24",
   "columns": [
     {
       "name": "chiaro-tinker-tools",
       "sub": "Single-file HTML · Tauri 2 · Cloudflare Pages · Driver-cyber",
       "priorities": [
-        { "title": "Make it a legit PWA", "note": "Manifest + service worker + Chiaro icons; iPhone on-ramp, sync gate already cleared." },
+        { "title": "Decide: does the desktop surface want installability too?", "note": "PWA priority answered by the surface split — CTT Mobile v0.1.0 SHIPPED as an installable PWA in chiaro-tinker-tools-mobile (manifest, shell-only SW, silent updates, mask-glyph icons, iOS chrome). Open: desktop manifest+SW for dock installs, or stay plain browser + Tauri. Schema lockstep with the sibling either way." },
         { "title": "Dogfood the full arc — Opening → work → Closing", "note": "Closing SHIPPED v0.4.0 (held ledger, night field, 'It was enough.' check, closing prompt pool). v0.5.0 landed the first dogfood notes (Blueprint daily-notes drawer, taller field). Watching: carry-to-tomorrow on unmet intentions (deferred); Opening-as-default on mid-day opens (red-team: Scheduled)." }
       ],
       "backlog": [
         "Phase 2 — project templates (bookkeeping cadence, advisory framework)",
         "macOS wrap of CTT proper (new bundle identifier)",
-        "iPhone: native build or PWA mobile supremacy",
+        "iPhone: PWA live in the mobile sibling; native build if PWA supremacy runs out of road (tracked there)",
         "Personal task surface (form deliberately undecided)",
         "Tinker's bell focus timer",
         "Intention-on-open / enough-on-close ritual (mirror, not wall)",
