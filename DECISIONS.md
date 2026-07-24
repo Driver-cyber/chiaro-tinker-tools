@@ -188,6 +188,30 @@
       z-above). The "It was enough." check gained a quiet radial pool of dark
       so it reads over the tall grass in both themes.
 
+* **[2026-07-24] The surface split — CTT Mobile founded (Chad's call).**
+    * *Decision — two repos, one soul:* this repo stays the **desktop** surface
+      (desktop browser + Tauri macOS wrap); the new
+      `Driver-cyber/chiaro-tinker-tools-mobile` is the **mobile** surface
+      (mobile-browser PWA now, iOS native someday), with its own Cloudflare
+      Pages deploy. Each surface stays focused instead of one repo carrying
+      both sets of compromises. Founding docs inherited whole over there, with
+      the split caveat.
+    * *Shipped there — CTT Mobile v0.1.0:* `src/index.html` forked verbatim at
+      CTT v0.5.0 + PWA layer (manifest, shell-only service worker with silent
+      network-first updates, mask-glyph icon set, iOS standalone chrome +
+      safe areas, tab-wrap fix — Closing was off-canvas at 390px). Mobile runs
+      its own version line (v0.1.x) and decision log from the fork point.
+    * *Decision — schema lockstep (load-bearing):* both repos share one synced
+      `db` (`SCHEMA='ctt-1'`) through the Worker+KV bridge. Any schema or
+      `normalize()` change must land on both sides (or be verified tolerated)
+      before merging, verified with legacy-shaped data. Surface divergence:
+      yes. Data-model divergence: never.
+    * *Open question (Chad's call, not made):* with the iPhone on-ramp now
+      living in the mobile repo, does the *desktop* surface still want its own
+      installability (manifest + SW for a dock/desktop install), or does it
+      stay plain browser + Tauri? Old tracker priority #1 ("make CTT a legit
+      PWA") is superseded pending that word.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
