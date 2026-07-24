@@ -573,7 +573,7 @@ body.modal-open{overflow:hidden;}
             <label class="muted">Minutes <input type="text" inputmode="numeric" id="bellDur" value="25" style="width:64px;display:inline-block;padding:4px 6px"></label>
             <button class="small" id="bellStartBtn" onclick="bellStartPause()">Start</button>
             <button class="ghost small" onclick="bellReset()">Reset</button>
-            <button class="ghost small" id="bellMuteBtn" onclick="bellMuteToggle()" title="One soft ring when time is up — never more">Sound: on</button>
+            <button class="ghost small" id="bellMuteBtn" onclick="bellMuteToggle()" title="One soft ring when time is up — never more">Sound: off</button>
           </div>
           <div class="muted" id="bellWord" style="font-style:italic"></div>
         </div>
@@ -2727,7 +2727,9 @@ function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle(
    Duration is drawn from a time block's 🔔 (its computed minutes) or typed;
    ticking runs off an endAt timestamp so throttled tabs stay accurate.
    ===================================================================== */
-const bell={total:0,left:0,endAt:0,running:false,tick:null,muted:false,rung:false,label:''};
+/* muted by default — Chad runs the bell silent; the pulse is the signal.
+   Ephemeral like the rest of the bell, so the default is the posture. */
+const bell={total:0,left:0,endAt:0,running:false,tick:null,muted:true,rung:false,label:''};
 const BELL_CELLS=100;
 function bellEls(){ return {
   panel:document.getElementById('bellPanel'), grid:document.getElementById('bellGrid'),
