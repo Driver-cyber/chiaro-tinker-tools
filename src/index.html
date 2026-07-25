@@ -343,12 +343,17 @@ body.modal-open{overflow:hidden;}
   .bell-grid.rung{animation:none;box-shadow:0 0 26px rgba(242,162,74,.55);}
   .bell-cell{transition:none;}
 }
+/* popped-out face: lives in the PiP document's body (no .bell-panel.open
+   ancestor there), stacked for a narrow floating window */
+.bell-body.pip{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.bell-body.pip .bell-side{min-width:0;align-items:center;text-align:center;}
+.bell-panel.popped .bell-head{opacity:.8;}
 </style>
 </head>
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.6.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.6.1</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -562,6 +567,7 @@ body.modal-open{overflow:hidden;}
     <div class="panel bell-panel" id="bellPanel">
       <h3 class="bell-head" onclick="bellToggle()">
         <span><span class="bell-carrot" id="bellCarrot">▸</span> 🔔 Tinker's bell</span>
+        <button class="ghost small" id="bellPopBtn" onclick="bellPopOut(event)" style="display:none;font-weight:400" title="Float the bell in a small always-on-top window">⧉ Pop out</button>
         <span class="bell-mini muted" id="bellMini"></span>
       </h3>
       <div class="bell-body">
@@ -1056,9 +1062,11 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.6.0 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.6.1 — forked from PJT 3.3.0. Single-file HTML.
    v0.6.0: tinker's bell (ephemeral ember-field timer in the Time Card; one
    soft ring + pulse-until-noticed) and derived code hints in the log dropdown.
+   v0.6.1: bell pop-out via Document Picture-in-Picture (desktop Chrome/Edge;
+   feature-detected ⧉ button) — the face floats always-on-top, engine stays here.
    Storage seam: one localStorage key (STORE_KEY='ctt_v1') + a schema string on
    the db (SCHEMA='ctt-1') from the first commit; normalize() is the forward-
    compat path. JSON export/import unchanged. CTT uses its own key so it can
@@ -2731,12 +2739,19 @@ function toggleDark(){ db.darkMode=!db.darkMode; document.body.classList.toggle(
    Ephemeral like the rest of the bell, so the default is the posture. */
 const bell={total:0,left:0,endAt:0,running:false,tick:null,muted:true,rung:false,label:''};
 const BELL_CELLS=100;
-function bellEls(){ return {
-  panel:document.getElementById('bellPanel'), grid:document.getElementById('bellGrid'),
-  time:document.getElementById('bellTime'), mini:document.getElementById('bellMini'),
-  forEl:document.getElementById('bellFor'), word:document.getElementById('bellWord'),
-  dur:document.getElementById('bellDur'), start:document.getElementById('bellStartBtn'),
-  mute:document.getElementById('bellMuteBtn') }; }
+/* Cached refs, not live lookups: when the face pops out into a Document-PiP
+   window the same nodes MOVE documents, so getElementById on the main
+   document would lose them. References survive the move. */
+let _bellEls=null;
+function bellEls(){ if(_bellEls) return _bellEls;
+  _bellEls={
+    panel:document.getElementById('bellPanel'), body:document.querySelector('#bellPanel .bell-body'),
+    grid:document.getElementById('bellGrid'), time:document.getElementById('bellTime'),
+    mini:document.getElementById('bellMini'), forEl:document.getElementById('bellFor'),
+    word:document.getElementById('bellWord'), dur:document.getElementById('bellDur'),
+    start:document.getElementById('bellStartBtn'), mute:document.getElementById('bellMuteBtn'),
+    pop:document.getElementById('bellPopBtn') };
+  return _bellEls; }
 function bellInitGrid(){ const g=bellEls().grid; if(!g||g.childElementCount) return;
   for(let i=0;i<BELL_CELLS;i++){ const d=document.createElement('div'); d.className='bell-cell'; g.appendChild(d); } }
 function bellMins(){ const m=parseInt(bellEls().dur.value,10); return (isNaN(m)||m<1)?25:Math.min(m,720); }
@@ -2749,7 +2764,7 @@ function bellPaint(){ const e=bellEls(); if(!e.panel) return;
   if(e.grid && e.grid.childElementCount){
     const frac=bell.total?(bell.left/bell.total):1, lit=Math.ceil(frac*BELL_CELLS);
     [...e.grid.children].forEach((c,i)=>c.classList.toggle('out',i>=lit)); }
-  if(e.mini) e.mini.textContent=bell.rung?'Rung.':(bell.running?(str+(bell.label?' · '+bell.label:'')):''); }
+  if(e.mini) e.mini.textContent=bell.rung?'Rung.':(bell.running?(str+(bell.label?' · '+bell.label:'')):(bellPip?'Floating ⧉':'')); }
 function bellToggle(force){ const e=bellEls();
   const open=(force!=null)?force:!e.panel.classList.contains('open');
   e.panel.classList.toggle('open',open); bellInitGrid(); bellPaint(); }
@@ -2795,6 +2810,39 @@ function bellChime(){ try{
  }catch(e){ console.error('bell chime',e); } }
 function bellMuteToggle(){ bell.muted=!bell.muted;
   bellEls().mute.textContent='Sound: '+(bell.muted?'off':'on'); }
+
+/* ---------- pop-out: Document Picture-in-Picture (desktop Chrome/Edge) ----
+   The face MOVES into a small always-on-top window — same DOM nodes, same
+   running timer, pulse and all; the engine stays in this page. Closing the
+   mini window folds the face back into the panel. Feature-detected: the
+   ⧉ button only exists where the API does. */
+let bellPip=null;
+async function bellPopOut(ev){ if(ev) ev.stopPropagation();
+  const e=bellEls();
+  try{
+    if(bellPip){ bellPip.close(); return; }   // acts as "bring back"; pagehide restores
+    bellToggle(true); bellInitGrid();
+    const pip=await documentPictureInPicture.requestWindow({width:300,height:540});
+    bellPip=pip;
+    // carry the app's stylesheet across so the embers, serif, and pulse render true
+    [...document.styleSheets].forEach(ss=>{ try{
+      const st=pip.document.createElement('style');
+      st.textContent=[...ss.cssRules].map(r=>r.cssText).join('\n');
+      pip.document.head.appendChild(st); }catch(_){ } });
+    pip.document.title="Tinker's bell";
+    pip.document.body.style.margin='0'; pip.document.body.style.padding='16px';
+    if(document.body.classList.contains('cream')) pip.document.body.classList.add('cream');
+    pip.document.body.appendChild(e.body);
+    e.body.classList.add('pip'); e.panel.classList.add('popped');
+    if(e.pop) e.pop.textContent='⧉ Bring back';
+    pip.addEventListener('pagehide',bellPipRestore);
+    bellPaint();
+  }catch(err){ console.error('bell pop-out',err); flash('Pop-out unavailable'); }
+}
+function bellPipRestore(){ const e=bellEls(); if(!bellPip) return; bellPip=null;
+  e.body.classList.remove('pip'); e.panel.classList.remove('popped');
+  e.panel.appendChild(e.body); if(e.pop) e.pop.textContent='⧉ Pop out';
+  bellPaint(); }
 
 /* =====================================================================
    CLOUD SYNC — Cloudflare KV via a tiny Worker (see sync/chiaro-sync-worker.js).
@@ -3047,6 +3095,9 @@ async function bootApp(){
   load();
 }
 bootApp();
+
+/* the ⧉ pop-out exists only where Document PiP does (desktop Chrome/Edge) */
+if('documentPictureInPicture' in window){ const b=document.getElementById('bellPopBtn'); if(b) b.style.display=''; }
 </script>
 </body>
 </html>
