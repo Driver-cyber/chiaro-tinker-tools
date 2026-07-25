@@ -1,4 +1,4 @@
-# HANDOFF — for the next session (written 2026-07-24, evening)
+# HANDOFF — for the next session (written 2026-07-25, night — session closed clean)
 
 *Read `CLAUDE.md` first (the constitution), then `DECISIONS.md` (current vibe +
 settled decisions), then `chiaro-tinker-tools-tracker.html` (priorities). This
@@ -22,16 +22,24 @@ its contents are absorbed.*
   repos share one synced db (`SCHEMA='ctt-1'`) over Worker+KV. Schema or
   `normalize()` changes land on both sides together, verified with
   legacy-shaped data. Never let the data model drift between siblings.
-- **CTT v0.6.0 SHIPPED (2026-07-25, Chad's ask):** the **tinker's bell** —
-  collapsible ember-field timer atop the Time Card Day Entry (hidden by
-  default; 🔔 on any time block pre-fills its duration; one soft WebAudio
-  ring + a slow pulse-until-noticed; ephemeral, zero schema impact) — plus
-  **derived code hints** in the log dropdown ("a — VPS 1 · Reconcile
-  accounts", derived from linkSection at render time, never stored). A
-  hand-typed abbreviation field was deliberately deferred (schema change →
-  lockstep); revisit only if derived hints aren't enough. Bell follow-ons
-  parked: sound iteration, deeper bell⇄entry tie-in, lock-screen Live
-  Activity (iOS native, mobile M2). Backport both to mobile after dogfood.
+- **CTT v0.6.0 → v0.6.2 SHIPPED (2026-07-25, Chad's asks):** the **tinker's
+  bell** — collapsible ember-field timer atop the Time Card Day Entry (hidden
+  by default; 🔔 on any time block pre-fills its duration; one soft WebAudio
+  ring, **muted by default** — the pulse-until-noticed is the signal;
+  ephemeral, zero schema impact) — plus **derived code hints** in the log
+  dropdown ("a — VPS 1 · Reconcile accounts", derived from linkSection at
+  render time, never stored). v0.6.1 added the **⧉ pop-out**: Document
+  Picture-in-Picture floats the bell face always-on-top (feature-detected,
+  Chrome/Edge only; the face MOVES — cached element refs, stylesheet copied
+  into the PiP doc). v0.6.2 fixed the first dogfood catch: inline onclick
+  dies when nodes move documents — bell controls are addEventListener-wired
+  now, and the countdown follows the Minutes field live. **Scar: CDP tests
+  must dispatch real clicks in the element's own document, not call
+  functions directly.** Deferred by choice: hand-typed code abbreviations
+  (schema change → lockstep; only if derived hints aren't enough). Bell
+  follow-ons parked: sound iteration, deeper bell⇄entry tie-in, lock-screen
+  Live Activity (iOS native, mobile M2). Backport bell + hints to mobile
+  after dogfood.
 - **The desktop app is live at**
   **https://chiaro.chadstewartcpa.com** (custom domain added 2026-07-25; the
   old https://chiaro-tinker-tools.pages.dev/ alias still serves). The mobile
@@ -83,6 +91,10 @@ its contents are absorbed.*
 - CTT still isn't in the dashboard's `projects.json` registry (der Hain shows
   no CTT card). One-line adds would light up either or both repos — the mobile
   repo now has a tracker file too (`chiaro-tinker-tools-mobile-tracker.html`).
+  Session-end 2026-07-25 appended both repos' entries to `learned-log.json`,
+  so the Galaxy already holds the story; only the cards are missing.
+- Inbox sweep was skipped at session-end (derhain gist API unreachable from
+  the sandbox's network policy) — sweep it next session if anything's piled up.
 - ~~Cloudflare Pages check for the mobile project~~ — RESOLVED 2026-07-25,
   and the diagnosis is worth keeping: the domain first served a blank white
   page even though CF's GitHub check said deploy success. Root cause: build
