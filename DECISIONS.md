@@ -250,6 +250,20 @@
       A bell you set while present. The lock-screen Live Activity vision is
       parked with the iOS-native phase (mobile repo M2).
 
+* **[2026-07-25] v0.6.1 — the bell floats (Document Picture-in-Picture).**
+      Chad asked for the "weird limited mini window" — it has a name. A ⧉
+      Pop out button in the bell header (feature-detected: exists only where
+      the Document PiP API does — desktop Chrome/Edge; Safari/Firefox/mobile
+      never see it) **moves** the bell's face into a small always-on-top
+      floating window: same DOM nodes, same running timer, pulse and rung
+      state carry over; the engine stays in the page (bell element refs are
+      cached, not looked up, so nodes survive the document move). Closing
+      the mini window folds the face back into the panel. Also v0.6.1: bell
+      **defaults to muted** (Chad runs it silent; the pulse is the signal —
+      sound-on-by-default meant muting it every session). Known bound: the
+      floating window is a child of the tab — closing the CTT tab closes it;
+      switching tabs/apps doesn't.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
