@@ -264,6 +264,16 @@
       floating window is a child of the tab — closing the CTT tab closes it;
       switching tabs/apps doesn't.
 
+* **[2026-07-25] v0.6.2 — the floating bell's buttons work (first dogfood catch).**
+      Chad popped the bell out and the controls went dead: inline `onclick`
+      attributes resolve in the document the node lives in, and the PiP window
+      has no scripts. Bell controls now use real `addEventListener` handlers —
+      listeners travel with moved nodes. Bonus fix from the same report: the
+      big countdown follows the Minutes field live while idle (typing also
+      settles a rung pulse — typing is noticing). *Scar for the wall: CDP
+      tests that call functions directly can't catch handler-wiring bugs —
+      drive real element clicks in the element's own document.*
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the

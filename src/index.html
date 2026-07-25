@@ -353,7 +353,7 @@ body.modal-open{overflow:hidden;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.6.1</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.6.2</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -576,10 +576,13 @@ body.modal-open{overflow:hidden;}
           <div class="bell-time" id="bellTime">25:00</div>
           <div class="muted" id="bellFor">Set a duration, or ring one in from a time block's 🔔.</div>
           <div class="bell-controls">
+            <!-- no inline onclick here: these nodes MOVE into the PiP document,
+                 where attribute handlers resolve against a window that has no
+                 scripts. addEventListener handlers travel with the node. -->
             <label class="muted">Minutes <input type="text" inputmode="numeric" id="bellDur" value="25" style="width:64px;display:inline-block;padding:4px 6px"></label>
-            <button class="small" id="bellStartBtn" onclick="bellStartPause()">Start</button>
-            <button class="ghost small" onclick="bellReset()">Reset</button>
-            <button class="ghost small" id="bellMuteBtn" onclick="bellMuteToggle()" title="One soft ring when time is up — never more">Sound: off</button>
+            <button class="small" id="bellStartBtn">Start</button>
+            <button class="ghost small" id="bellResetBtn">Reset</button>
+            <button class="ghost small" id="bellMuteBtn" title="One soft ring when time is up — never more">Sound: off</button>
           </div>
           <div class="muted" id="bellWord" style="font-style:italic"></div>
         </div>
@@ -1062,7 +1065,10 @@ body.modal-open{overflow:hidden;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.6.1 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.6.2 — forked from PJT 3.3.0. Single-file HTML.
+   v0.6.2: bell buttons work inside the PiP window (inline onclick → real
+   listeners, which travel with moved nodes) + countdown follows the Minutes
+   field live while idle.
    v0.6.0: tinker's bell (ephemeral ember-field timer in the Time Card; one
    soft ring + pulse-until-noticed) and derived code hints in the log dropdown.
    v0.6.1: bell pop-out via Document Picture-in-Picture (desktop Chrome/Edge;
@@ -2749,8 +2755,8 @@ function bellEls(){ if(_bellEls) return _bellEls;
     grid:document.getElementById('bellGrid'), time:document.getElementById('bellTime'),
     mini:document.getElementById('bellMini'), forEl:document.getElementById('bellFor'),
     word:document.getElementById('bellWord'), dur:document.getElementById('bellDur'),
-    start:document.getElementById('bellStartBtn'), mute:document.getElementById('bellMuteBtn'),
-    pop:document.getElementById('bellPopBtn') };
+    start:document.getElementById('bellStartBtn'), reset:document.getElementById('bellResetBtn'),
+    mute:document.getElementById('bellMuteBtn'), pop:document.getElementById('bellPopBtn') };
   return _bellEls; }
 function bellInitGrid(){ const g=bellEls().grid; if(!g||g.childElementCount) return;
   for(let i=0;i<BELL_CELLS;i++){ const d=document.createElement('div'); d.className='bell-cell'; g.appendChild(d); } }
@@ -3098,6 +3104,19 @@ bootApp();
 
 /* the ⧉ pop-out exists only where Document PiP does (desktop Chrome/Edge) */
 if('documentPictureInPicture' in window){ const b=document.getElementById('bellPopBtn'); if(b) b.style.display=''; }
+
+/* wire the bell controls with real listeners (they survive the PiP move),
+   and let the big countdown follow the Minutes field as you type — typing
+   also counts as "noticed", so it settles a rung pulse. */
+(function(){ const e=bellEls(); if(!e.panel) return;
+  if(e.start) e.start.addEventListener('click',bellStartPause);
+  if(e.reset) e.reset.addEventListener('click',bellReset);
+  if(e.mute)  e.mute.addEventListener('click',bellMuteToggle);
+  if(e.dur)   e.dur.addEventListener('input',function(){
+    if(bell.running) return;
+    bellClearRung(); bell.total=0; bell.left=0;
+    e.start.textContent='Start'; bellPaint(); });
+})();
 </script>
 </body>
 </html>
