@@ -274,6 +274,45 @@
       tests that call functions directly can't catch handler-wiring bugs —
       drive real element clicks in the element's own document.*
 
+* **[2026-07-26] v0.7.0 — the timer visual system (Chad's idea, planned in a
+  claude.ai session, built here).**
+    * *Decision:* replace the single pixel-grid countdown with a **swappable
+      renderer registry**. Ship five visuals (Balance, Moon, The Thinker,
+      Lantern, Sundial) plus the original ember grid as a sixth.
+    * *Decision:* **random visual per timer start/reset**; a Visual dropdown
+      override that **hot-swaps while preserving timer state**. Renderers are
+      pure functions of elapsed fraction `p` — `render(p) → {vb, body, post?}`
+      — the `bell` object stays the only brain. A manual pick holds for the
+      current timer only, then the random pool returns.
+    * *Decision:* the timer is an **edge surface**, so it is the sanctioned
+      home for growing "clutter." Adding a visual = appending one object to
+      `BELL_VISUALS`; it joins the pool and dropdown automatically. Canon set
+      deliberately deferred until Chad sees which ones he reaches for.
+    * *Guardrail:* the random visual is a pleasure at the **start** of a
+      block, never a reward for continuing — no streaks, unlocks, or
+      collections. Nothing pulses or accelerates during the countdown; every
+      p=1 state is warm and settled (full moon, ember, shadow at rest). The
+      **rung pulse survives** unchanged: it fires *after* the ring, on the
+      container, as the muted bell's only signal — the two designs compose.
+    * *Reconciliations from the handoff review:* no Google Fonts (the app
+      stays self-contained; prototype tokens mapped onto app palette vars, so
+      cream mode inherits for free) · Thinker's 40 `getTotalLength()` calls
+      cached after first mount · fixed square letterbox so hot-swapping the
+      tall Thinker against wide dials never reflows the panel · repaints are
+      naturally 1 Hz (guarded on integer-second p changes), ambient by
+      construction and kind to reduced-motion.
+    * *Verified* headless with real clicks: all six render clean at five
+      p-values; hot-swap mid-run preserved left/running exactly; pin cleared
+      to Random on reset; Thinker halfway = figure fully drawn, mask fully
+      undrawn (29+11 cached lengths); grid at half = 50/100 lit; rung pulse
+      lands on the container under any renderer; PiP carries the SVG, swaps
+      from inside, and folds back home. *Harness scar re-learned:* a stray
+      running timer from an earlier test step repaints over staged states —
+      stop the bell before staging p, or the 1 Hz tick wins the race.
+    * *Prototype credit:* geometry lifted verbatim from
+      `chiaro-timer-visuals.html` (planning chat) — terminator ellipse,
+      balance tilt, sundial shadow, stroke-dash draw. Don't re-derive it.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
