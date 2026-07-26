@@ -1,4 +1,4 @@
-# HANDOFF — for the next session (written 2026-07-25, night — session closed clean)
+# HANDOFF — for the next session (written 2026-07-26, evening — session closed clean)
 
 *Read `CLAUDE.md` first (the constitution), then `DECISIONS.md` (current vibe +
 settled decisions), then `chiaro-tinker-tools-tracker.html` (priorities). This
@@ -7,113 +7,96 @@ its contents are absorbed.*
 
 ## Where things stand
 
-- **The surface split happened (Chad's call, 2026-07-24).** This repo is now
-  the **desktop** surface (desktop browser + Tauri macOS, eventually). The new
-  sibling `Driver-cyber/chiaro-tinker-tools-mobile` is the **mobile** surface,
-  with its own Cloudflare Pages deploy.
-- **CTT Mobile v0.1.0 SHIPPED** in the sibling (its PR #1, merged): the app
-  forked verbatim at CTT v0.5.0 + full PWA layer — manifest, shell-only
-  service worker (network-first navigations, silent updates, never touches
-  data or the sync origin), mask-glyph icon set, iOS standalone chrome + safe
-  areas, and a tab-wrap fix (Closing was off-canvas at 390px). Verified
-  headless at 390×844 including a true offline-reload boot. The sibling has
-  its own CLAUDE.md / DECISIONS.md / tracker — read those when working there.
-- **Schema lockstep is now a standing rule** (in both constitutions): the two
-  repos share one synced db (`SCHEMA='ctt-1'`) over Worker+KV. Schema or
-  `normalize()` changes land on both sides together, verified with
-  legacy-shaped data. Never let the data model drift between siblings.
-- **CTT v0.6.0 → v0.6.2 SHIPPED (2026-07-25, Chad's asks):** the **tinker's
-  bell** — collapsible ember-field timer atop the Time Card Day Entry (hidden
-  by default; 🔔 on any time block pre-fills its duration; one soft WebAudio
-  ring, **muted by default** — the pulse-until-noticed is the signal;
-  ephemeral, zero schema impact) — plus **derived code hints** in the log
-  dropdown ("a — VPS 1 · Reconcile accounts", derived from linkSection at
-  render time, never stored). v0.6.1 added the **⧉ pop-out**: Document
-  Picture-in-Picture floats the bell face always-on-top (feature-detected,
-  Chrome/Edge only; the face MOVES — cached element refs, stylesheet copied
-  into the PiP doc). v0.6.2 fixed the first dogfood catch: inline onclick
-  dies when nodes move documents — bell controls are addEventListener-wired
-  now, and the countdown follows the Minutes field live. **Scar: CDP tests
-  must dispatch real clicks in the element's own document, not call
-  functions directly.** Deferred by choice: hand-typed code abbreviations
-  (schema change → lockstep; only if derived hints aren't enough). Bell
-  follow-ons parked: sound iteration, deeper bell⇄entry tie-in, lock-screen
-  Live Activity (iOS native, mobile M2). Backport bell + hints to mobile
-  after dogfood.
-- **The desktop app is live at**
-  **https://chiaro.chadstewartcpa.com** (custom domain added 2026-07-25; the
-  old https://chiaro-tinker-tools.pages.dev/ alias still serves). The mobile
-  sibling's canonical door is **https://chiaromobile.chadstewartcpa.com**.
-  PWA installs, localStorage, and sync config are per-origin — the custom
-  domains are the doors to install/onboard from. Chad dogfoods daily with
-  real ORDO data on cloud sync. Never ask for or commit his `SYNC_SECRET`.
+- **Two surfaces, both live, shipped in step on 2026-07-26:**
+  desktop **CTT v0.7.0** at https://chiaro.chadstewartcpa.com · mobile
+  **CTT Mobile v0.3.0** at https://chiaromobile.chadstewartcpa.com (the
+  canonical doors — installs/localStorage/sync config are per-origin). Chad
+  dogfoods daily with real ORDO data on cloud sync. Never ask for or commit
+  his `SYNC_SECRET`. Cloudflare Pages build output dir stays `src` in both
+  projects.
+- **The bell is now a system.** Arc: v0.6.0 tinker's bell (ember-field timer,
+  🔔 per time block pre-fills duration, one ring muted by default,
+  pulse-until-noticed) + derived code hints in the log dropdown → v0.6.1
+  ⧉ Document-PiP pop-out (desktop Chrome/Edge) → v0.6.2 listener-wiring fix →
+  **v0.7.0 the visual registry** (2026-07-26; Chad's idea, planned in a
+  claude.ai chat, geometry lifted verbatim from its prototype): six swappable
+  countdown visuals — Ember grid, Balance, Moon, The Thinker, Lantern,
+  Sundial — random per timer start/reset (never repeating the current one),
+  Visual dropdown hot-swaps mid-run preserving timer state, a manual pick
+  holds for the current timer only. Renderers are pure functions of elapsed
+  fraction: `render(p) → {vb, body, post?}`; **adding a visual = appending
+  one object to `BELL_VISUALS`** — it joins the pool and dropdown
+  automatically. The rung pulse fires after the ring on the `.bell-vis`
+  container, under any renderer. All ephemeral — zero schema impact.
+- **Mobile sibling** (`chiaro-tinker-tools-mobile`) shipped twice the same
+  day: v0.2.0 backported the bell + hints and added mobile-native
+  **⛶ full-screen mode** (pure CSS state on the same nodes — the PiP
+  cross-document scar can't reopen) with **Screen Wake Lock** while
+  full-screen + running (re-armed on visibilitychange; the OS drops it
+  silently on backgrounding) → v0.3.0 carried the identical visual-registry
+  engine (visuals render inside full-screen untouched; `.bell-vis` grows to
+  `min(84vw,50vh)`).
+- **Schema lockstep held without being needed:** both rounds were
+  ephemeral/derived — but the visual engine still landed in both repos the
+  same day. Keep the habit; the rule bites on real `db`/`normalize()` changes.
 
 ## Next up (tracker priorities)
 
-1. **Desktop installability: answered — Scheduled, not now** (Chad,
-   2026-07-24). The MacBook dock install is still the destination (his words:
-   CTT everywhere — dock, browser, phone; "my security blanket"), but
-   plain-browser iteration speed wins while changes are heavy. Don't build it
-   unbidden; when the churn settles and Chad says go, port the mobile repo's
-   `manifest.webmanifest`/`sw.js` pattern near-verbatim (new CACHE name,
-   desktop-flavored manifest).
-2. **Keep dogfooding the arc** — unchanged watch list: carry-to-tomorrow on
-   unmet intentions (deferred by choice, ask first) · Opening-as-default on
-   mid-day opens (red-team: Scheduled) · notes-drawer persistence (offered,
-   not requested).
-3. **Mobile dogfood feedback will arrive** — Chad installing v0.1.0 on the
-   actual iPhone (home screen → sync code → airplane-mode check). M1 mobile
-   ergonomics work happens *in the sibling repo*, written by real friction.
+1. **Dogfood the lamps.** Watch which visuals Chad actually reaches for —
+   the canon set is deliberately deferred. Bell follow-ons parked: the
+   balance-zoom variant (a separate `balance-zoom` renderer, not a mode),
+   sound iteration, deeper bell⇄entry tie-in, a "keep this one" pin if
+   holds-for-one-timer proves annoying.
+2. **Desktop installability: still Scheduled, not now** (Chad, 2026-07-24).
+   When churn settles and Chad says go: port the mobile
+   `manifest.webmanifest`/`sw.js` pattern near-verbatim, new CACHE name.
+3. **Unchanged watch list:** carry-to-tomorrow on unmet intentions (deferred
+   by choice, ask first) · Opening-as-default on mid-day opens (red-team:
+   Scheduled) · custom code abbreviations only if derived hints aren't enough
+   (schema change → lockstep both repos).
 
-## Working conventions proven (unchanged)
+## Working conventions proven (unchanged, plus one new scar)
 
-- One file: `src/index.html`. Targeted edits via grep anchors; extract inline
-  script → `node --check` after every JS change.
+- One file per repo: `src/index.html`. Targeted edits via grep anchors;
+  extract inline script → `node --check` after every JS change.
 - Behavioral verification: `python3 -m http.server` + headless Chromium
   (`/opt/pw-browsers/chromium-*/chrome-linux/chrome --headless=new
   --no-sandbox --remote-debugging-port=NNNN`) + CDP WebSocket scripts (`ws`
-  npm package); `Page.captureScreenshot` → send shots to Chad. Clear
-  `localStorage` at test start. Measure layout claims (getBoundingClientRect
-  in the CDP script) instead of eyeballing screenshots. **Set
-  `Emulation.setDeviceMetricsOverride` before measuring** — an un-emulated
-  probe at the default window size invalidates every number (learned live).
+  npm package). Clear `localStorage` at test start;
+  `Network.setCacheDisabled` always; `Emulation.setDeviceMetricsOverride`
+  **before** measuring; drive **real element clicks in the element's own
+  document**, never call handlers directly. **New scar (2026-07-26): stop
+  the bell before staging visual states in tests** — a stray running timer's
+  1 Hz tick repaints over staged p-values and manufactures phantom bugs.
 - Merge cadence authorized: commit → push branch → PR → merge to `main` per
-  completed layer. Version-bump subtitle + JS header on release-worthy builds
-  (in the mobile repo: + the `sw.js` CACHE name).
-- `gh` CLI unavailable; use GitHub MCP tools.
-- Icons pipeline (mobile): mask glyph → HTML wrapper → headless-Chromium
-  screenshot at 512 → pixel-measure centering → Pillow downscale for 192/180.
-  Re-run rather than hand-edit PNGs if the glyph evolves.
+  completed layer. Version-bump subtitle + JS header (+ mobile `sw.js` CACHE)
+  on release-worthy builds. `gh` CLI unavailable; GitHub MCP tools.
+- Cross-session design handoffs work: a claude.ai planning chat produced
+  `chiaro-timer-visuals.html` with working renderer math; this session
+  verified the math and lifted it verbatim instead of re-deriving. Logged as
+  a `first_ever` in the learned-log.
 
 ## Open offers (Chad's call, not made)
 
 - Desktop installability (above).
-- CTT still isn't in the dashboard's `projects.json` registry (der Hain shows
-  no CTT card). One-line adds would light up either or both repos — the mobile
-  repo now has a tracker file too (`chiaro-tinker-tools-mobile-tracker.html`).
-  Session-end 2026-07-25 appended both repos' entries to `learned-log.json`,
-  so the Galaxy already holds the story; only the cards are missing.
-- Inbox sweep was skipped at session-end (derhain gist API unreachable from
-  the sandbox's network policy) — sweep it next session if anything's piled up.
-- ~~Cloudflare Pages check for the mobile project~~ — RESOLVED 2026-07-25,
-  and the diagnosis is worth keeping: the domain first served a blank white
-  page even though CF's GitHub check said deploy success. Root cause: build
-  output directory was the repo root, not `src` (white, not walnut = the app
-  never loaded — a dark-material app that reaches the browser always paints
-  dark). Chad set output dir to `src`; confirmed live on his iPhone at
-  chiaromobile.chadstewartcpa.com, sync active. That setting must stay `src`
-  in both Pages projects.
+- CTT still isn't in the dashboard's `projects.json` registry — no CTT cards
+  on der Hain. The learned-log holds the whole story (entries through
+  2026-07-26 incl. the visual system); only the cards are missing. One-line
+  adds light them up.
+- Inbox sweep skipped again at session-end (derhain gist API is outside this
+  sandbox's network policy — two sessions running now). Sweep from a surface
+  that can reach it, or accept the pile-up until then.
 
 ## Parked (don't build unbidden)
 
 Carry-to-tomorrow on unmet intentions · the *active* five-more-minutes mirror ·
-line-draw ritual think-mode · tinker's bell · at-rest encryption of the KV
-blob · macOS wrap of CTT (`com.chiarotinkertools.ctt`) · iOS native wrap
-(mobile repo, M2) · PJT↔CTT↔Mobile backports · audit-flavored STATUSES
+line-draw ritual think-mode · balance-zoom renderer · at-rest encryption of
+the KV blob · macOS wrap of CTT (`com.chiarotinkertools.ctt`) · iOS native
+wrap (mobile repo, M2) · PJT↔CTT↔Mobile backports · audit-flavored STATUSES
 vocabulary cleanup · markdown-export grouping for flat projects.
 
 ## Voice
 
 Earnest, literate, a little myth-soaked, unpretentious. Chad drives product;
 push back honestly when something's wrong. Closing is a success state. Ordo ab
-chao — carry a small lamp.
+chao — one brain, many lamps.
