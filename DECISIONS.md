@@ -374,6 +374,14 @@
       + → point → consecutive replace → Enter = 11, complete-formula
       click committing 30 and moving focus. Zero schema impact.
 
+* **[2026-07-26] v0.8.2 — accounting face for the scratch sheet (Chad).**
+  Every displayed number — typed or computed — renders with thousands commas
+  and a fixed two decimals (`toLocaleString en-US`). Display only: raw cell
+  text is untouched, focus still shows exactly what was typed, and
+  comma-typed input already parsed. Minus sign kept for negatives;
+  accountant's parentheses offered, Chad's call if wanted. Lockstep patch
+  with mobile v0.4.2 (no schema impact).
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
