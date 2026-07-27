@@ -382,6 +382,31 @@
   accountant's parentheses offered, Chad's call if wanted. Lockstep patch
   with mobile v0.4.2 (no schema impact).
 
+* **[2026-07-26] v0.8.3 — the composition bar + source-cell highlighting
+  (Chad's Excel muscle memory, and it's the right spec source).**
+    * *Composition bar:* a wide formula bar above the grid mirroring the cell
+      being edited, with its ref on the left — so a ten-term formula isn't
+      squeezed into a 104px cell. Typing in a cell mirrors up live; typing in
+      the bar commits to the cell on Enter (and steps down a row) or on blur.
+      Point-to-refer works **from the bar**: click cells while composing and
+      their refs land in the bar with focus kept.
+    * *Source highlighting:* while a formula is being composed — in a cell or
+      the bar — every cell it draws from is outlined amber, ranges expanded
+      (`=SUM(B1:B3)` lights B1, B2, B3). Re-opening a stored formula lights
+      its sources too, which turns "where did this number come from?" into a
+      glance. Pure display; `scHilite()` reads the in-progress text and
+      touches nothing else.
+    * *Escape, corrected to Excel's rule (bug the harness caught):* Escape
+      while editing used to bubble to the document handler and close the whole
+      pocket tool. Now an in-progress edit is abandoned and the sheet stays;
+      with nothing to abandon, Escape falls through and closes as before. The
+      same two-stage rule applies in the bar.
+    * *Verified* with real key + mouse events: bar mirrors typing and its ref
+      label follows focus; commit-from-bar lands 60.00 and steps down;
+      bar-side pointing builds `=B2+B3` → 50.00; refs and ranges light and
+      clear on commit; stored formulas re-light on reopen; both Escape stages.
+      Zero schema impact; lockstep patch with mobile v0.4.3.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
