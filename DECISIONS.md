@@ -313,6 +313,45 @@
       `chiaro-timer-visuals.html` (planning chat) — terminator ellipse,
       balance tilt, sundial shadow, stroke-dash draw. Don't re-derive it.
 
+* **[2026-07-26] v0.8.0 — the scratch sheet, and the birth of the pocket-tool
+  pattern (Chad's idea + placement call).**
+    * *Decision (Chad):* an 8×25 spreadsheet grid for un-squinting numbers —
+      "so I don't have to close my eyes and visualize it in my mind." Text,
+      numbers, and `=` formulas: `+ - * /` with parentheses, cell refs
+      (A1..H25), and SUM/AVG/MIN/MAX over ranges. Hand-rolled ~80-line
+      recursive-descent evaluator, zero libraries. Napkin rules, not Excel
+      rules: blank/text cells count as 0; errors show `#ERR`/`#CYCLE`/
+      `#DIV0`/`#REF` but the typed text is never lost. Scope deliberately
+      frozen: no formatting, no extra rows/sheets — it's a paper napkin with
+      a calculator in it.
+    * *Decision (Chad, from three options): the pocket-tool pattern.* Not a
+      sixth tab (a scratch sheet is not a room), not a panel inside one room
+      (numbers strike anywhere). A dim ▦ glyph in the appbar summons it as
+      an overlay from any room; ✕/Esc/backdrop puts it back; the room
+      underneath never moves. **Tabs are rooms; pockets are tools** — the
+      belt now has a place for future pocket tools to live without
+      crowding the header. Clearing is a two-tap arm ("Really clear?"),
+      not a modal.
+    * *SCHEMA LOCKSTEP — first real bite since the split.* Cells persist as
+      raw strings in `db.scratch.cells` through the one save() seam (synced,
+      exported, secrets-stripping untouched). `mergeDefaults()` gains the
+      `p.scratch` default in BOTH repos the same day. Verified with
+      legacy-shaped data: a pre-scratch db staged in localStorage boots
+      clean, gains the default, and preserves a canary field — the
+      load-bearing migration test, actually run. (Both repos' normalize
+      also preserves unknown keys, so a skewed deploy window can't drop
+      the field — but same-day is the rule, and it held.)
+    * *Verified* headless with focus-emulated real events: SUM/AVG/MIN/MAX,
+      parens, division, cross-cell propagation, cycle/#ERR/#DIV0/#REF,
+      focus-shows-raw/blur-shows-computed, Enter-moves-down, Esc-vs-modal
+      priority, cold-reload persistence, export carrying db.scratch with
+      sync stripped.
+    * *Harness scar (new, recorded):* an unfocused headless document moves
+      `activeElement` on `focus()` but **swallows the focus/blur events** —
+      commit handlers silently never run and phantom "nothing persists" bugs
+      appear. `Emulation.setFocusEmulationEnabled` before any focus-driven
+      test. (The engine was never wrong; the harness was.)
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
