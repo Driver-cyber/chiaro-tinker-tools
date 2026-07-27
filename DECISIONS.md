@@ -352,6 +352,28 @@
       appear. `Emulation.setFocusEmulationEnabled` before any focus-driven
       test. (The engine was never wrong; the harness was.)
 
+* **[2026-07-26] v0.8.1 — scratch-sheet ergonomics (Chad's dogfood asks,
+  same evening).**
+    * *Arrow-key navigation:* Up/Down always move cells; Left/Right move
+      cells only from the text's edge or with the value fully selected
+      (as right after focus) — mid-formula they stay caret moves, so
+      editing never fights navigation. No wrap at the grid edges.
+    * *Excel-style point-to-refer:* mid-formula (caret right after `=` or
+      an operator), clicking a cell INSERTS its ref; consecutive clicks
+      replace the last pointed ref while you hunt; typing anything ends
+      the span. With a complete formula, a click just commits and moves —
+      Excel's own rule, kept.
+    * *Bug caught by the harness, fixed for real users:* the point-span
+      flag cleared only on keydown — but IME/autocomplete/paste fire
+      `input` without one (so does char-only synthetic typing, which is
+      how the harness caught it). Cleared on `input` too; the programmatic
+      insert itself doesn't fire `input`, so pointing still chains.
+    * *Verified* with real key events and real mouse clicks through the
+      CDP input pipeline: 6⏎5⏎ list entry, all four arrows incl.
+      edge-only Left/Right and mid-text caret behavior, =B2 point →
+      + → point → consecutive replace → Enter = 11, complete-formula
+      click committing 30 and moving focus. Zero schema impact.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
