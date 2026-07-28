@@ -371,13 +371,20 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
    ancestor there), stacked for a narrow floating window */
 .bell-body.pip{display:flex;flex-direction:column;align-items:center;gap:14px;}
 .bell-body.pip .bell-side{min-width:0;align-items:center;text-align:center;}
+/* the popped-out face SCALES WITH THE WINDOW: vw/vh inside the PiP document
+   resolve against that window's own viewport, so dragging it bigger or
+   smaller resizes the visual with it — no resize listener, no JS at all.
+   Floored so a tiny window still shows a readable lamp, and capped on
+   height so the countdown and controls never get pushed out of view. */
+.bell-body.pip .bell-vis{width:max(110px, min(84vw, 54vh));height:max(110px, min(84vw, 54vh));}
+.bell-body.pip .bell-time{font-size:clamp(30px, 13vw, 76px);}
 .bell-panel.popped .bell-head{opacity:.8;}
 </style>
 </head>
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.8.4</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.8.5</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -1110,7 +1117,10 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.8.4 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.8.5 — forked from PJT 3.3.0. Single-file HTML.
+   v0.8.5: the popped-out bell scales with its window — resize the PiP and
+   the visual + countdown grow or shrink to fit (pure CSS, vw/vh against
+   the PiP document).
    v0.8.4: scratch cells truncate with an ellipsis — a cut figure can never
    be misread as a whole one.
    v0.8.3: scratch-sheet composition bar — a wide formula bar above the grid

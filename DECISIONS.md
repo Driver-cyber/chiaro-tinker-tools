@@ -415,6 +415,19 @@
   (`49,568,236…`); the composition bar shows the whole value on focus.
   Landed with the mobile sibling's v0.4.4 (same rule, both surfaces).
 
+* **[2026-07-26] v0.8.5 — the popped-out bell scales with its window (Chad).**
+  The PiP face was pinned at 190px no matter how big the floating window got,
+  leaving a lake of empty walnut beneath it. Fixed in **pure CSS, no
+  listener**: `vw`/`vh` inside the PiP document resolve against *that*
+  window's viewport, so `.bell-body.pip .bell-vis` sized at
+  `max(110px, min(84vw, 54vh))` tracks the drag automatically; the countdown
+  rides along on a `clamp()`. Floored so a tiny window still shows a
+  readable lamp, height-capped so the controls never get pushed out of view.
+  *Verified* by resizing the PiP target at three sizes: 300×540 → 252px
+  visual, 460×760 → 386px, 220×380 → 185px; content fit and the Start button
+  stayed in view at every size, and the in-page face is still exactly 190px
+  when folded back home.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
