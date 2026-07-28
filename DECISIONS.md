@@ -407,6 +407,14 @@
       clear on commit; stored formulas re-light on reopen; both Escape stages.
       Zero schema impact; lockstep patch with mobile v0.4.3.
 
+* **[2026-07-26] v0.8.4 — scratch cells truncate honestly.** A number too
+  wide for its cell was clipping *silently* from the right, so `4,959,665.82`
+  read as a complete `4,959,665.8` — a plausible wrong number, which for an
+  accountant is worse than an obvious one. Cells now use
+  `text-overflow:ellipsis`, so a cut figure always announces itself
+  (`49,568,236…`); the composition bar shows the whole value on focus.
+  Landed with the mobile sibling's v0.4.4 (same rule, both surfaces).
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
