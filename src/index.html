@@ -123,6 +123,17 @@ table.role-reviewer .col-prep{display:none}
 .group-row.collapsed .chev{transform:rotate(-90deg);}
 .group-count{color:var(--muted);font-weight:500;margin-left:8px;}
 .note-box{min-height:64px;resize:vertical;font-size:13px;}
+/* rich notes: the note surfaces are contenteditable so formatting shows as
+   formatting. They still LOOK like the old boxes — same border, ink, and
+   scroll — they just render **bold** as bold instead of printing asterisks. */
+.note-box[contenteditable]{white-space:pre-wrap;overflow:auto;cursor:text;
+  border:1px solid var(--border);background:var(--panel);color:var(--text);
+  border-radius:9px;padding:8px;width:100%;font-family:inherit;line-height:1.45;}
+.note-box[contenteditable]:focus{outline:2px solid var(--accent);outline-offset:-2px;}
+.note-box[contenteditable]:empty:before{content:attr(data-ph);color:var(--muted);}
+.note-box[contenteditable] b{font-weight:800;}
+.md-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.md-tools .swatch{width:13px;height:13px;border-radius:50%;display:inline-block;vertical-align:-2px;}
 .cell-actions{display:flex;gap:6px;margin-top:6px;}
 .var-pos{color:var(--success);font-weight:600} .var-neg{color:var(--danger);font-weight:600}
 .synced-note{font-size:11px;color:var(--accent);margin-top:4px;font-weight:600;}
@@ -384,7 +395,7 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.8.5</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.9.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -530,9 +541,8 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
     <div style="margin-bottom:16px">
       <button class="ghost small" id="notesToggle" onclick="toggleProjectNotes()">📝 Project Notes ▸</button>
       <div id="projectNotesPanel" class="hidden" style="margin-top:10px">
-        <textarea id="projectNotes" class="note-box" style="min-height:96px;width:100%"
-          placeholder="Client contact info, phone numbers, general notes not tied to any section…"
-          onchange="updateProjectNotes(this.value)"></textarea>
+        <div id="projectNotes" class="note-box" contenteditable="true" style="min-height:96px;width:100%"
+          data-ph="Client contact info, phone numbers, general notes not tied to any section…"></div>
         <div class="cell-actions" style="margin-top:6px">
           <button class="ghost small" onclick="openProjectNotesEditor()">Expand ↗</button>
           <button class="ghost small" onclick="copyText(currentProject().notes||'')">Copy</button>
@@ -779,12 +789,15 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
   <h2 id="editorTitle">Notes</h2>
   <div class="modal-meta" id="editorMeta"></div>
   <div class="editor-toolbar">
-    <button class="ghost" onclick="mdWrap('**')"><b>B</b></button>
-    <button class="ghost" onclick="mdWrap('*')"><i>I</i></button>
+    <button class="ghost" onclick="mdBold()" title="Bold (Ctrl+B)"><b>B</b></button>
+    <button class="ghost" onclick="mdItalic()" title="Italic (Ctrl+I)"><i>I</i></button>
+    <button class="ghost" onclick="mdStrike()" title="Strikethrough"><s>S</s></button>
+    <button class="ghost" onclick="mdRed()" title="Red"><span class="swatch" style="background:#c00"></span></button>
+    <button class="ghost" onclick="mdBlack()" title="Default ink">A</button>
     <button class="ghost" onclick="mdBullets()">• List</button>
     <button class="ghost" onclick="copyEditor()">Copy</button>
   </div>
-  <textarea id="bigEditor"></textarea>
+  <div id="bigEditor" class="note-box" contenteditable="true" data-ph="Write here — B / I / S / colour above, or Ctrl+B, Ctrl+I."></div>
   <div class="modal-actions">
     <span class="muted" style="align-self:center;margin-right:auto">auto-saves as you type</span>
     <button onclick="saveExpanded()">Close</button>
@@ -1117,7 +1130,10 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.8.5 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.9.0 — forked from PJT 3.3.0. Single-file HTML.
+   v0.9.0: RICH NOTES — bold/italic/strikethrough/red render live in every
+   note surface. Markdown stays the stored format (export + mobile sibling
+   unchanged); red rides as an inline colour span since markdown has none.
    v0.8.5: the popped-out bell scales with its window — resize the PiP and
    the visual + countdown grow or shrink to fit (pure CSS, vw/vh against
    the PiP document).
@@ -1727,7 +1743,7 @@ function renderJournal(){
   document.getElementById('clientCodeHint').textContent=(p.clientCode||'').trim()
     ? 'In time-card library — syncable as “'+p.clientCode.trim()+'”'
     : 'Blank = notes-only. Hidden from the time card, never syncs.';
-  document.getElementById('projectNotes').value=p.notes||'';
+  mdSet(document.getElementById('projectNotes'), p.notes||'');
   document.getElementById('archiveChk').checked=!!p.archived;
   document.getElementById('recurringChk').checked=!!p.recurring;
   document.getElementById('nextPeriodBtn').classList.toggle('hidden',!p.recurring);
@@ -1741,10 +1757,16 @@ function updateArchived(c){ currentProject().archived=!!c; currentProject().modi
 function updateRecurring(c){ currentProject().recurring=!!c; currentProject().modifiedDate=now(); renderJournal(); save(); }
 function toggleProjectNotes(){ db.journal.notesOpen=!db.journal.notesOpen; renderJournal(); save(); }
 function updateProjectNotes(v){ currentProject().notes=v; currentProject().modifiedDate=now(); renderRecent(); save(); }
+/* contenteditable fires no 'change' — same debounce-and-commit-on-blur seam
+   the section scratchpads use, so a mis-click never loses a keystroke */
+(function(){ const el=document.getElementById('projectNotes'); if(!el) return; let t=null;
+  const commit=()=>{ const v=mdGet(el); if(currentProject && currentProject() && currentProject().notes!==v) updateProjectNotes(v); };
+  el.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(commit,800); });
+  el.addEventListener('blur',commit); })();
 function openProjectNotesEditor(){ const p=currentProject(); editorCtx={scope:'project'};
   document.getElementById('editorTitle').textContent='Project Notes — '+p.name;
   document.getElementById('editorMeta').innerHTML='Project: '+escapeHtml(p.name)+(p.clientCode?'<br>Client code: '+escapeHtml(p.clientCode):'')+'<br>Created: '+escapeHtml(p.createdDate)+'<br>Modified: '+escapeHtml(p.modifiedDate);
-  const ed=document.getElementById('bigEditor'); ed.value=p.notes||''; openModal('editorModalBg'); setTimeout(()=>ed.focus(),50); }
+  const ed=document.getElementById('bigEditor'); mdSet(ed, p.notes||''); openModal('editorModalBg'); setTimeout(()=>ed.focus(),50); }
 function renderProjectPicker(){
   const sel=document.getElementById('projectPicker'); sel.innerHTML='';
   const showArch=!!db.journal.showArchived;
@@ -1979,12 +2001,15 @@ function buildSectionRow(s){
   return tr;
 }
 function noteCell(s,field,withCopy=false){
-  const td=document.createElement('td'); const ta=document.createElement('textarea'); ta.className='note-box'; ta.value=s[field]||'';
+  const td=document.createElement('td'); const ta=document.createElement('div');
+  ta.className='note-box'; ta.contentEditable='true'; ta.dataset.ph='(notes)'; mdSet(ta, s[field]||'');
   // Auto-save as you type (debounced) — data + cloud only, no re-render so focus survives.
-  let tt=null; ta.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(()=>{
-    const live=currentProject().sections.find(x=>x.id===s.id); if(!live || live[field]===ta.value) return;
-    live[field]=ta.value; live.updated=now(); currentProject().modifiedDate=now(); save(); },800); });
-  ta.onchange=()=>updateField(s.id,field,ta.value);
+  let tt=null; const commitNote=()=>{
+    const live=currentProject().sections.find(x=>x.id===s.id); const v=mdGet(ta);
+    if(!live || live[field]===v) return;
+    live[field]=v; live.updated=now(); currentProject().modifiedDate=now(); save(); };
+  ta.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(commitNote,800); });
+  ta.addEventListener('blur',commitNote);
   const actions=document.createElement('div'); actions.className='cell-actions';
   const exp=document.createElement('button'); exp.className='small ghost'; exp.textContent='Expand ↗'; exp.onclick=()=>openExpanded(s.id,field); actions.appendChild(exp);
   const cp=document.createElement('button'); cp.className='small ghost'; cp.textContent='Copy'; cp.onclick=()=>copyText(s[field]||''); actions.appendChild(cp);
@@ -2093,12 +2118,12 @@ function openExpanded(id,field){ const s=currentProject().sections.find(x=>x.id=
   const L={preparer:'Notes (legacy)',reviewer:'Notes (legacy)',scratch:'Scratchpad'}; const p=currentProject();
   document.getElementById('editorTitle').textContent=L[field]+' — '+s.name;
   document.getElementById('editorMeta').innerHTML='Project: '+escapeHtml(p.name)+'<br>Section: '+escapeHtml(s.name)+'<br>Created: '+escapeHtml(p.createdDate)+'<br>Modified: '+escapeHtml(p.modifiedDate);
-  const ed=document.getElementById('bigEditor'); ed.value=s[field]||''; openModal('editorModalBg'); setTimeout(()=>ed.focus(),50); }
+  const ed=document.getElementById('bigEditor'); mdSet(ed, s[field]||''); openModal('editorModalBg'); setTimeout(()=>ed.focus(),50); }
 // Expanded editor auto-saves: commitExpanded writes the current text through the
 // normal save path (which also schedules the cloud push). Closing any way —
 // Close button, backdrop click, Escape — commits first, so nothing is ever lost.
 function commitExpanded(){ if(!editorCtx) return;
-  const v=document.getElementById('bigEditor').value;
+  const v=mdGet(document.getElementById('bigEditor'));
   if(editorCtx.scope==='project'){ const p=currentProject();
     if(p.notes!==v){ p.notes=v; p.modifiedDate=now(); save(); } }
   else { const s=currentProject().sections.find(x=>x.id===editorCtx.id);
@@ -2106,11 +2131,79 @@ function commitExpanded(){ if(!editorCtx) return;
 function saveExpanded(){ commitExpanded(); editorCtx=null; closeModal('editorModalBg'); renderJournal(); }
 (function(){ const ed=document.getElementById('bigEditor'); let t=null;
   ed.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(commitExpanded,800); }); })();
-function copyEditor(){ copyText(document.getElementById('bigEditor').value); }
-function mdWrap(tok){ const ed=document.getElementById('bigEditor'); const a=ed.selectionStart,b=ed.selectionEnd; const sel=ed.value.slice(a,b)||'text';
-  ed.value=ed.value.slice(0,a)+tok+sel+tok+ed.value.slice(b); ed.focus(); ed.selectionStart=a+tok.length; ed.selectionEnd=a+tok.length+sel.length; }
-function mdBullets(){ const ed=document.getElementById('bigEditor'); const a=ed.selectionStart,b=ed.selectionEnd; const blk=ed.value.slice(a,b)||'item';
-  const out=blk.split('\n').map(l=>l.trim()?('- '+l):l).join('\n'); ed.value=ed.value.slice(0,a)+out+ed.value.slice(b); ed.focus(); }
+function copyEditor(){ copyText(mdGet(document.getElementById('bigEditor'))); }
+/* =====================================================================
+   RICH NOTES — markdown in the db, formatting on the screen.
+   The stored value stays markdown so Export Project Markdown keeps working
+   AND the mobile sibling reads the same field unchanged (schema lockstep:
+   this is a display/edit layer only, zero schema impact).
+   Supported: **bold**, *italic*, ~~strike~~, and red via an inline
+   <span style="color:#c00"> — markdown has no colour syntax, so red is
+   carried as HTML, which is the one form that still renders red when the
+   export lands in Word/Outlook. "Black" is simply the absence of colour.
+   ===================================================================== */
+const MD_RED='#c00';
+function mdEsc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function mdToHtml(md){
+  let h=mdEsc(md||'');
+  // the colour span is the one HTML we deliberately let back through
+  h=h.replace(/&lt;span style="color:#c00"&gt;([\s\S]*?)&lt;\/span&gt;/g,'<span style="color:'+MD_RED+'">$1</span>');
+  h=h.replace(/\*\*([\s\S]+?)\*\*/g,'<b>$1</b>');
+  h=h.replace(/~~([\s\S]+?)~~/g,'<s>$1</s>');
+  h=h.replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g,'$1<i>$2</i>');
+  return h.replace(/\n/g,'<br>');
+}
+/* Walk the edited DOM back to markdown. execCommand produces b/i/s/font
+   or style spans depending on the browser — all of them land here. */
+function mdFromNode(node){
+  let out='';
+  node.childNodes.forEach(n=>{
+    if(n.nodeType===3){ out+=n.nodeValue; return; }
+    if(n.nodeType!==1) return;
+    const tag=n.tagName.toLowerCase();
+    if(tag==='br'){ out+='\n'; return; }
+    const inner=mdFromNode(n);
+    if(tag==='b'||tag==='strong'){ out+= inner.trim()? '**'+inner+'**' : inner; return; }
+    if(tag==='i'||tag==='em'){ out+= inner.trim()? '*'+inner+'*' : inner; return; }
+    if(tag==='s'||tag==='strike'||tag==='del'){ out+= inner.trim()? '~~'+inner+'~~' : inner; return; }
+    const col=(n.getAttribute&&(n.getAttribute('color')||''))+' '+((n.style&&n.style.color)||'');
+    /* Chrome normalises execCommand('foreColor','#c00') to <font color="#cc0000">,
+       so every spelling of our red has to be recognised here or the colour is
+       silently dropped on save (caught in-harness, not by eye). */
+    const isRed=/#c00\b|#cc0000\b|rgb\(\s*204\s*,\s*0\s*,\s*0\s*\)|\bred\b/i.test(col);
+    if(isRed){ out+= inner.trim()? '<span style="color:'+MD_RED+'">'+inner+'</span>' : inner; return; }
+    if(tag==='div'||tag==='p'){ out+=(out&&!out.endsWith('\n')?'\n':'')+inner; return; }
+    out+=inner;
+  });
+  return out;
+}
+function mdGet(el){ return mdFromNode(el).replace(/\u00a0/g,' '); }
+function mdSet(el,md){ el.innerHTML=mdToHtml(md); }
+/* toolbar + shortcuts run through execCommand: it handles selection and the
+   caret correctly across browsers, which hand-rolled range surgery does not */
+function mdCmd(cmd,val){ const t=mdActive(); if(t){ t.focus(); document.execCommand(cmd,false,val||null); t.dispatchEvent(new Event('input',{bubbles:true})); } }
+function mdActive(){ const a=document.activeElement;
+  if(a && a.classList && a.classList.contains('note-box') && a.isContentEditable) return a;
+  const ed=document.getElementById('bigEditor');
+  return (ed && document.getElementById('editorModalBg').classList.contains('open')) ? ed : null; }
+function mdBold(){ mdCmd('bold'); }
+function mdItalic(){ mdCmd('italic'); }
+function mdStrike(){ mdCmd('strikeThrough'); }
+function mdRed(){ mdCmd('foreColor', MD_RED); }
+function mdBlack(){ mdCmd('foreColor', getComputedStyle(document.body).color); }
+/* paste as PLAIN text — otherwise a copy from Word drags a paragraph of
+   foreign markup into a field that has to serialise back to markdown */
+document.addEventListener('paste',e=>{ const t=mdActive(); if(!t||document.activeElement!==t) return;
+  e.preventDefault(); const txt=(e.clipboardData||window.clipboardData).getData('text/plain');
+  document.execCommand('insertText',false,txt); });
+
+/* bullets on a contenteditable: prefix each selected line, or open a new
+   item at the caret. insertText keeps undo history intact. */
+function mdBullets(){ const t=mdActive(); if(!t) return; t.focus();
+  const sel=String(window.getSelection?window.getSelection():'');
+  const out = sel ? sel.split('\n').map(l=>l.trim()?('- '+l.replace(/^-\s*/,'')):l).join('\n') : '- ';
+  document.execCommand('insertText',false,out);
+  t.dispatchEvent(new Event('input',{bubbles:true})); }
 
 /* =====================================================================
    TIME CARD
@@ -3582,8 +3675,9 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeGearMenu();
   if(document.getElementById('editorModalBg').classList.contains('open')){ commitExpanded(); editorCtx=null; renderJournal(); }
   document.querySelectorAll('.modal-bg.open').forEach(m=>{ m.classList.remove('open'); m.style.zIndex=''; }); updateModalLock(); cancelPendingConflict(); }
   const ed=document.getElementById('bigEditor'); if(document.getElementById('editorModalBg').classList.contains('open')&&document.activeElement===ed){
-    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='b'){ e.preventDefault(); mdWrap('**'); }
-    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='i'){ e.preventDefault(); mdWrap('*'); } } });
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='b'){ e.preventDefault(); mdBold(); }
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='i'){ e.preventDefault(); mdItalic(); }
+    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='x'){ e.preventDefault(); mdStrike(); } } });
 
 /* =====================================================================
    EXAMPLE SEED — a neutral, fictional demo so a first-time user sees how

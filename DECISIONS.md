@@ -428,6 +428,42 @@
   stayed in view at every size, and the in-page face is still exactly 190px
   when folded back home.
 
+* **[2026-07-26] v0.9.0 — RICH NOTES: formatting you can see (Chad).**
+    * *The complaint:* the notes showed `**bold**` literally. The B/I buttons
+      only ever *inserted markers* — nothing rendered them.
+    * *The constraint, stated plainly:* a `<textarea>` cannot display styled
+      text. Live formatting means `contenteditable`. So the three note
+      surfaces (section scratchpads, project notes, expanded editor) became
+      contenteditable divs that still look like the old boxes.
+    * *Decision — markdown stays the stored format.* Non-negotiable for two
+      reasons: `Export Project Markdown` keeps working untouched, and the
+      **mobile sibling reads the same field** — storing HTML would have
+      broken lockstep. So this is a display/edit layer only: markdown in via
+      `mdSet()`, markdown out via `mdGet()`, **zero schema impact**.
+    * *Supported:* `**bold**`, `*italic*`, `~~strike~~`, and red. Markdown
+      has no colour syntax, so **red rides as an inline
+      `<span style="color:#c00">`** (Chad picked this over display-only) —
+      the one form that still renders red when an export lands in
+      Word/Outlook. "Black" is the absence of colour, not a marker.
+    * *Implementation notes:* formatting runs through `document.execCommand`
+      — deprecated, but it handles selection and caret correctly across
+      browsers where hand-rolled Range surgery does not. **Paste is forced
+      to plain text**, or a copy from Word drags foreign markup into a field
+      that must serialise back to markdown. `mdWrap()` retired;
+      `mdBullets()` rewritten for contenteditable.
+    * *Bug caught in-harness, invisible by eye:* Chrome normalises
+      `execCommand('foreColor','#c00')` to `<font color="#cc0000">`, which
+      the red-detection regex missed — the colour rendered on screen and was
+      then **silently dropped on save**. Every spelling of the red is now
+      recognised. Lesson: when a browser rewrites your markup, the
+      serialiser is where the data quietly dies.
+    * *Verified:* eight-case markdown→rendered→markdown round trip, all
+      lossless (including the trap case `5 * 3 = 15 and 2*2`, which must NOT
+      become italic); tags actually render with no asterisks visible; a live
+      scratchpad edit stores `**call** the bank` and survives a cold reload
+      still bold; export still contains the markers; the expanded editor
+      loads rendered and red persists to the stored markdown.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
