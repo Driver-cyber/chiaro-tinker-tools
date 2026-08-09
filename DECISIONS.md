@@ -495,6 +495,47 @@
       the ⧉ appears in Recent; the value survives a cold reload; clearing
       the field removes the door; no layout overflow on either.
 
+* **[2026-07-26] Gertie moves in — the first workshop, hosted at /gertie/.**
+    * *Decision (Chad):* rather than a separate repo and domain, the P1800S
+      build log ships as a **folder inside this repo** — `src/gertie/` —
+      served at `chiaro.chadstewartcpa.com/gertie/`. Cloudflare Pages' build
+      output dir is already `src`, so the slug works with zero new
+      infrastructure: no second Pages project, no second domain, one deploy.
+    * *Why it's the right call now, and cheap if wrong:* moving a single HTML
+      file to its own repo later is a five-minute job. Take the simple option
+      when the exit is that cheap. The bench links out via the new
+      **⧉ Workshop** field (v0.9.1) pointed at `/gertie/`.
+    * *PWA layer added* (`sw.js`, `manifest.webmanifest`, `icons/`) because
+      the whole point is a phone in a barn with no signal. **The worker's
+      scope is `/gertie/`** — a worker registered at `/gertie/sw.js` cannot
+      reach up and intercept the CTT app at the origin root, which was the
+      one thing worth getting right about co-hosting. Verified explicitly.
+    * *Icons* rendered from Gertie's own dashboard SVG — the P1800 profile in
+      amber on petrol, her palette, not CTT's. Scar re-learned: pin the
+      render frame (`overflow:hidden` + `--hide-scrollbars`) or the capture
+      picks up scrollbars and a black band.
+    * *Real find while testing:* her Google Fonts `<link>` was
+      **render-blocking**, so the inline script could not run until that
+      third-party request resolved or timed out — a stall before anything
+      appears, in exactly the no-signal barn she is built for. Switched to
+      the `media="print"` + `onload` async pattern; offline she now falls
+      back to system fonts instantly instead of waiting.
+    * *Storage boundary (the thing to keep watching):* Gertie and CTT now
+      share an origin, so they share the **~5 MB localStorage budget**. Their
+      keys don't collide (`p1800-build-log-v1` vs `ctt_v1`), but a phone
+      photo is 3–5 MB before base64 inflation — **one photo could evict real
+      ORDO data**. So the parked photo feature must use **IndexedDB** (Blobs,
+      no base64, quota measured in hundreds of MB, separate bucket), never
+      localStorage. Recorded here because the trap is invisible until it
+      costs something.
+    * *Verified* at 390×844: loads at the slug with 8 phases / 49 tasks; the
+      reveal mechanic responds (completing Phase 1 took `lay-1` opacity
+      0.10 → 1, odometer to 14%, one badge earned); the worker registered at
+      scope `/gertie/` and cached 7 shell entries; **an offline reload
+      rendered the full page with progress intact** — the barn test; CTT
+      still loads at the root, is not controlled by Gertie's worker, and both
+      storage keys coexist.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
