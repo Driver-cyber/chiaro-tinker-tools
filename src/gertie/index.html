@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101C24">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gertie">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<title>P1800S Build Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fonts load NON-BLOCKING. They live on a third-party CDN, and a
+     render-blocking <link> means the page (and its script) waits on that
+     request — in a barn with no signal that is a stall before anything
+     appears at all. media="print" + onload flips it to a normal sheet the
+     moment it arrives; offline it simply never arrives and the system font
+     stack carries the page. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,900&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,900&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+/* ============================================================
+   P1800S BUILD LOG
+   Two materials: INSTRUMENT (dark, amber-lit) and MANUAL (paper).
+   Palette derives from a 1960s Volvo gauge cluster:
+   petrol-black bezel, blueprint cyan, amber warning lamp,
+   red oil lamp, oxidised-green "OK" lamp, manual paper.
+   ============================================================ */
+:root{
+  --ink:#101C24;
+  --ink-2:#16252F;
+  --panel:#1B2C37;
+  --panel-2:#213542;
+  --line:#2E4553;
+  --line-2:#3D5768;
+  --paper:#E9E5DC;
+  --paper-2:#DCD6C9;
+  --paper-line:#C3BBAA;
+  --muted:#8AA0AD;
+  --muted-2:#63798688;
+  --amber:#F0A73B;
+  --amber-dim:#8A5F20;
+  --red:#C8492F;
+  --green:#7FAE7E;
+  --print:#5B8CA8;
+
+  --display:'Archivo',system-ui,sans-serif;
+  --util:'Barlow Condensed','Archivo Narrow',sans-serif;
+
+  --r:3px;
+  --maxw:1180px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--display);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:var(--print)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+
+/* ---------- utility type ---------- */
+.eyebrow{
+  font-family:var(--util);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-weight:600;
+  font-size:12px;
+  color:var(--muted);
+}
+.num{font-family:var(--util);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+
+/* ---------- masthead: shop ticket ---------- */
+header.ticket{
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#132029,#101C24);
+  position:sticky;top:0;z-index:50;
+}
+.ticket-in{
+  display:flex;align-items:center;gap:18px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px;
+  max-width:var(--maxw);margin:0 auto;
+  flex-wrap:wrap;
+}
+body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);}
+.stamp{
+  font-family:var(--display);font-weight:900;
+  font-size:19px;letter-spacing:-.02em;line-height:1;
+  display:flex;align-items:baseline;gap:9px;
+}
+.stamp b{color:var(--amber)}
+.stamp span{
+  font-family:var(--util);font-weight:600;font-size:11px;
+  letter-spacing:.18em;color:var(--muted);text-transform:uppercase;
+}
+nav.tabs{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+nav.tabs button{
+  font-family:var(--util);text-transform:uppercase;letter-spacing:.13em;
+  font-weight:600;font-size:13px;color:var(--muted);
+  padding:7px 13px;border:1px solid transparent;border-radius:var(--r);
+}
+nav.tabs button:hover{color:var(--paper);background:#ffffff0a}
+nav.tabs button[aria-current="page"]{
+  color:var(--ink);background:var(--amber);
+}
+.odo{
+  font-family:var(--util);font-weight:700;font-size:13px;
+  letter-spacing:.1em;color:var(--amber);
+  border:1px solid var(--amber-dim);border-radius:var(--r);
+  padding:5px 10px;background:#F0A73B12;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- view switching ---------- */
+.view{display:none}
+.view.on{display:block}
+
+/* ============ DASHBOARD (instrument material) ============ */
+.hero{padding:30px 0 10px}
+.hero-head{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:18px}
+.hero-head h1{
+  font-weight:900;font-size:clamp(30px,6vw,58px);
+  line-height:.94;letter-spacing:-.035em;margin:0;
+  font-stretch:expanded;
+}
+.hero-head h1 em{font-style:normal;color:var(--amber);display:block}
+.hero-note{color:var(--muted);max-width:38ch;font-size:14.5px;margin:0}
+
+/* the signature: blueprint that paints itself in */
+.plate{
+  border:1px solid var(--line);
+  background:
+    radial-gradient(120% 90% at 50% 0%,#1C2E3A 0%,#14222B 60%,#101C24 100%);
+  border-radius:var(--r);
+  position:relative;overflow:hidden;
+}
+.plate::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--line-2) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+  background-size:44px 44px;opacity:.16;
+}
+.plate-tag{
+  position:absolute;top:12px;left:14px;z-index:2;
+  font-family:var(--util);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);
+}
+.plate-tag b{color:var(--amber);font-weight:600}
+svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
+/* every phase layer fades up with its own completion */
+.lay{opacity:calc(.10 + var(--p,0) * .90);transition:opacity .7s ease}
+@media (prefers-reduced-motion:reduce){.lay{transition:none}}
+.gl{fill:none;stroke:var(--print);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.gl-hi{stroke:var(--amber)}
+.gl-thin{stroke-width:1.1}
+.body-paint{fill:var(--paper);opacity:calc(var(--p,0) * .90);transition:opacity .7s ease}
+.ghost{fill:none;stroke:#4A6A7C;stroke-width:1.4;opacity:.5}
+
+/* phase rail */
+.rail{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:10px;margin:22px 0 40px;
+}
+.gauge{
+  text-align:left;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);padding:13px 13px 11px;
+  display:flex;flex-direction:column;gap:9px;
+  transition:border-color .18s,background .18s,transform .18s;
+}
+.gauge:hover{border-color:var(--line-2);background:var(--panel-2);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.gauge:hover{transform:none}}
+.gauge.locked{opacity:.5}
+.gauge.done{border-color:#3E6247;background:#1A2C24}
+.g-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.g-no{
+  font-family:var(--util);font-weight:700;font-size:11px;letter-spacing:.16em;
+  color:var(--muted);
+}
+.g-pct{font-family:var(--util);font-weight:700;font-size:13px;color:var(--amber);font-variant-numeric:tabular-nums}
+.gauge.done .g-pct{color:var(--green)}
+.g-name{
+  font-weight:700;font-size:14.5px;line-height:1.22;letter-spacing:-.01em;
+}
+.bar{height:4px;background:#0C161C;border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--amber);transition:width .5s ease}
+.gauge.done .bar i{background:var(--green)}
+.g-sub{font-family:var(--util);font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+
+/* ============ MANUAL (paper material) ============ */
+.manual{background:var(--paper);color:var(--ink);min-height:70vh;padding:26px 0 60px}
+.searchbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.searchbar input{
+  flex:1 1 260px;font-family:var(--display);font-size:15px;
+  padding:11px 13px;border:1px solid var(--paper-line);border-radius:var(--r);
+  background:#FFFDF8;color:var(--ink);
+}
+.searchbar input::placeholder{color:#9A9384}
+.chip{
+  font-family:var(--util);text-transform:uppercase;letter-spacing:.12em;
+  font-weight:600;font-size:12px;padding:7px 11px;
+  border:1px solid var(--paper-line);border-radius:var(--r);color:#5B5546;
+}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.phase-block{margin-bottom:34px;border-top:2px solid var(--ink);padding-top:12px}
+.phase-head{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.phase-head h2{
+  margin:0;font-size:clamp(22px,3.4vw,31px);font-weight:900;
+  letter-spacing:-.03em;line-height:1;
+}
+.phase-no{
+  font-family:var(--util);font-weight:700;font-size:13px;letter-spacing:.2em;
+  color:#7A7362;
+}
+.phase-goal{margin:2px 0 14px;color:#4E4839;font-size:15px;max-width:70ch}
+.gate{
+  font-family:var(--util);text-transform:uppercase;letter-spacing:.1em;
+  font-size:12px;font-weight:600;color:#8A3D26;
+  border-left:3px solid var(--red);padding:3px 0 3px 9px;margin-bottom:16px;
+}
+
+.task{border-bottom:1px solid var(--paper-line)}
+.task-row{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:12px 2px}
+.tick{
+  flex:0 0 auto;width:21px;height:21px;margin-top:2px;
+  border:1.6px solid #8C8574;border-radius:3px;background:#FFFDF8;
+  display:grid;place-items:center;
+}
+.tick svg{width:13px;height:13px;opacity:0;transform:scale(.6);transition:.16s}
+.task.done .tick{background:#2F5E3A;border-color:#2F5E3A}
+.task.done .tick svg{opacity:1;transform:scale(1)}
+.task.done .t-name{text-decoration:line-through;color:#8A8474}
+.t-mid{flex:1;min-width:0}
+.t-name{font-weight:600;font-size:15.5px;line-height:1.35}
+.t-blurb{font-size:14px;color:#5C5646;margin-top:2px}
+.t-open{
+  font-family:var(--util);font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+  color:#7A7362;flex:0 0 auto;padding-top:4px;
+}
+.detail{display:none;padding:2px 0 22px 33px}
+.task.open .detail{display:block}
+.detail h4{
+  font-family:var(--util);text-transform:uppercase;letter-spacing:.16em;
+  font-size:12px;font-weight:700;color:#7A7362;margin:16px 0 7px;
+}
+.detail ol{margin:0;padding-left:19px}
+.detail ol li{margin-bottom:7px;font-size:14.5px}
+.kit{display:flex;flex-wrap:wrap;gap:6px}
+.kit span{
+  font-family:var(--util);font-size:12.5px;letter-spacing:.05em;
+  background:var(--paper-2);border:1px solid var(--paper-line);
+  padding:3px 8px;border-radius:var(--r);
+}
+.links{display:flex;flex-direction:column;gap:5px}
+.links a{
+  font-size:14px;color:#1F5B7A;text-decoration:none;
+  border-bottom:1px solid #1F5B7A55;align-self:flex-start;
+}
+.links a:hover{border-bottom-color:#1F5B7A}
+.warn{
+  background:#F6E7E2;border-left:3px solid var(--red);
+  padding:9px 12px;font-size:14px;color:#7A3320;margin-top:14px;
+}
+.notes{
+  width:100%;margin-top:8px;min-height:70px;resize:vertical;
+  font-family:var(--display);font-size:14.5px;padding:9px 11px;
+  border:1px solid var(--paper-line);border-radius:var(--r);
+  background:#FFFDF8;color:var(--ink);
+}
+.empty{padding:40px 0;color:#7A7362;font-size:15px}
+
+/* ============ TROPHY CASE ============ */
+.case{padding:34px 0 70px}
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:22px}
+.badge{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);padding:18px 15px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.badge.earned{border-color:var(--amber-dim);background:linear-gradient(180deg,#2A2114,#1B2C37)}
+.badge .shield{width:100%;height:auto;max-width:118px;margin:0 auto 10px;display:block}
+.badge h3{margin:0;font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.badge p{margin:5px 0 0;font-family:var(--util);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.badge.earned p{color:var(--amber)}
+.badge:not(.earned) .shield{filter:grayscale(1);opacity:.22}
+
+footer{border-top:1px solid var(--line);padding:20px;text-align:center}
+footer .eyebrow{letter-spacing:.2em}
+.reset{font-family:var(--util);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#5E7482;margin-left:12px}
+.reset:hover{color:var(--red)}
+
+@media (max-width:640px){
+  .ticket-in{gap:10px;padding:10px 16px}
+  .stamp{font-size:16px}
+  nav.tabs button{padding:6px 9px;font-size:12px}
+  .detail{padding-left:0}
+  .t-open{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="ticket">
+  <div class="ticket-in">
+    <div class="stamp"><b>P1800S</b> <span>1966 · Build Log</span></div>
+    <div class="odo" id="odo">0% ROADWORTHY</div>
+    <nav class="tabs" role="tablist">
+      <button id="tab-dash" aria-current="page" onclick="go('dash')">Dashboard</button>
+      <button id="tab-manual" onclick="go('manual')">Manual</button>
+      <button id="tab-case" onclick="go('case')">Trophy case</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="view on" id="view-dash">
+  <div class="wrap hero">
+    <div class="hero-head">
+      <h1>Barn to<em>road</em></h1>
+      <p class="hero-note">Every task you finish paints another system onto the car. Eight phases, in order — the drawing is only whole when the car is.</p>
+    </div>
+
+    <div class="plate">
+      <div class="plate-tag">Fig. 1 — <b>Reveal state</b> · Volvo P1800S, chassis in restoration</div>
+      <svg class="car" viewBox="0 0 860 300" role="img" aria-labelledby="cartitle">
+        <title id="cartitle">Side profile of a Volvo P1800 that fills in as phases complete</title>
+
+        <!-- always-visible ghost outline -->
+        <g class="ghost">
+          <path d="M78 214 C70 208 62 196 62 178 C62 160 70 146 86 138
+                   C112 128 150 122 196 118 L300 112
+                   C318 104 330 96 348 84 C372 68 404 58 452 55
+                   C512 51 556 58 586 70 C616 82 646 96 672 104
+                   L740 116 C768 122 782 136 782 158 C782 182 772 204 752 214 Z"/>
+        </g>
+
+        <!-- P8 · paint + chrome -->
+        <g class="lay" id="lay-8">
+          <path class="body-paint" id="paintfill" d="M78 214 C70 208 62 196 62 178 C62 160 70 146 86 138
+                   C112 128 150 122 196 118 L300 112
+                   C318 104 330 96 348 84 C372 68 404 58 452 55
+                   C512 51 556 58 586 70 C616 82 646 96 672 104
+                   L740 116 C768 122 782 136 782 158 C782 182 772 204 752 214 Z"/>
+          <!-- signature cove crease -->
+          <path class="gl gl-hi" d="M120 168 C210 158 330 156 470 160 C580 163 660 170 730 180"/>
+          <path class="gl gl-thin" d="M64 176 L112 172"/>
+          <path class="gl gl-thin" d="M744 168 L780 164"/>
+        </g>
+
+        <!-- P6 · glass + lamps -->
+        <g class="lay" id="lay-6">
+          <path class="gl" d="M312 110 C330 98 344 88 360 80 C388 66 418 60 452 58 L452 106 Z"/>
+          <path class="gl" d="M470 58 C516 57 552 64 578 74 C600 82 620 92 636 100 L470 104 Z"/>
+          <circle class="gl gl-hi" cx="86" cy="160" r="15"/>
+          <path class="gl gl-hi" d="M756 148 L776 146 L776 164 L756 162 Z"/>
+        </g>
+
+        <!-- P5 · wheels, tyres, suspension -->
+        <g class="lay" id="lay-5">
+          <circle class="gl" cx="204" cy="196" r="52"/>
+          <circle class="gl" cx="646" cy="196" r="52"/>
+          <path class="gl gl-thin" d="M152 196 A52 52 0 0 1 256 196"/>
+          <path class="gl gl-thin" d="M594 196 A52 52 0 0 1 698 196"/>
+          <path class="gl gl-thin" d="M256 200 L594 200"/>
+        </g>
+
+        <!-- P4 · brakes -->
+        <g class="lay" id="lay-4">
+          <circle class="gl gl-hi" cx="204" cy="196" r="27"/>
+          <circle class="gl gl-hi" cx="646" cy="196" r="27"/>
+          <path class="gl gl-hi gl-thin" d="M204 169 L204 223 M177 196 L231 196"/>
+        </g>
+
+        <!-- P3 · fuel, spark, cooling -->
+        <g class="lay" id="lay-3">
+          <circle class="gl gl-hi" cx="243" cy="141" r="9"/>
+          <circle class="gl gl-hi" cx="266" cy="141" r="9"/>
+          <path class="gl gl-thin" d="M243 150 L243 162 M266 150 L266 162"/>
+          <path class="gl gl-thin" d="M120 146 L120 176 M132 146 L132 176 M144 146 L144 176"/>
+          <path class="gl" d="M300 208 L560 212 L700 214"/>
+          <path class="gl gl-thin" d="M700 214 L724 214 L724 222 L700 222 Z"/>
+        </g>
+
+        <!-- P2 · engine turns -->
+        <g class="lay" id="lay-2">
+          <rect class="gl" x="176" y="140" width="118" height="60" rx="4"/>
+          <path class="gl gl-thin" d="M205 140 L205 200 M235 140 L235 200 M265 140 L265 200"/>
+          <circle class="gl gl-hi" cx="176" cy="188" r="10"/>
+        </g>
+
+        <!-- P1 · triage, floors, structure -->
+        <g class="lay" id="lay-1">
+          <path class="gl" d="M96 212 L256 214 L594 216 L756 212"/>
+          <path class="gl gl-thin" d="M120 214 L120 224 M300 216 L300 226 M540 216 L540 226 M720 214 L720 224"/>
+        </g>
+
+        <!-- P7 · shakedown road -->
+        <g class="lay" id="lay-7">
+          <path class="gl gl-hi" d="M30 262 L180 262 M220 262 L370 262 M410 262 L560 262 M600 262 L750 262 M790 262 L840 262"/>
+          <path class="gl gl-thin" d="M20 96 L96 96 M14 118 L74 118 M26 140 L70 140"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </div>
+</section>
+
+<!-- ================= MANUAL ================= -->
+<section class="view" id="view-manual">
+  <div class="manual">
+    <div class="wrap">
+      <p class="eyebrow" style="color:#7A7362;margin:0 0 12px">Service manual · every step, every link</p>
+      <div class="searchbar">
+        <input id="q" type="search" placeholder="Search tasks, steps, parts — try “SU carb” or “compression”" oninput="render()" aria-label="Search the manual">
+        <button class="chip" id="chip-todo" aria-pressed="false" onclick="toggleTodo()">Hide finished</button>
+      </div>
+      <div id="manual-body"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TROPHY CASE ================= -->
+<section class="view" id="view-case">
+  <div class="wrap case">
+    <p class="eyebrow">Earned badges</p>
+    <h1 style="font-size:clamp(26px,5vw,44px);font-weight:900;letter-spacing:-.03em;margin:6px 0 0">Trophy case</h1>
+    <p style="color:var(--muted);max-width:52ch;margin:8px 0 0">Finish every task in a phase and its badge lights up. Eight badges is a running, stopping, registered car.</p>
+    <div class="case-grid" id="case-grid"></div>
+  </div>
+</section>
+
+<footer>
+  <span class="eyebrow">Build log saves automatically</span>
+  <button class="reset" onclick="wipe()">Reset all progress</button>
+</footer>
+
+<script>
+/* ============================================================
+   STORAGE — window.storage when hosted in Claude, localStorage
+   when deployed anywhere else, memory as a last resort.
+   ============================================================ */
+const KEY = 'p1800-build-log-v1';
+const Store = {
+  async get(){
+    try{
+      if(window.storage){ const r = await window.storage.get(KEY); return r ? JSON.parse(r.value) : null; }
+    }catch(e){ /* key absent or storage unavailable */ }
+    try{ const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; }
+  },
+  async set(v){
+    const s = JSON.stringify(v);
+    try{ if(window.storage){ await window.storage.set(KEY, s); return; } }catch(e){}
+    try{ localStorage.setItem(KEY, s); }catch(e){}
+  }
+};
+let state = { done:{}, notes:{}, open:{} };
+let todoOnly = false;
+
+/* ============================================================
+   CONTENT — 8 phases, gated in order.
+   ============================================================ */
+const YT = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+
+const PHASES = [
+{ id:1, name:'Triage', goal:'Find out what car you actually have before you spend a dollar on it.',
+  gate:'Rust verdict comes before every other decision. A rotten shell changes the whole project.',
+  badge:'Barn Door',
+  tasks:[
+  {id:'1a',n:'Get the title in your name',b:'Paperwork is easiest while the car is still a favour, not a project.',
+   steps:['Ask your grandpa for the title, and check the VIN on the document against the plate on the car.','A 1966 P1800S VIN plate sits on the firewall or the driver door pillar — photograph it.','If the title is lost, start the state replacement process now; it can take weeks.','Get a signed bill of sale even for a gift — some states want one for the transfer.'],
+   tools:['Phone camera','Bill of sale form'],
+   links:[{l:'Volvo P1800 chassis number reference',u:'https://www.volvoclub.org.uk/tech/'}]},
+
+  {id:'1b',n:'Recover the car safely',b:'It almost certainly will not roll. Plan for that.',
+   steps:['Book a flatbed with a winch, not a wheel-lift tow truck.','Warn the driver the wheels may not turn and the steering may be locked.','Clear a level, dry spot at home with room to open both doors and walk around.','Chock the wheels the moment it is off the truck — the parking brake is unknown.'],
+   tools:['Wheel chocks','Flatbed with winch'],warn:'Never tow a car with seized wheels on its own tyres. Flat-spotted 20-year-old tyres can also come apart at speed.'},
+
+  {id:'1c',n:'Rodent cleanup — respirator on',b:'Twenty barn years means nests. Dried droppings are a genuine health hazard.',
+   steps:['Wear an N95 or better, plus nitrile gloves and eye protection.','Never dry-sweep or vacuum droppings. Spray everything with a 1:10 bleach-water solution and let it sit 10 minutes.','Wipe up with disposable rags and bag them.','Check the air cleaner, exhaust tip, heater box, under the intake, and inside the seats for nests.','Ventilate the space the whole time.'],
+   tools:['N95 respirator','Nitrile gloves','Bleach','Spray bottle','Disposable rags','Contractor bags'],
+   warn:'Hantavirus is spread by disturbing dried rodent waste. This step is not optional and it comes before the fun parts.',
+   links:[{l:'CDC — cleaning up after rodents',u:'https://www.cdc.gov/rodents/index.html'}]},
+
+  {id:'1d',n:'Rust verdict',b:'The single measurement that decides whether this is a weekend project or a shell swap.',
+   steps:['Get the car on stands or ramps so you can see underneath with a bright light.','Probe with a screwdriver: front and rear floor pans, rocker panels (sills), jacking points, inner and outer wheel arches, trunk floor, spare wheel well.','P1800 trouble spots: the sills are structural and rot from the inside; check the front fender bottoms behind the wheels and the battery tray.','Photograph everything, including anything that looks fine — you will want a before set.','Soft spots that go through are repairable; a soft jacking point or sill means welding and a bigger budget.'],
+   tools:['Jack + jack stands','Bright work light','Old screwdriver','Small hammer','Camera'],
+   links:[{l:'Volvo Owners Club — P1800 technical articles',u:'https://www.volvoclub.org.uk/tech/'},{l:'Video: inspecting a barn find for rust',u:YT('barn find rust inspection sills floor pans')}]},
+
+  {id:'1e',n:'Disconnect the battery and inspect the wiring',b:'Chewed insulation is the most common hidden barn-find damage.',
+   steps:['Remove the old battery entirely and bin it — a 20-year-dead battery is scrap.','Clean up any acid residue on the battery tray with baking soda solution.','Trace the main harness looking for gnawed insulation, especially near the firewall and under the dash.','Note every damaged section. Do not power anything up yet.'],
+   tools:['10mm and 13mm spanners','Baking soda','Torch'],
+   links:[{l:'SW-EM — classic Volvo electrical reference',u:'https://www.sw-em.com/'}]},
+
+  {id:'1f',n:'Drain the old fluids',b:'Everything in the car is past its life. Get it out before it does damage.',
+   steps:['Drain the engine oil — note whether it looks milky (water) or has metal glitter in it.','Drain the coolant and check for oil contamination or heavy rust.','Drain the fuel tank and lines; 20-year-old petrol is varnish and it will clog everything downstream.','Drain the gearbox and rear axle oil, and inspect for metal on the drain plug magnet.','Take the fluid to a recycling centre — do not put it in the bin.'],
+   tools:['Drain pan','13mm/17mm sockets','Funnel','Sealed fuel containers','Torque wrench']},
+
+  {id:'1g',n:'Photograph and inventory everything',b:'Your future self, disassembling, will need this.',
+   steps:['Shoot every panel, the engine bay from six angles, the interior, the trunk, and under the dash.','Photograph any parts boxes, loose trim, or spares stored with the car.','Note what is missing — the P1800 grille, trim, and badges are the expensive things to replace.','Start a parts wish list you will add to as you go.'],
+   tools:['Camera','Notebook']}
+]},
+
+{ id:2, name:'Make it turn', goal:'Free the engine and prove it is worth waking up.',
+  gate:'Do not touch the starter until the crank turns freely by hand. Cranking a seized engine breaks rings and bends rods.',
+  badge:'First Rotation',
+  tasks:[
+  {id:'2a',n:'Blow out the spark plug wells',b:'Barn dust sitting on the plugs will fall straight into the cylinders when you unscrew them.',
+   steps:['The plugs screw into the side of the cylinder head, under the four thick wires from the distributor.','Each plug sits at the bottom of a recessed pocket — that pocket is the well.','Pull one plug wire at a time and mark it, or you will scramble the firing order.','Blow out each well with compressed air or a can of duster before loosening anything.'],
+   tools:['Compressed air or duster can','Masking tape + marker','Eye protection']},
+
+  {id:'2b',n:'Pull the plugs and read them',b:'Their colour and condition is free diagnostic information.',
+   steps:['Use a 13/16" spark plug socket with a rubber insert.','Loosen each plug a quarter turn, then back it out slowly.','Lay them out in cylinder order, 1 at the front of the car.','Oily and black means rings or valve stem seals; chalky white means it ran lean; even light tan is a good sign.','A wet plug in only one hole is a clue worth remembering later.'],
+   tools:['13/16" plug socket','3/8" ratchet','Extension','Anti-seize (for reinstall)'],
+   links:[{l:'Video: how to read spark plugs',u:YT('how to read spark plugs diagnosis chart')}]},
+
+  {id:'2c',n:'Soak the cylinders',b:'The rings are almost certainly varnished to the bores.',
+   steps:['Squirt roughly a tablespoon of penetrating oil down each open plug hole — it goes straight in on top of the piston.','Use a squirt can or a cheap syringe; the aerosol straw wastes most of it.','Lay a rag loosely over the holes to keep dust out.','Re-dose every few days for one to two weeks. Patience here saves an engine rebuild.'],
+   tools:['PB Blaster or Kroil','Squirt can or syringe','Clean rags'],
+   warn:'Use a real penetrating oil. WD-40 is a water displacer, not a penetrant, and it will not do this job.'},
+
+  {id:'2d',n:'Turn the crank by hand',b:'The moment you find out if the engine is free.',
+   steps:['Put the gearbox in neutral and chock the wheels.','Fit a socket to the crankshaft pulley bolt on the front of the engine.','Turn clockwise, gently, with a normal-length ratchet. It should move with firm but reasonable effort.','If it will not budge, stop. Soak longer, try again in a week.','Once it turns, rotate it through several full revolutions and feel for tight spots.'],
+   tools:['Large socket for the crank pulley bolt','Breaker bar (gently)','Wheel chocks'],
+   warn:'If it resists hard, do not lean on the breaker bar and never use the starter to free it. Both break things that cost real money.'},
+
+  {id:'2e',n:'Change the oil and prime the system',b:'You want oil on the bearings before anything spins fast.',
+   steps:['Fit a new filter and fill with fresh oil — a 20W-50 conventional suits a warm-running B18.','Hand-crank the engine through several more revolutions to move oil around.','With plugs still out and ignition disabled, bump the starter in short bursts and watch for oil pressure.','Do not run it. You are only priming.'],
+   tools:['Oil filter wrench','Fresh oil + filter','Drain pan','Funnel'],
+   links:[{l:'iPD — classic Volvo parts',u:'https://www.ipdusa.com/'},{l:'Skandix — Volvo parts catalogue',u:'https://www.skandix.de/en/'}]},
+
+  {id:'2f',n:'Run the compression test',b:'The fork in the road: weekend project, or engine out.',
+   steps:['Use a screw-in compression tester with a 14mm adapter, not the press-in rubber cone type.','Battery must be strong — slow cranking gives falsely low numbers.','Disable ignition: pull the coil high-tension lead from the distributor cap and ground it to bare metal, away from the carbs.','Block the throttle wide open and make sure the choke is open.','Thread the gauge into cylinder 1 hand-tight. Crank about 5 seconds or until the needle stops climbing. Record it. Repeat for 2, 3, 4.'],
+   tools:['Screw-in compression tester','14mm adapter','Jump pack or charged battery','Notepad'],
+   links:[{l:'Video: compression testing an engine',u:YT('screw in compression test engine step by step')}]},
+
+  {id:'2g',n:'Wet-test anything low, then interpret',b:'The spread between cylinders matters more than the raw numbers.',
+   steps:['Squirt a teaspoon of engine oil into any low cylinder and retest.','Number jumps a lot: rings or bore wear. Number barely moves: valves or head gasket.','A healthy B18 reads roughly 140–170 psi, with all four within about 10–15% of each other.','Two adjacent cylinders both low points at a head gasket.','Uniformly mediocre numbers on a long-dormant engine are common — varnished rings often free up after heat cycles. Uneven numbers are the real information.'],
+   tools:['Engine oil','Syringe or squirt can']}
+]},
+
+{ id:3, name:'Make it run', goal:'Fuel, spark, and cooling — a first start on your own terms.',
+  gate:'Do not first-start from the original tank. Twenty-year-old varnish will destroy the carbs you just rebuilt.',
+  badge:'First Fire',
+  tasks:[
+  {id:'3a',n:'Deal with the fuel tank',b:'Assume it is full of rust scale and varnish.',
+   steps:['Drop the tank and look inside with a light and a phone camera.','Light surface rust: chemical clean and a sealing kit. Heavy scale or pinholes: send it out or buy a replacement.','Replace the sender if the gauge is dead, while the tank is out.','Replace every rubber fuel hose in the car. All of it, no exceptions.','Blow out or replace the steel fuel lines.'],
+   tools:['Jack + stands','Socket set','Tank sealer kit','New fuel hose','Hose clamps'],
+   links:[{l:'VP Autoparts — Volvo classic parts',u:'https://vpautoparts.com/'}]},
+
+  {id:'3b',n:'Fuel pump and filter',b:'The mechanical pump diaphragm will be hard as a biscuit.',
+   steps:['The B18 uses a mechanical pump driven off the camshaft, on the side of the block.','Rebuild it with a kit or fit a new one — the diaphragm is always shot after this long.','Fit a new inline filter before the carbs and note the flow direction arrow.','Check the pump pushrod for wear while you are in there.'],
+   tools:['Socket set','Fuel pump rebuild kit or new pump','Inline filter']},
+
+  {id:'3c',n:'Rebuild the twin SU carburettors',b:'The heart of the B18B. Fiddly, satisfying, very well documented.',
+   steps:['These are SU HS6 carbs — a common, fully supported design with good rebuild kits.','Photograph everything before disassembly and keep the two carbs’ parts separate.','Replace throttle shaft seals, needle and seat, float valve, and the diaphragm in each dashpot.','Check the jets and needles for wear ridges; replace as a matched set if worn.','Refill the dashpots with the correct light oil before starting.','Balance the pair with a synchrometer once running, then set the mixture.'],
+   tools:['SU rebuild kits x2','Synchrometer (Uni-Syn or similar)','Dashpot oil','Screwdrivers','Small spanners'],
+   links:[{l:'Burlen — official SU carburettor parts',u:'https://www.burlen.co.uk/'},{l:'Video: SU carburettor rebuild and tuning',u:YT('SU HS6 carburettor rebuild tuning volvo B18')}]},
+
+  {id:'3d',n:'Ignition system refresh',b:'Everything in the distributor is a wear item and all of it is cheap.',
+   steps:['Replace points, condenser, cap, rotor, plug leads, and plugs as one job.','Set the points gap to spec with a feeler gauge, then check dwell once running.','Test the coil and replace it if resistance is out of spec.','Check the distributor shaft for side-to-side play — worn bushings make timing wander.','Set static timing before the first start, then check with a timing light once it runs.','An electronic ignition conversion is a popular, reversible upgrade if you want fewer tune-ups on a daily driver.'],
+   tools:['Feeler gauges','Timing light','Multimeter','Points + condenser + cap + rotor','Plug leads'],
+   links:[{l:'SW-EM — ignition and electrical articles',u:'https://www.sw-em.com/'},{l:'Video: setting points and static timing',u:YT('setting ignition points static timing classic car')}]},
+
+  {id:'3e',n:'Cooling system',b:'Overheating on the first run is how a good engine becomes a rebuild.',
+   steps:['Replace every hose, the thermostat, and the water pump. All original-age rubber is dead.','Have the radiator cleaned and pressure-tested, or recore it.','Flush the block through the drain plug — expect a lot of rust sediment.','Fit a new pressure cap and inspect the fan and its belt.','Fill with a 50/50 mix and burp the air out.'],
+   tools:['Hose clamp pliers','New hoses/thermostat/water pump','Coolant','Drain pan']},
+
+  {id:'3f',n:'Charging and starting circuit',b:'The car needs to keep itself alive once it fires.',
+   steps:['Fit a correctly sized new battery and clean the cable ends and grounds to bright metal.','Bench-test or replace the starter; 20 years of sitting kills bushings and brushes.','Check the generator or alternator output. Many P1800s have been converted to an alternator — confirm which you have.','Verify the ignition switch and starter solenoid work before you rely on them.'],
+   tools:['Multimeter','Wire brush','Battery','Socket set']},
+
+  {id:'3g',n:'First start',b:'Have a plan, an extinguisher, and a friend.',
+   steps:['Feed fuel from a small temporary container, not the car tank.','Have a fire extinguisher within arm’s reach and someone standing by.','Crank in short bursts. Let the starter cool between attempts.','The moment it fires, watch oil pressure and coolant temperature above everything else.','Run it only a few minutes the first time. Shut down and check for leaks everywhere.','Expect smoke as old oil burns off the exhaust — that is normal and it should clear.'],
+   tools:['Fire extinguisher (ABC)','Temporary fuel container','Helper'],
+   warn:'Fuel leaks onto a hot manifold are the number one way barn finds burn down. Check every joint before you crank, and again after it runs.'}
+]},
+
+{ id:4, name:'Make it stop', goal:'The system that parked the car in the first place. Rebuild all of it.',
+  gate:'No shakedown miles until the brakes are done, bled, and tested at walking pace. Nothing here is optional.',
+  badge:'Full Pedal',
+  tasks:[
+  {id:'4a',n:'Diagnose the original brake fault',b:'You already know it was parked for this. Find out exactly why.',
+   steps:['Ask your grandpa what it did — soft pedal, pulling, dragging, or a leak.','Inspect for fluid trails at the master cylinder, wheel cylinders, and hose ends.','Expect the answer to be “all of it” — that is normal and it does not change the plan.'],
+   tools:['Torch','Notebook']},
+
+  {id:'4b',n:'Replace the master cylinder',b:'The bore will be pitted after 20 years of moisture in old fluid.',
+   steps:['A 1966 P1800S has a dual-circuit master cylinder — a good safety feature worth keeping correct.','Replace rather than rebuild if the bore is pitted; new units are readily available.','Bench-bleed the new master before fitting. This saves an hour of frustration.','Inspect the brake booster if fitted, and check its vacuum hose.'],
+   tools:['Line wrenches (flare nut spanners)','Master cylinder','DOT 4 fluid','Bench bleed kit'],
+   links:[{l:'iPD — brake parts',u:'https://www.ipdusa.com/'}]},
+
+  {id:'4c',n:'Front discs and calipers',b:'The P1800 has front disc brakes — good news for a daily driver.',
+   steps:['Rebuild or replace the calipers; seized pistons are near-guaranteed after this long.','Fit new discs and pads unless the discs measure within spec and are not scored or rusted deeply.','Replace the flexible hoses — old rubber swells internally and can act as a one-way valve.','Clean and repack the front wheel bearings, and fit new seals.'],
+   tools:['Caliper rebuild kits or new calipers','Discs and pads','Flexible hoses','Bearing grease','Torque wrench']},
+
+  {id:'4d',n:'Rear drums',b:'Wheel cylinders are the classic leak point after storage.',
+   steps:['Replace both rear wheel cylinders — rebuilding a pitted one is false economy.','Fit new shoes and hardware springs; the springs fatigue.','Inspect the drums for scoring and have them turned or replaced.','Photograph the spring layout before you take it apart. Drum brake assembly is much easier with a reference.'],
+   tools:['Drum brake spring tool','Wheel cylinders','Shoes + hardware kit'],
+   links:[{l:'Video: drum brake rebuild walkthrough',u:YT('classic car rear drum brake rebuild shoes wheel cylinder')}]},
+
+  {id:'4e',n:'Hard lines and hoses',b:'Rusty steel lines fail under pressure, which is exactly when you need them.',
+   steps:['Inspect every hard line end to end. Surface rust is acceptable; pitting or flaking is not.','Replacing the full set in copper-nickel line is a common and durable upgrade, and it bends by hand.','Replace all flexible hoses regardless of appearance.','Route and clip everything away from heat and moving suspension.'],
+   tools:['Flaring tool','Tube bender','Line wrenches','Cu-Ni brake line']},
+
+  {id:'4f',n:'Clutch hydraulics',b:'Same age, same fluid, same problem. Do it while you are already bleeding.',
+   steps:['Replace the clutch master and slave cylinders.','Replace the flexible clutch hose.','Bleed the clutch the same way as the brakes.','Check the clutch itself engages and releases cleanly once the engine runs.'],
+   tools:['Clutch master + slave','DOT 4 fluid','Line wrenches']},
+
+  {id:'4g',n:'Bleed and test',b:'The last step before the car can move under its own power.',
+   steps:['Use fresh DOT 4 from a sealed container. Brake fluid absorbs moisture from the air.','Bleed in order, furthest wheel from the master first.','Pump and hold — the pedal must be firm and must not sink under steady pressure.','Test at walking pace in a driveway or empty lot before any road use.','Recheck every fitting for weeping after the first few stops.'],
+   tools:['Bleed kit or helper','DOT 4 fluid','Clear tubing','Catch bottle'],
+   warn:'A pedal that slowly sinks under steady foot pressure means an internal master cylinder leak. Do not drive it. Diagnose it.'}
+]},
+
+{ id:5, name:'Make it roll', goal:'Tyres, bearings, steering and suspension — everything between the car and the road.',
+  gate:'Old tyres are the single most dangerous thing on a barn find. Replace them regardless of tread depth.',
+  badge:'Four Corners',
+  tasks:[
+  {id:'5a',n:'New tyres',b:'Rubber has a shelf life whether the car moved or not.',
+   steps:['Read the DOT date code on the sidewall — the last four digits are week and year.','Anything over about 10 years old is unsafe no matter how much tread is left.','Fit a modern radial in the correct size; check what fits the original 15" wheels.','Have the wheels checked for runout and balanced.','Do not forget the spare.'],
+   tools:['Tyre shop','Torque wrench']},
+
+  {id:'5b',n:'Wheel bearings',b:'Old grease turns to wax and the bearings never forgive it.',
+   steps:['Clean, inspect, and repack the front bearings with fresh grease, or replace them.','Fit new grease seals whenever the hub comes apart.','Set the front bearing preload to spec — too tight cooks them, too loose wanders.','Check the rear axle bearings for play and listen for roughness once rolling.'],
+   tools:['Bearing grease','Seal driver','Torque wrench','Brake cleaner']},
+
+  {id:'5c',n:'Steering',b:'Play in the steering makes a good car feel like a bad one.',
+   steps:['Check tie rod ends and idler arm for play by rocking the wheel with the car on stands.','Inspect the steering box for leaks and adjust or rebuild as needed.','Replace worn ball joints and any split rubber boots.','Grease all fittings — the P1800 has more grease points than a modern car.'],
+   tools:['Grease gun','Pickle fork or ball joint separator','Pry bar']},
+
+  {id:'5d',n:'Suspension refresh',b:'Bushings are 60 years old. This is where the car regains its handling.',
+   steps:['Replace all shock absorbers front and rear.','Replace rubber control arm and anti-roll bar bushings — polyurethane is a common upgrade for a driver.','Check the springs for sag and the rear leaf or coil setup for cracked or shifted components.','Inspect all mounting points for rust while you are under there.'],
+   tools:['Spring compressor (with care)','Bushing kit','Shocks','Breaker bar'],
+   warn:'Coil spring compressors are genuinely dangerous. If a spring is under load and you are unsure, hand that part to a shop.'},
+
+  {id:'5e',n:'Exhaust system',b:'A rusted-through system will fail inspection and gas you out.',
+   steps:['Inspect from the manifold back for holes, thin spots, and broken hangers.','Replace the full system if it is original; stainless is a buy-once option for a daily driver.','Fit new hangers and check clearance to the floor and fuel lines.','Check the manifold-to-head gasket for leaks once running.'],
+   tools:['Penetrating oil','Exhaust hangers','Angle grinder or sawzall']},
+
+  {id:'5f',n:'Driveline check',b:'The overdrive is a feature worth protecting.',
+   steps:['Confirm what you have: the M41 gearbox pairs a 4-speed with a Laycock electric overdrive, toggled from the shift knob. That is the “5th gear” feeling.','Change the gearbox and rear axle oil if you did not in Phase 1.','Test the overdrive engages and disengages cleanly once driving — it needs correct oil level and a working solenoid.','Inspect the driveshaft U-joints and centre bearing for play.','Check for leaks at the rear main seal, gearbox output, and axle seals.'],
+   tools:['Gear oil','Multimeter (overdrive solenoid)','Drain pan'],
+   links:[{l:'Laycock overdrive troubleshooting reference',u:'https://www.sw-em.com/'},{l:'Video: Laycock J-type / D-type overdrive explained',u:YT('Laycock overdrive volvo M41 how it works troubleshooting')}]}
+]},
+
+{ id:6, name:'Make it legal', goal:'Lights, glass, wipers, horn — then plates and insurance.',
+  gate:'Check your state’s inspection requirements before you start buying parts. Rules for 1966 vehicles vary widely.',
+  badge:'Plated',
+  tasks:[
+  {id:'6a',n:'Lighting all round',b:'Every bulb, lens, and ground.',
+   steps:['Test headlights on both beams, tail lights, brake lights, indicators, reverse, and plate light.','Most classic Volvo lighting faults are bad grounds, not bad bulbs. Clean every ground point to bright metal.','Replace cracked or missing lenses — P1800 trim is available but not cheap.','Consider an LED or halogen headlight upgrade for real night driving.'],
+   tools:['Multimeter','Bulb assortment','Wire brush','Dielectric grease'],
+   links:[{l:'SW-EM — grounds and lighting diagnostics',u:'https://www.sw-em.com/'}]},
+
+  {id:'6b',n:'Wipers, washers, horn',b:'Small items that fail inspection.',
+   steps:['Fit new wiper blades and check the motor and linkage move freely.','Test or replace the washer pump and clear the nozzles.','Confirm the horn works and is securely mounted.','Check the heater blower and demister — required in many states and genuinely necessary.'],
+   tools:['Wiper blades','Multimeter','Silicone lubricant']},
+
+  {id:'6c',n:'Glass and mirrors',b:'Cracks in the windscreen fail inspection almost everywhere.',
+   steps:['Inspect the windscreen for cracks in the driver’s sweep area.','Check the rubber seals — leaking seals are a major cause of the floor rust you assessed in Phase 1.','Fit or replace mirrors to whatever your state requires.','Clean the inside of the glass properly. Twenty years of film is worse than you think at night.'],
+   tools:['Glass cleaner','Seal replacement kit']},
+
+  {id:'6d',n:'Seat belts',b:'Volvo invented the three-point belt. Do not daily this car without good ones.',
+   steps:['Inspect original belts for fraying, sun damage, and a working retractor.','Replace anything questionable — webbing degrades invisibly with age.','Confirm the anchor points are solid metal, not rust.','Check what your state requires for a 1966 vehicle.'],
+   tools:['Socket set','Torque wrench'],
+   warn:'There are no airbags and no crumple zones in this car. Belts are the entire safety system.'},
+
+  {id:'6e',n:'Inspection, registration, insurance',b:'The paperwork lap.',
+   steps:['Check your state’s rules for a 1966 vehicle — many exempt classics from emissions and some from safety inspection.','Decide between standard registration, historic, or classic plates. Historic plates are cheaper but often limit annual mileage, which matters if this is your daily.','Get a classic car policy quote and an agreed-value appraisal if the car warrants it.','Standard insurance may undervalue it; classic policies often restrict mileage. Read both carefully against how you actually plan to drive it.'],
+   tools:['Title','Bill of sale','Photos for appraisal']}
+]},
+
+{ id:7, name:'Shakedown', goal:'Find the failures on your terms, close to home.',
+  gate:'Keep a backup vehicle through this whole phase. Something always breaks in the first 200 miles.',
+  badge:'200 Miles',
+  tasks:[
+  {id:'7a',n:'Driveway and parking lot laps',b:'Low speed, high attention.',
+   steps:['Test brakes, clutch, steering, and every gear at walking pace.','Listen for knocks, whines, and grinding with the window down.','Check for leaks after every single session — park on clean cardboard.','Confirm the temperature gauge stabilises and the oil pressure holds at idle.'],
+   tools:['Cardboard sheet','Torch','Notebook']},
+
+  {id:'7b',n:'First road loop',b:'Short, familiar, close to home.',
+   steps:['Plan a loop under five miles that never puts you more than a mile from the house.','Bring a phone, a torch, basic tools, and a tow strap.','Retorque the wheel nuts after the first drive, and again after the next few.','Recheck every fluid level when you get back.'],
+   tools:['Basic tool roll','Tow strap','Torque wrench']},
+
+  {id:'7c',n:'Expand the radius',b:'Grow the loop as confidence grows.',
+   steps:['Increase distance gradually and add highway speed only once everything below it is solid.','Fix each fault fully before extending the range again.','Keep logging what happens at each speed and temperature.','Do a full re-inspection under the car at around 100 and 200 miles.'],
+   tools:['Jack + stands','Notebook']},
+
+  {id:'7d',n:'Post-shakedown service',b:'Reset the clock now that everything has bedded in.',
+   steps:['Change the oil and filter again — the first run picks up a lot of debris.','Retorque the cylinder head if the gasket was disturbed, and reset valve clearances.','Rebalance and re-tune the SU carbs now that the engine is properly run in.','Recheck ignition timing hot.','Re-bleed the brakes if the pedal has changed at all.'],
+   tools:['Feeler gauges','Timing light','Synchrometer','Oil + filter']},
+
+  {id:'7e',n:'Build the daily-driver kit',b:'What lives in the trunk from now on.',
+   steps:['Spare points and condenser, a spare coil, and a set of plugs.','Fan belt, a couple of common hoses, and hose clamps.','A litre each of oil and coolant, plus brake fluid.','Basic tools, a torch, gloves, and a tyre plug kit.','Roadside assistance that covers flatbed towing.'],
+   tools:['Trunk box','Spares kit']}
+]},
+
+{ id:8, name:'Cosmetics', goal:'Last, and only if you want to. Patina is free.',
+  gate:'Nothing in this phase makes the car safer or more reliable. Do not let it jump the queue.',
+  badge:'Coachwork',
+  tasks:[
+  {id:'8a',n:'Deep clean and protect',b:'The cheapest transformation available.',
+   steps:['Wash, clay bar, and machine polish. Twenty years of barn grime hides a lot of paint.','Seal with a wax or ceramic coating.','Clean and condition the interior; you already said the upholstery is decent, so protect it rather than replace it.','Clean the glass, chrome, and door jambs properly.'],
+   tools:['Clay bar','Polisher','Wax or sealant','Interior cleaner']},
+
+  {id:'8b',n:'Chrome and trim',b:'The P1800 lives or dies on its brightwork.',
+   steps:['Polish salvageable chrome before replacing anything — much of it comes back.','Source replacements for the grille, bumpers, or side trim only where needed. These are the expensive parts.','Refit or replace badges and emblems.','Address the side cove trim, which is a defining feature of the shape.'],
+   tools:['Chrome polish','Trim tools'],
+   links:[{l:'Skandix — P1800 trim and body parts',u:'https://www.skandix.de/en/'},{l:'VP Autoparts — Volvo classic',u:'https://vpautoparts.com/'}]},
+
+  {id:'8c',n:'Paint decisions',b:'The big money question. Answer it last.',
+   steps:['Decide honestly between preserving the original paint, spot repairs, or a full respray.','A full respray on a driver often costs more than the car is worth — and original paint only exists once.','If you found rust in Phase 1, repair it properly before any paint goes on.','Rustproof the underside and inside the sills. This is the single best long-term investment for a driven car.'],
+   tools:['Body shop quotes','Cavity wax','Underseal']},
+
+  {id:'8d',n:'Winter plan',b:'Decide how you will actually use it.',
+   steps:['Road salt is the real enemy of an unrusty Swedish car. A P1800 makes an excellent fair-weather daily and a poor winter one.','Plan a winter storage routine: fuel stabiliser, battery tender, tyres at pressure, a breathable cover.','Or commit to washing the underside religiously all winter — and accept the consequences.','Line up a second car for salt season if you can.'],
+   tools:['Battery tender','Fuel stabiliser','Car cover']},
+
+  {id:'8e',n:'Document the build',b:'Finish the story you started photographing in Phase 1.',
+   steps:['Shoot the same angles as your Phase 1 photos for a proper before and after.','Keep every receipt and parts invoice together — it adds real value at resale.','Write up what you learned. You are switching careers into this; a documented full restoration is a portfolio piece.','Register with an owners club and go to a show. Barn-find P1800s draw a crowd.'],
+   tools:['Camera','Folder or binder'],
+   links:[{l:'Volvo Owners Club',u:'https://www.volvoclub.org.uk/'},{l:'Turbobricks forums',u:'https://www.turbobricks.com/forums/'},{l:'Brickboard — classic Volvo community',u:'https://www.brickboard.com/'}]}
+]}
+];
+
+/* ============================================================
+   DERIVED STATE
+   ============================================================ */
+const allTasks = () => PHASES.flatMap(p => p.tasks.map(t => ({...t, phase:p})));
+function phaseProgress(p){
+  const total = p.tasks.length;
+  const done = p.tasks.filter(t => state.done[t.id]).length;
+  return { done, total, pct: total ? done/total : 0 };
+}
+function overall(){
+  const t = allTasks();
+  return t.length ? t.filter(x => state.done[x.id]).length / t.length : 0;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){ renderCar(); renderRail(); renderManual(); renderCase(); renderOdo(); }
+
+function renderOdo(){
+  document.getElementById('odo').textContent = Math.round(overall()*100) + '% ROADWORTHY';
+}
+
+function renderCar(){
+  PHASES.forEach(p => {
+    const el = document.getElementById('lay-' + p.id);
+    if(el) el.style.setProperty('--p', phaseProgress(p).pct.toFixed(3));
+  });
+  const paint = document.getElementById('paintfill');
+  if(paint) paint.style.setProperty('--p', phaseProgress(PHASES[7]).pct.toFixed(3));
+}
+
+function renderRail(){
+  const rail = document.getElementById('rail');
+  rail.innerHTML = '';
+  PHASES.forEach((p, i) => {
+    const pr = phaseProgress(p);
+    const prevDone = i === 0 ? true : phaseProgress(PHASES[i-1]).pct === 1;
+    const b = document.createElement('button');
+    b.className = 'gauge' + (pr.pct === 1 ? ' done' : '') + (!prevDone && pr.pct === 0 ? ' locked' : '');
+    b.innerHTML = `
+      <div class="g-top">
+        <span class="g-no">Phase ${p.id}</span>
+        <span class="g-pct">${Math.round(pr.pct*100)}%</span>
+      </div>
+      <div class="g-name">${p.name}</div>
+      <div class="bar"><i style="width:${pr.pct*100}%"></i></div>
+      <div class="g-sub">${pr.done} of ${pr.total} done</div>`;
+    b.onclick = () => { go('manual'); setTimeout(()=>{ const el = document.getElementById('ph-'+p.id); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 60); };
+    rail.appendChild(b);
+  });
+}
+
+function matches(t, q){
+  if(!q) return true;
+  const hay = (t.n + ' ' + t.b + ' ' + t.steps.join(' ') + ' ' + (t.tools||[]).join(' ')).toLowerCase();
+  return hay.includes(q);
+}
+
+function renderManual(){
+  const q = (document.getElementById('q').value || '').trim().toLowerCase();
+  const host = document.getElementById('manual-body');
+  host.innerHTML = '';
+  let shown = 0;
+
+  PHASES.forEach(p => {
+    const tasks = p.tasks.filter(t => matches(t, q) && !(todoOnly && state.done[t.id]));
+    if(!tasks.length) return;
+    shown += tasks.length;
+    const pr = phaseProgress(p);
+    const block = document.createElement('section');
+    block.className = 'phase-block';
+    block.id = 'ph-' + p.id;
+    block.innerHTML = `
+      <div class="phase-head">
+        <span class="phase-no">Phase ${p.id} / 8 · ${pr.done} of ${pr.total} complete</span>
+      </div>
+      <div class="phase-head"><h2>${p.name}</h2></div>
+      <p class="phase-goal">${p.goal}</p>
+      <div class="gate">Gate — ${p.gate}</div>`;
+
+    tasks.forEach(t => {
+      const done = !!state.done[t.id];
+      const open = !!state.open[t.id];
+      const wrap = document.createElement('article');
+      wrap.className = 'task' + (done ? ' done' : '') + (open ? ' open' : '');
+      wrap.innerHTML = `
+        <div class="task-row">
+          <button class="tick" aria-label="${done ? 'Mark not done' : 'Mark done'}: ${t.n}" data-tick="${t.id}">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#E9E5DC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="t-mid" data-open="${t.id}" aria-expanded="${open}">
+            <div class="t-name">${t.n}</div>
+            <div class="t-blurb">${t.b}</div>
+          </button>
+          <span class="t-open">${open ? 'Close' : 'Open'}</span>
+        </div>
+        <div class="detail">
+          <h4>Steps</h4>
+          <ol>${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+          ${t.tools ? `<h4>Kit</h4><div class="kit">${t.tools.map(x=>`<span>${x}</span>`).join('')}</div>` : ''}
+          ${t.links ? `<h4>Go deeper</h4><div class="links">${t.links.map(x=>`<a href="${x.u}" target="_blank" rel="noopener">${x.l}</a>`).join('')}</div>` : ''}
+          ${t.warn ? `<div class="warn"><strong>Careful.</strong> ${t.warn}</div>` : ''}
+          <h4>Your notes</h4>
+          <textarea class="notes" data-note="${t.id}" placeholder="Measurements, part numbers, what actually happened…">${state.notes[t.id] || ''}</textarea>
+        </div>`;
+      block.appendChild(wrap);
+    });
+    host.appendChild(block);
+  });
+
+  if(!shown){
+    host.innerHTML = `<p class="empty">Nothing matches that. Try a broader word — “brake”, “carb”, “rust”.</p>`;
+  }
+
+  host.querySelectorAll('[data-tick]').forEach(el => el.onclick = () => toggleDone(el.dataset.tick));
+  host.querySelectorAll('[data-open]').forEach(el => el.onclick = () => toggleOpen(el.dataset.open));
+  host.querySelectorAll('[data-note]').forEach(el => el.oninput = () => { state.notes[el.dataset.note] = el.value; save(); });
+}
+
+function renderCase(){
+  const grid = document.getElementById('case-grid');
+  grid.innerHTML = '';
+  PHASES.forEach(p => {
+    const pr = phaseProgress(p);
+    const earned = pr.pct === 1;
+    const d = document.createElement('div');
+    d.className = 'badge' + (earned ? ' earned' : '');
+    d.innerHTML = `
+      <svg class="shield" viewBox="0 0 100 116" aria-hidden="true">
+        <path d="M50 4 L94 22 V60 C94 86 74 104 50 112 C26 104 6 86 6 60 V22 Z"
+              fill="${earned ? '#F0A73B14' : 'none'}" stroke="${earned ? '#F0A73B' : '#3D5768'}" stroke-width="2.5"/>
+        <text x="50" y="52" text-anchor="middle" font-family="Barlow Condensed" font-size="30" font-weight="700"
+              fill="${earned ? '#F0A73B' : '#3D5768'}">0${p.id}</text>
+        <path d="M26 64 H74" stroke="${earned ? '#F0A73B' : '#3D5768'}" stroke-width="2"/>
+        <text x="50" y="88" text-anchor="middle" font-family="Barlow Condensed" font-size="13" letter-spacing="2"
+              fill="${earned ? '#F0A73B' : '#3D5768'}">${earned ? 'EARNED' : 'LOCKED'}</text>
+      </svg>
+      <h3>${p.badge}</h3>
+      <p>${earned ? 'Phase ' + p.id + ' complete' : pr.done + ' / ' + pr.total + ' tasks'}</p>`;
+    grid.appendChild(d);
+  });
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function toggleDone(id){
+  const wasPhase = PHASES.find(p => p.tasks.some(t => t.id === id));
+  const before = phaseProgress(wasPhase).pct;
+  state.done[id] = !state.done[id];
+  if(!state.done[id]) delete state.done[id];
+  save(); render();
+  const after = phaseProgress(wasPhase).pct;
+  if(before < 1 && after === 1) celebrate(wasPhase);
+}
+function toggleOpen(id){ state.open[id] = !state.open[id]; save(); renderManual(); }
+function toggleTodo(){
+  todoOnly = !todoOnly;
+  const c = document.getElementById('chip-todo');
+  c.setAttribute('aria-pressed', todoOnly);
+  c.textContent = todoOnly ? 'Show all' : 'Hide finished';
+  renderManual();
+}
+function go(v){
+  ['dash','manual','case'].forEach(k => {
+    document.getElementById('view-'+k).classList.toggle('on', k === v);
+    const tab = document.getElementById('tab-'+k);
+    if(v === k) tab.setAttribute('aria-current','page'); else tab.removeAttribute('aria-current');
+  });
+  window.scrollTo({top:0, behavior:'instant'});
+}
+function celebrate(p){
+  const bar = document.createElement('div');
+  bar.textContent = 'Phase ' + p.id + ' complete — “' + p.badge + '” badge earned';
+  bar.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;background:#F0A73B;color:#101C24;font-family:Barlow Condensed,sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:14px;padding:11px 20px;border-radius:3px;box-shadow:0 8px 30px #0008';
+  document.body.appendChild(bar);
+  setTimeout(() => bar.remove(), 4200);
+}
+function wipe(){
+  if(!confirm('Reset every checkbox and note? This cannot be undone.')) return;
+  state = { done:{}, notes:{}, open:{} };
+  save(); render();
+}
+let saveTimer;
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(() => Store.set(state), 260); }
+
+/* ============================================================
+   OFFLINE — the barn has no signal. Registered only over http(s)
+   so opening this file straight from disk still works untouched.
+   The worker's scope is this folder; it never reaches the CTT app
+   sitting at the origin root.
+   ============================================================ */
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(e){ console.error('sw register', e); });
+  });
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(async function(){
+  const loaded = await Store.get();
+  if(loaded) state = Object.assign({done:{},notes:{},open:{}}, loaded);
+  render();
+})();
+</script>
+</body>
+</html>
