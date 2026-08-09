@@ -464,6 +464,37 @@
       still bold; export still contains the markers; the expanded editor
       loads rendered and red persists to the stored markdown.
 
+* **[2026-07-26] v0.9.1 — projects can point at their own workshop (Chad).**
+    * *The question Chad brought:* a "Projects" tab as a linktree of
+      companion web apps, **or** a per-project link in the Journal header?
+    * *Decision — the per-project link, no new tab.* Reasoning, straight
+      from the pattern we set today: **tabs are rooms**, and a linktree is a
+      signpost, not a room. A "Projects" tab beside "Project Journal" would
+      be two tabs whose names mean the same thing, and it would make you
+      navigate *away* from a project to find the link *to* that project.
+      The link is a **property of the project**, so it lives on the project.
+    * *Shape:* one optional `p.appUrl`. A **⧉ Workshop** button appears in
+      the project header only when set; a **⧉** mark appears beside that
+      project in Recent, so the "linktree" view emerges for free without a
+      surface to maintain. A bare domain typed in gets `https://` prepended.
+    * *Vocabulary:* the companion app is a project's **workshop** — distinct
+      from the bench, which is CTT itself. The bench links out rather than
+      swallowing a project's detail.
+    * *Schema-lockstep:* new project field, landed in both repos the same
+      hour (desktop v0.9.1 / mobile v0.9.0). No `normalize()` change needed —
+      the field is read with `||''` everywhere, so a db that predates it
+      simply has no door. Verified against exactly that legacy shape.
+    * *First workshop:* **Gertie** — a 1966 Volvo P1800S barn find from
+      Chad's grandpa. Single-file build log: an SVG blueprint of the car
+      that paints itself in as phases complete, 49 tasks across 8 gated
+      phases, full-text search, trophy case. Notably it satisfies the
+      anti-engagement ethos by construction: the progress visual is a mirror
+      of **the car's state**, not a scoreboard of Chad's diligence.
+    * *Verified* on both surfaces: legacy project shows no door and no ⧉;
+      a bare domain stores as `https://…`; the door opens in a new tab;
+      the ⧉ appears in Recent; the value survives a cold reload; clearing
+      the field removes the door; no layout overflow on either.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
