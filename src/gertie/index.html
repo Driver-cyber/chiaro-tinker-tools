@@ -439,27 +439,32 @@ footer .eyebrow{letter-spacing:.2em}
 </section>
 
 <footer>
-  <span class="eyebrow">Build log saves automatically</span>
+  <span class="eyebrow" id="savemark">Build log saves automatically</span>
   <button class="reset" onclick="wipe()">Reset all progress</button>
 </footer>
 
 <script>
 /* ============================================================
-   STORAGE — window.storage when hosted in Claude, localStorage
-   when deployed anywhere else, memory as a last resort.
+   STORAGE — localStorage, and nothing else.
+
+   This used to try `window.storage` first (an artifact of where this
+   file was written) and fall through to localStorage. That branch was
+   dead everywhere it actually runs, and worse than dead: if anything
+   ever defined window.storage, get() returned null and set() wrote
+   into the void — both silently. A build log that quietly forgets is
+   the one failure this page cannot have. So: one path, and it reports
+   when it fails.
    ============================================================ */
 const KEY = 'p1800-build-log-v1';
+let storeOK = true;               // flips false the first time a write is refused
 const Store = {
-  async get(){
-    try{
-      if(window.storage){ const r = await window.storage.get(KEY); return r ? JSON.parse(r.value) : null; }
-    }catch(e){ /* key absent or storage unavailable */ }
-    try{ const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; }
+  get(){
+    try{ const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; }
+    catch(e){ storeOK = false; return null; }
   },
-  async set(v){
-    const s = JSON.stringify(v);
-    try{ if(window.storage){ await window.storage.set(KEY, s); return; } }catch(e){}
-    try{ localStorage.setItem(KEY, s); }catch(e){}
+  set(v){
+    try{ localStorage.setItem(KEY, JSON.stringify(v)); storeOK = true; return true; }
+    catch(e){ storeOK = false; return false; }
   }
 };
 let state = { done:{}, notes:{}, open:{} };
@@ -915,8 +920,36 @@ function wipe(){
   state = { done:{}, notes:{}, open:{} };
   save(); render();
 }
-let saveTimer;
-function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(() => Store.set(state), 260); }
+/* Writes are debounced so typing doesn't hammer localStorage — but a
+   debounce is a promise to write *later*, and iOS discards backgrounded
+   tabs without asking. Anything still pending when the page goes away
+   is simply lost. So every exit road flushes first. */
+let saveTimer, pending = false;
+function save(){ pending = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 260); }
+function flush(){
+  clearTimeout(saveTimer);
+  if(!pending) return;
+  pending = false;
+  stamp(Store.set(state));
+}
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') flush(); });
+window.addEventListener('pagehide', flush);
+window.addEventListener('beforeunload', flush);
+
+/* A quiet receipt, not a nag: the footer says when it last wrote, so a
+   silent failure can't masquerade as a working page. */
+function stamp(ok){
+  const el = document.getElementById('savemark');
+  if(!el) return;
+  if(ok && storeOK){
+    const d = new Date();
+    el.textContent = 'Saved ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+    el.style.color = '';
+  } else {
+    el.textContent = 'NOT SAVING — this browser is refusing storage (private browsing?)';
+    el.style.color = '#F0A73B';
+  }
+}
 
 /* ============================================================
    OFFLINE — the barn has no signal. Registered only over http(s)
@@ -933,10 +966,14 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
 /* ============================================================
    BOOT
    ============================================================ */
-(async function(){
-  const loaded = await Store.get();
+(function(){
+  const loaded = Store.get();
   if(loaded) state = Object.assign({done:{},notes:{},open:{}}, loaded);
   render();
+  // Prove the write path works on *this* device before Chad trusts it with
+  // a day's findings — a read-only browser should say so on arrival, not
+  // after the notes are already gone.
+  if(!Store.set(state)) stamp(false);
 })();
 </script>
 </body>

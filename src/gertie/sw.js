@@ -11,7 +11,7 @@
      the next online open; offline falls back to the cached page.
    - Bump CACHE on release-worthy edits or the old page sticks around.
    ===================================================================== */
-const CACHE = 'gertie-v1';
+const CACHE = 'gertie-v2';
 const SHELL = [
   './',
   './index.html',
