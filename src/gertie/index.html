@@ -51,6 +51,7 @@
 
   --r:3px;
   --maxw:1180px;
+  --gut:20px;          /* one gutter, used by every full-width container */
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -65,7 +66,17 @@ body{
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 a{color:var(--print)}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+/* Gutter is padding-INLINE on purpose. It used to be the `padding`
+   shorthand, which meant any companion class with its own `padding`
+   shorthand (.hero, .case) silently reset the sides to zero — which is
+   exactly what happened, and why the Dashboard and Trophy Case ran
+   edge-to-edge on a phone while the Manual looked fine. Longhand here,
+   padding-block on the companions, and the two can't collide again. */
+.wrap{
+  max-width:var(--maxw);margin:0 auto;
+  padding-inline:calc(var(--gut) + env(safe-area-inset-left,0px))
+                 calc(var(--gut) + env(safe-area-inset-right,0px));
+}
 
 /* ---------- utility type ---------- */
 .eyebrow{
@@ -86,7 +97,7 @@ header.ticket{
 }
 .ticket-in{
   display:flex;align-items:center;gap:18px;
-  padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) var(--gut) 12px;
   max-width:var(--maxw);margin:0 auto;
   flex-wrap:wrap;
 }
@@ -124,7 +135,7 @@ nav.tabs button[aria-current="page"]{
 .view.on{display:block}
 
 /* ============ DASHBOARD (instrument material) ============ */
-.hero{padding:30px 0 10px}
+.hero{padding-block:30px 10px}
 .hero-head{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:18px}
 .hero-head h1{
   font-weight:900;font-size:clamp(30px,6vw,58px);
@@ -238,7 +249,11 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 .task.done .tick{background:#2F5E3A;border-color:#2F5E3A}
 .task.done .tick svg{opacity:1;transform:scale(1)}
 .task.done .t-name{text-decoration:line-through;color:#8A8474}
-.t-mid{flex:1;min-width:0}
+/* A <button> keeps the UA's centred text no matter what the flex parent
+   says, which nobody noticed on desktop because "Open" on the right kept
+   the column narrow. On a phone .t-open is hidden, the button spans the
+   row, and every task name floated centred over a left-aligned tick. */
+.t-mid{flex:1;min-width:0;text-align:left}
 .t-name{font-weight:600;font-size:15.5px;line-height:1.35}
 .t-blurb{font-size:14px;color:#5C5646;margin-top:2px}
 .t-open{
@@ -278,7 +293,7 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 .empty{padding:40px 0;color:#7A7362;font-size:15px}
 
 /* ============ TROPHY CASE ============ */
-.case{padding:34px 0 70px}
+.case{padding-block:34px 70px}
 .case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:22px}
 .badge{
   border:1px solid var(--line);border-radius:var(--r);
@@ -292,7 +307,7 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 .badge.earned p{color:var(--amber)}
 .badge:not(.earned) .shield{filter:grayscale(1);opacity:.22}
 
-footer{border-top:1px solid var(--line);padding:20px;text-align:center}
+footer{border-top:1px solid var(--line);padding:20px var(--gut) calc(20px + env(safe-area-inset-bottom,0px));text-align:center}
 footer .eyebrow{letter-spacing:.2em}
 
 /* The save receipt, where you can actually see it. There is no save
@@ -321,11 +336,35 @@ footer .eyebrow{letter-spacing:.2em}
 .reset:hover{color:var(--red)}
 
 @media (max-width:640px){
-  .ticket-in{gap:10px;padding:10px 16px}
+  .ticket-in{gap:10px;padding:10px var(--gut)}
   .stamp{font-size:16px}
   nav.tabs button{padding:6px 9px;font-size:12px}
   .detail{padding-left:0}
   .t-open{display:none}
+  /* The plate caption is one long uppercase line with wide tracking; on a
+     narrow screen it ran under the clip and lost its own last word. The
+     figure number is the part that earns the space. */
+  .tag-long{display:none}
+  .plate-tag{left:12px;right:12px}
+}
+
+/* iOS zooms the whole page when you focus an input under 16px, and it
+   never zooms back out — the same trap CTT Mobile hit. The cure is the
+   font size, not user-scalable=no; pinch-zoom stays available, which a
+   barn full of small print genuinely needs. */
+@media (pointer:coarse){
+  .searchbar input,.notes{font-size:16px}
+}
+
+/* Touch targets. The tick box reads as 21px by design and should keep
+   reading that way — so the box stays put and only the hit area grows,
+   via a transparent overlay. Same for the tab buttons. */
+@media (pointer:coarse){
+  .tick{position:relative}
+  .tick::after{content:"";position:absolute;top:50%;left:50%;
+    width:44px;height:44px;transform:translate(-50%,-50%)}
+  nav.tabs button{min-height:40px}
+  .chip{min-height:40px}
 }
 </style>
 </head>
@@ -352,7 +391,7 @@ footer .eyebrow{letter-spacing:.2em}
     </div>
 
     <div class="plate">
-      <div class="plate-tag">Fig. 1 — <b>Reveal state</b> · Volvo P1800S, chassis in restoration</div>
+      <div class="plate-tag">Fig. 1 — <b>Reveal state</b><span class="tag-long"> · Volvo P1800S, chassis in restoration</span></div>
       <svg class="car" viewBox="0 0 860 300" role="img" aria-labelledby="cartitle">
         <title id="cartitle">Side profile of a Volvo P1800 that fills in as phases complete</title>
 
