@@ -294,6 +294,29 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 
 footer{border-top:1px solid var(--line);padding:20px;text-align:center}
 footer .eyebrow{letter-spacing:.2em}
+
+/* The save receipt, where you can actually see it. There is no save
+   button — the log writes itself — so the reassurance has to travel
+   with you instead of sitting at the bottom of 49 tasks. Shows for a
+   moment on each write, then gets out of the way. A refused write is
+   the one message that stays put. */
+.savechip{
+  position:fixed;left:50%;z-index:80;
+  bottom:calc(16px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(6px);
+  font-family:var(--util);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:1px solid var(--line-2);
+  padding:7px 15px;border-radius:999px;box-shadow:0 6px 22px #0007;
+  white-space:nowrap;max-width:calc(100vw - 32px);
+  opacity:0;pointer-events:none;
+  transition:opacity .26s ease,transform .26s ease;
+}
+.savechip.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.savechip.bad{
+  border-color:var(--amber);color:var(--amber);
+  text-transform:none;letter-spacing:.03em;font-size:13px;
+}
+@media (prefers-reduced-motion:reduce){.savechip{transition:none}}
 .reset{font-family:var(--util);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#5E7482;margin-left:12px}
 .reset:hover{color:var(--red)}
 
@@ -442,6 +465,8 @@ footer .eyebrow{letter-spacing:.2em}
   <span class="eyebrow" id="savemark">Build log saves automatically</span>
   <button class="reset" onclick="wipe()">Reset all progress</button>
 </footer>
+
+<div class="savechip" id="savechip" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
@@ -938,17 +963,27 @@ window.addEventListener('beforeunload', flush);
 
 /* A quiet receipt, not a nag: the footer says when it last wrote, so a
    silent failure can't masquerade as a working page. */
+let chipTimer;
 function stamp(ok){
+  const good = ok && storeOK;
+  const d = new Date();
+  const at = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+
   const el = document.getElementById('savemark');
-  if(!el) return;
-  if(ok && storeOK){
-    const d = new Date();
-    el.textContent = 'Saved ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
-    el.style.color = '';
-  } else {
-    el.textContent = 'NOT SAVING — this browser is refusing storage (private browsing?)';
-    el.style.color = '#F0A73B';
+  if(el){
+    el.textContent = good ? 'Saved ' + at
+                          : 'NOT SAVING — this browser is refusing storage (private browsing?)';
+    el.style.color = good ? '' : 'var(--amber)';
   }
+
+  const chip = document.getElementById('savechip');
+  if(!chip) return;
+  clearTimeout(chipTimer);
+  chip.textContent = good ? 'Saved ' + at : 'Not saving — storage blocked';
+  chip.classList.toggle('bad', !good);
+  chip.classList.add('show');
+  // A good write is worth a glance, not a monument. A refused one stays.
+  if(good) chipTimer = setTimeout(() => chip.classList.remove('show'), 1700);
 }
 
 /* ============================================================
