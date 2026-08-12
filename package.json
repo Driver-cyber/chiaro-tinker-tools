@@ -1,0 +1,12 @@
+{
+  "name": "chiaro-tinker-tools",
+  "version": "0.9.4",
+  "private": true,
+  "description": "CTT — a personal tool belt & studio. The app itself is src/index.html and needs no build; this manifest exists only so the test suite has somewhere to declare jsdom.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.0"
+  }
+}

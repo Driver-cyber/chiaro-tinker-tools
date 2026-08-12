@@ -1,0 +1,10 @@
+{
+  "schema": "ctt-1",
+  "journal": {
+    "projects": [
+      { "id": "p-bare", "name": "Gertie — 1966 Volvo P1800", "createdDate": "2026-08-01" }
+    ],
+    "currentProjectId": "p-bare"
+  },
+  "timecard": { "days": {}, "currentDate": null }
+}

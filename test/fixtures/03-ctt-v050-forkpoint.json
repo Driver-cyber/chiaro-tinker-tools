@@ -1,0 +1,40 @@
+{
+  "version": "0.5.0",
+  "schema": "ctt-1",
+  "darkMode": false,
+  "lastEdit": 1753300000000,
+  "journal": {
+    "projects": [
+      {
+        "id": "p-ordo-1",
+        "name": "Bakery LLC — Monthly Close",
+        "type": "ORDO",
+        "template": "simple",
+        "clientCode": "BAKE",
+        "notes": "Waiting on June bank statements.",
+        "role": "both",
+        "archived": false,
+        "createdDate": "2026-05-02",
+        "modifiedDate": "2026-07-24",
+        "sections": [
+          { "name": "Reconcile", "status": "In Prep", "budget": 2, "actual": 1.25, "timeSync": {} },
+          { "name": "Review", "status": "In Prep", "budget": 1, "actual": 0 }
+        ]
+      }
+    ],
+    "currentProjectId": "p-ordo-1",
+    "collapsedGroups": {},
+    "accordions": { "projects": true, "export": false }
+  },
+  "timecard": {
+    "days": {
+      "2026-07-24": {
+        "dayStart": "08:30",
+        "codes": [{ "id": "c1", "label": "Admin", "type": "admin" }],
+        "entries": [],
+        "win": []
+      }
+    },
+    "currentDate": "2026-07-24"
+  }
+}

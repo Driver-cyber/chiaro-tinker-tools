@@ -402,7 +402,7 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.9.3</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.9.4</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -1143,7 +1143,13 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.9.3 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.9.4 — forked from PJT 3.3.0. Single-file HTML.
+   v0.9.4: normalizeProject now CREATES p.sections when it is missing rather
+   than merely tolerating its absence. migrateStatuses runs immediately after
+   and walks p.sections unguarded, so a section-less project threw during boot
+   — reachable from the sync pull, disk restore and undo-import (the file
+   picker was safe; migrateV7Project always builds the array). Found by the
+   new jsdom lockstep suite on its first run. Lockstep with mobile v0.9.3.
    v0.9.3: import takes a one-step undo snapshot before overwriting anything
    (both modes — merge clobbers same-date days too). Carried back from PJT's
    pre-release audit; worse here because this surface has no file backup and
@@ -1745,6 +1751,11 @@ function makeProject(template,name,type){
 }
 function currentProject(){ return db.journal.projects.find(p=>p.id===db.journal.currentProjectId)||db.journal.projects[0]; }
 function normalizeProject(p){
+  // sections is load-bearing: migrateStatuses (next in runMigrations) and
+  // every renderer walk it unguarded. A project arriving without one —
+  // sync pull, disk restore, undo-import — would throw here and take the
+  // whole boot with it. Tolerating a missing array isn't enough; create it.
+  if(!Array.isArray(p.sections)) p.sections=[];
   if(p.clientCode===undefined) p.clientCode='';
   if(p.notes===undefined) p.notes='';
   if(p.role===undefined) p.role='both';

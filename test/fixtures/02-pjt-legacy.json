@@ -1,0 +1,32 @@
+{
+  "version": "7.2",
+  "darkMode": true,
+  "journal": {
+    "projects": [
+      {
+        "id": "p-legacy-1",
+        "name": "Acme Co — 2025 Audit",
+        "createdDate": "2025-03-04",
+        "modifiedDate": "2025-06-11",
+        "sections": [
+          { "name": "4", "status": "Not Started", "budget": 12, "actual": 3.5 },
+          { "name": "5 - FS / Financial Statement Workpapers", "status": "Done", "budget": 8, "actual": 9 }
+        ]
+      }
+    ],
+    "currentProjectId": "p-legacy-1"
+  },
+  "timecard": {
+    "days": {
+      "2025-06-11": {
+        "dayStart": "08:00",
+        "codes": [
+          { "id": "c1", "label": "Admin", "type": "nonbillable" },
+          { "id": "c2", "label": "Acme fieldwork", "type": "billable" }
+        ],
+        "entries": [{ "codeId": "c2", "mins": 145 }]
+      }
+    },
+    "currentDate": "2025-06-11"
+  }
+}
