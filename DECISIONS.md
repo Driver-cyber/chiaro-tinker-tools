@@ -614,6 +614,72 @@
       could perform itself is a bug report in prose.** Worth grepping the
       guide text of anything for that pattern.
 
+* **[2026-08-12] CTT grows a test suite — the schema-lockstep guard.** CTT had
+  zero tests. Every session to this point verified by hand with throwaway CDP
+  scripts. That was tolerable while the app was one file on one surface; it
+  stopped being tolerable at the repo split, because **schema lockstep between
+  the siblings was enforced by nothing but somebody remembering**, and the
+  failure mode of forgetting is silent data corruption on a synced db.
+    * *Decision — jsdom + `node --test`, one dependency, no framework.* Node 22
+      ships a test runner; jsdom supplies a fake DOM. No bundler, no config
+      file, no build loop — the same constraint the app itself honors.
+    * *Decision — the suite lives in ONE repo (desktop), not both.* A
+      drift-guard that can itself drift between copies is not a guard. Mobile's
+      CI clones the desktop sibling and runs its suite. Both repos are public,
+      so the clone is anonymous and no token is involved.
+    * *Decision — CI prefers a MATCHING BRANCH NAME on the sibling*, falling
+      back to `main`. A schema change in flight lives on twin branches in both
+      repos, and that pairing is exactly what wants testing. Testing a feature
+      branch against the sibling's `main` would report drift that isn't real.
+    * *The path under test is `normalize()` **then** `runMigrations()`* — what
+      `load()` actually does. Testing `normalize()` alone looks reasonable and
+      misses `normalizeProject`, `migrateStatuses` and `migrateCodeTypes`, i.e.
+      most of the forward-compat surface. Worth re-checking whenever boot
+      changes shape.
+    * *Properties asserted:* cross-surface equality over the corpus,
+      idempotence (`normalize()` twice == once — a non-idempotent normalizer
+      means two devices never converge), matching `SCHEMA`/`STORE_KEY`, and no
+      credential-shaped field in the defaults (non-negotiable #4, asserted
+      rather than trusted).
+    * **Standing rule — a guard must be proven to FAIL, not just to pass.**
+      Verified by reverting the fix (reddens exactly one fixture) and by adding
+      a field to one repo only (reddens all five, naming the key in the diff).
+      An untested assertion that always passes reads as coverage and is worse
+      than no test, because it retires the vigilance it hasn't replaced.
+    * **Scar — never trust the host library for a language global.** The suite
+      was written against jsdom 30 (which puts `TextEncoder` on `window`) but
+      pinned `^26` (which does not), so it went fully red on first real run.
+      The harness now supplies `TextEncoder`/`TextDecoder` itself. Generalized:
+      when a test environment stands in for a browser, *the rigging* provides
+      what the app needs — otherwise a routine dependency bump presents as an
+      app bug.
+    * **Scar — verify under the version you pin, not the one you happened to
+      install.** The green run that convinced me was on a different jsdom major
+      than the one written into `package.json`.
+
+* **[2026-08-12] First find: a boot crash the suite caught on run one
+  (v0.9.4 / mobile v0.9.3).** `normalizeProject` guarded `(p.sections||[])` —
+  whoever wrote it knew a project might arrive without sections.
+  `migrateStatuses`, running on the very next line inside the same
+  `runMigrations()`, did a bare `p.sections.forEach`. A section-less project
+  threw during boot: white screen, not a degraded one.
+    * Reachable from the **sync pull**, the disk restore, and the undo-import
+      shipped the same day. The file-picker import was already safe —
+      `migrateV7Project` always builds the array. So one entrance was defended
+      and four were not.
+    * *Fix:* `normalizeProject` now **creates** the array rather than merely
+      tolerating its absence. Fixture 04 is the regression test.
+    * **Pattern worth grepping for: a defensive `||[]` next to an undefended
+      `.forEach` on the same field.** The guard is evidence somebody already
+      knew the field could be missing. Where that knowledge stopped one line
+      short is where the crash lives.
+    * Nothing creates a section-less project today — this was a trap set for
+      later, and the likeliest way to spring it is one surface inventing a
+      shape the other doesn't expect. Which is the whole argument for the suite.
+    * *The lockstep rule's first customer was the fix to the bug the guard
+      found* — landed on both repos the same day, and CI caught the 26-second
+      window where only desktop had it.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
