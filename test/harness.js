@@ -62,7 +62,15 @@ function loadApp(htmlPath, opts) {
         '  get db(){ return db; }, set db(v){ db = v; },' +
         '  normalize: normalize, mergeDefaults: mergeDefaults,' +
         '  normalizeProject: normalizeProject, runMigrations: runMigrations,' +
-        '  SCHEMA: SCHEMA, STORE_KEY: STORE_KEY' +
+        '  SCHEMA: SCHEMA, STORE_KEY: STORE_KEY,' +
+        // Escape hatch for integration tests. A direct eval inside these
+        // functions resolves through the scope chain to the global declarative
+        // record, which is the only way to reach `let`/`const` bindings and the
+        // only way to swap a seam (e.g. stub kvFetch) without editing the app.
+        // Prefer the named exports above; reach for these when the thing you
+        // need is a function the app never hung on window.
+        '  get: function(n){ return eval(n); },' +
+        '  set: function(n, v){ window.__ctt.__tmp = v; eval(n + " = window.__ctt.__tmp"); }' +
         '};';
 
   const win = dom.window;
