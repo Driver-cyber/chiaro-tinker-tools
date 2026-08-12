@@ -536,6 +536,84 @@
       still loads at the root, is not controlled by Gertie's worker, and both
       storage keys coexist.
 
+* **[2026-08-12] Gertie hardened, and PJT's v4.0.0 handoff audited against CTT.**
+  A working session on the phone turned up three real defects and one
+  imported one.
+    * *Workshop links mangled same-origin paths* (v0.9.2 / mobile v0.9.1).
+      `updateAppUrl` prepended `https://` to anything without a scheme, so
+      `/gertie/` became `https:///gertie/` — the exact value the Gertie
+      handoff told Chad to paste. Paths beginning `/` now pass through.
+      **Standing rule that came out of it:** `appUrl` rides the synced db and
+      the two surfaces sit on *different origins* (`chiaro` vs
+      `chiaromobile`), so a relative path only resolves on whichever surface
+      hosts the companion. **Synced fields take absolute URLs.**
+    * *Gertie's notes did not survive a refresh on iPhone.* Not reproducible
+      in Chromium at phone size, so rather than guess at Safari the fragile
+      parts were fixed outright: the dead `window.storage` branch removed (if
+      anything had ever defined it, reads returned null and writes went into
+      the void — both silently); **pending debounced writes now flush on
+      `visibilitychange`/`pagehide`**, because iOS discards backgrounded
+      pages and a 260 ms promise-to-write-later dies with them; and storage
+      errors stopped being swallowed. Chad confirmed persistence after.
+    * *The save receipt learned to travel.* No save button — the log writes
+      itself, and a button that does nothing is a lie while one that does
+      something implies you're unsaved the rest of the time. But the receipt
+      sat in the footer below 49 tasks, i.e. reassurance nobody would ever
+      see. It now floats above the safe-area inset, fades after 1.7 s, and
+      **a refused write does not fade** — amber, and it stays.
+    * *Mobile audit — the margins weren't small, they were zero.* `.wrap` set
+      the gutter with the `padding` shorthand and `.hero`/`.case` each carry
+      their own `padding` shorthand later in the sheet, resetting the sides
+      to 0 on two of three tabs. **This is the third time the shorthand-
+      flattens-longhand trap has bitten across PJT and CTT.** PJT's journal
+      says it: *some lessons need a lint rule, not a note.* Also fixed: the
+      **iOS sub-16px auto-zoom trap** (search + notes were 15/14.5px — the
+      same defect CTT Mobile fixed in v0.4.4, re-inherited by a file written
+      elsewhere), 21 px tap targets grown to 44 px without changing the
+      visual, and task names that were centre-aligned on phones because a
+      `<button>` keeps the UA's centred text regardless of the flex parent.
+    * *Decision — what to take from PJT v4.0.0.* Adopted now: `node --check`
+      over extracted `<script>` blocks as a pre-flight, temp-file-then-swap
+      for edits. **Next session: the jsdom test harness**, because the
+      schema lockstep between the sibling repos is currently enforced by
+      nothing but memory, and a corpus test against a real export is the only
+      mechanism that would actually catch drift. Declined for now: the
+      three-doors guide (CTT has one user, who wrote it), the AI help packet
+      (no support burden here), the Actions matrix (belongs at the Phase 3
+      Tauri wrap). Kept divergent on purpose: PJT scopes its scratch sheet to
+      `sessionStorage`; CTT's lives in `db.scratch` and syncs, which is right
+      for a belt carried across two devices.
+    * *Pre-emptive scar, recorded before the feature exists:* when the scratch
+      sheet gets copy-to-clipboard, **formulas must copy as results** (the
+      dialect isn't Excel's) and **numbers must copy raw, not as displayed** —
+      `1,234,567.50` pastes as *text* in any locale that doesn't group with
+      commas. Silently wrong totals is the worst failure available to a tool
+      an accountant uses. From PJT's journal; cheap now, expensive later.
+
+* **[2026-08-12] Import takes an undo snapshot** (v0.9.3 / mobile v0.9.2).
+  PJT's handoff found `applyImport('replace')` overwriting its journal with
+  no safety copy while `restoreBackup` ten lines away did the right thing.
+  **CTT had inherited the same defect, and worse:** `backupNow()` is gated
+  behind `FS_ENABLED` (Tauri only), so the web/PWA builds had no file backup
+  to fall back on — and the result *syncs*, so a wrong file imported on the
+  phone reaches the desktop on the next push.
+    * Both modes snapshot now. **Merge is destructive too**, which PJT's own
+      fix didn't cover: days are combined with `Object.assign`, so any date
+      present in both files is silently overwritten by the incoming one.
+    * Sync credentials stripped going in, live ones re-attached coming out —
+      same shape as `restoreBackup`'s `keepSync`, so a stale secret can't
+      ride back in.
+    * *If the snapshot can't be written the import BLOCKS* and offers an
+      explicit override. The first attempt used a transient `flash()` and was
+      useless — `save()` rewrites the status line moments later, so the one
+      warning that mattered was invisible. Caught in testing, not in review.
+    * No schema change: the buffer lives under `ctt_import_undo_v1`, outside
+      `db`, so it never enters sync or export.
+    * *Chad's own diagnosis from the PJT journal, which found this:*
+      **documentation that tells the user to perform a safety step the code
+      could perform itself is a bug report in prose.** Worth grepping the
+      guide text of anything for that pattern.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
