@@ -82,6 +82,18 @@ function loadApp(htmlPath, opts) {
   if (typeof win.TextEncoder === 'undefined') win.TextEncoder = TextEncoder;
   if (typeof win.TextDecoder === 'undefined') win.TextDecoder = TextDecoder;
 
+  // jsdom has no layout engine, so it has no matchMedia. The app asks it about
+  // prefers-reduced-motion during boot. Answering "no match" is the honest
+  // stand-in: a headless run has no motion preference to report.
+  if (typeof win.matchMedia !== 'function') {
+    win.matchMedia = (q) => ({
+      matches: false, media: q, onchange: null,
+      addListener() {}, removeListener() {},
+      addEventListener() {}, removeEventListener() {},
+      dispatchEvent() { return false; }
+    });
+  }
+
   win.eval(js);
   if (!win.__ctt || typeof win.__ctt.normalize !== 'function') {
     throw new Error('harness bridge failed for ' + htmlPath + ' — normalize() not reachable');

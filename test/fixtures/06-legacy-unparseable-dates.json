@@ -1,0 +1,16 @@
+{
+  "schema": "ctt-1",
+  "journal": {
+    "projects": [
+      {
+        "id": "p-old",
+        "name": "Pre-modifiedAt project",
+        "createdDate": "sometime last spring",
+        "modifiedDate": "sometime last spring",
+        "sections": [{ "name": "Step", "status": "Open", "budget": 1, "actual": 0 }]
+      }
+    ],
+    "currentProjectId": "p-old"
+  },
+  "timecard": { "days": {}, "currentDate": null }
+}
