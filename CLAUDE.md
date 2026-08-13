@@ -163,6 +163,57 @@ place.** When proposing new features, state both answers explicitly.
 - **Push back.** Chad drives product decisions and wants technical pushback
   when something's wrong — suggestions over pronouncements, but honest ones.
 
+
+## ⚙️ Session-End Protocol
+
+**Canonical body lives in chad-wiki:**
+[`session-end-protocol.md`](https://chadwiki.chadstewartcpa.com/?doc=session-end-protocol.md).
+That page is the full *why*; the hooks and the checklist below are the
+executable minimum.
+
+> **Scar (2026-08-13):** the user-level `/session-end-protocol` skill does not
+> travel to remote/cloud sessions, and `chadwiki.chadstewartcpa.com` is blocked
+> by the sandbox egress policy (proxy returns 403). Five sessions running, both
+> the skill and the fetch have failed. **Single-sourcing to a place the session
+> cannot reach is absence, not single-sourcing** — hence the duplicated
+> checklist below. Duplicate the minimum, never the whole document.
+
+**Trigger phrases:** *"shipped X, next Y"*, *"session-end"*, *"wrap up"*,
+*"close out"*, *"add to backlog: Z"*.
+
+If the skill IS available, invoke it — it reads the hooks below. If it is not,
+run the checklist by hand. Both paths land in the same place.
+
+### Per-project hooks
+
+| Hook | Value |
+|---|---|
+| Tracker filename | `chiaro-tinker-tools-tracker.html` |
+| Learned-log path | **`project-dashboard/learned-log.json`** — central, not in this repo |
+| Commit-message tag | `[<area>]` — recent use: `[gertie]`, `[test]`, `[sync]`, `[docs]`. Match `git log --oneline -5` |
+| Deploy target | Cloudflare Pages, auto-deploys from `main` → `chiaro.chadstewartcpa.com` |
+| Test suite | `npm test` at repo root (jsdom; covers this repo, the mobile sibling, and `src/gertie/`) |
+| Sibling | `chiaro-tinker-tools-mobile` — **schema lockstep**: any `normalize()` / db-shape change lands on both the same day, or CI goes red |
+| Inbox source | `https://derhain.chadstewartcpa.com/api/gist` — blocked by egress policy in remote sessions |
+
+### The checklist (run this when the wiki is unreachable)
+
+1. **Tracker** — update the `#tracker-data` JSON block, and bump `updated` in
+   **both** the visual header and the JSON. The page hydrates from JSON on
+   load; do not hand-edit the static `<ol>`/`<ul>` fallback lists.
+2. **DECISIONS.md** — only if a decision was actually made. Write it as a
+   standing rule for future sessions, not as history.
+3. **Learned-log** — append one entry to the **central** log (see hooks). This
+   repo has none of its own, deliberately: the dashboard's Galaxy tab fetches
+   only `./learned-log.json` from `project-dashboard`, so a per-repo log would
+   be write-only.
+4. **Version bump** if the build is release-worthy — app subtitle + JS comment
+   header, together.
+5. **Verify** — run `npm test` from the CTT repo root, and leave the branch
+   clean and pushed.
+6. **Inbox sweep** — currently impossible from remote sessions (same 403 as
+   the wiki). Note it as skipped rather than silently dropping it.
+
 ## 📝 Maintenance Protocol
 
 - After a major pivot or completed phase, ask: "Should I update DECISIONS.md?"
