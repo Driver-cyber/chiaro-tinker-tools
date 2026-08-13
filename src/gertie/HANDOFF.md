@@ -12,13 +12,15 @@ Three views, switched client-side with no router:
 
 | View | Purpose |
 |---|---|
-| **Dashboard** | The signature element — an SVG blueprint of the car that paints itself in as work completes. Plus a rail of 8 phase gauges. |
-| **Manual** | All 49 tasks grouped by phase, each expanding to steps, tool list, external links, warnings, and a personal notes field. Full-text search across every step. |
-| **Trophy case** | 8 shield badges, one per phase, unlocked at 100% phase completion. |
+| **Dashboard** | The signature element — an SVG blueprint of the car that paints itself in as work completes. Plus a rail of 9 phase gauges. |
+| **Manual** | 55 required tasks plus 14 optional upgrades, grouped by phase, each expanding to steps, tool list, external links, warnings, and a personal notes field. Full-text search across every step. Below the work sits the **someday shelf** (`PARKED`) — non-checkable idea cards. |
+| **Trophy case** | 9 shield badges, one per phase, unlocked at 100% phase completion. Phase 0 reads `00`. |
 
 ### The reveal mechanic
 
-The SVG has one always-visible ghost outline plus eight `<g class="lay" id="lay-N">` layers, one per phase. Each layer's opacity is driven by a CSS custom property:
+The SVG has one always-visible ghost outline plus eight `<g class="lay" id="lay-N">` layers, one per phase **1–8**.
+
+**Phase 0 (site prep) deliberately has no layer.** There is no car system for clearing a carport, and inventing one would weaken the mapping between the drawing and the real state of the car. `renderCar()`'s `if(el)` guard handles the absence; a test pins `lay-0` as absent so nobody adds one by reflex. Each layer's opacity is driven by a CSS custom property:
 
 ```css
 .lay { opacity: calc(.10 + var(--p, 0) * .90); }
@@ -36,6 +38,8 @@ The SVG has one always-visible ghost outline plus eight `<g class="lay" id="lay-
 8. Cosmetics → body paint fill and the P1800 cove crease
 
 Phase 8 additionally fades in `#paintfill`, so the car goes from wireframe to solid body colour only when everything else is finished. That's deliberate — cosmetics last.
+
+**Look Cosmetics up by `id`, never by index.** `renderCar()` used to end with `phaseProgress(PHASES[7])`, which was Cosmetics only by accident of ids running 1–8. Adding Phase 0 silently repointed it at Shakedown and painted the body during road testing — wrong, silent, and entirely plausible-looking. `test/gertie.test.js` in the repo root pins this.
 
 ---
 
@@ -64,13 +68,13 @@ state = {
 }
 ```
 
-Saves are debounced 260ms. The `Store` adapter tries three tiers in order:
+Saves are debounced 260ms, then written by `Store` — a thin, **synchronous localStorage** wrapper. (This doc previously described a three-tier adapter with the Claude artifact `window.storage` API first; that branch was dead code and was removed on 2026-08-12. There is one tier.)
 
-1. `window.storage` — the Claude artifact persistence API, async, throws on missing keys
-2. `localStorage` — used when deployed to a normal static host
-3. In-memory — silent fallback, nothing crashes
+A refused write flips `storeOK` false and the UI says so out loud — a read-only browser should announce itself on arrival, not after a day's findings are already gone.
 
-Storage key: `p1800-build-log-v1`. **Bump the version suffix if you ever change the task ID scheme**, or existing users get orphaned checkmarks.
+`save()` debounces; **`flush()` is what actually writes**, and it is wired to `visibilitychange` and `pagehide` as well as the timer. That matters on iOS, which discards backgrounded pages without warning — notes failing to survive a refresh on iPhone is exactly what led to it.
+
+Storage key: `p1800-build-log-v1`. **Bump the version suffix if you ever change the task ID scheme**, or existing users get orphaned checkmarks. There is no export yet, so a bump destroys data with no way back — see the backlog.
 
 Task IDs are stable strings (`'3c'`, `'5f'`). Reordering tasks in the array is safe. Renaming an ID is not.
 
@@ -87,7 +91,32 @@ python3 -m http.server 8000
 
 For a real host: Netlify Drop, GitHub Pages, Cloudflare Pages, Vercel. Drag the file in, done.
 
-If you add a service worker later it'll work fully offline in the barn, which is worth doing — see backlog.
+It is already a PWA: `sw.js`, `manifest.webmanifest` and `icons/` sit alongside
+`index.html`, scoped to `/gertie/`. Installed to a home screen it works fully
+offline in the barn, which was the whole point.
+
+## Tests
+
+`test/gertie.test.js` **in the repo root** (not here — it shares CTT's jsdom
+harness and its single `jsdom` dependency):
+
+```sh
+cd ../..        # repo root
+npm install
+npm test        # runs the CTT suites and Gertie's together
+```
+
+Gertie loads with `{boot: true, seam: false}` — it boots for real, and it has
+none of CTT's storage seam (no `db`, no `normalize`, no schema), so the
+harness's CTT bridge is switched off for it.
+
+Every assertion derives its expectations from `PHASES` rather than hardcoding
+a count, so adding a phase or a task does not break the suite. What it pins:
+the `#paintfill` regression, the derived denominator, optional tasks staying
+out of both denominators, the Phase 0 shield reading `00` with no `lay-0`,
+`warn` accepting an array, search reaching every phase, the flush-to-storage
+path, the storage key not moving, task-id uniqueness, and the someday shelf
+rendering zero checkboxes.
 
 ---
 
@@ -103,9 +132,24 @@ Everything lives in the `PHASES` array. Task shape:
   steps: ['...', '...'],          // rendered as an ordered list
   tools: ['...'],                 // optional — renders as chips
   links: [{l:'Label', u:'https://…'}],  // optional
-  warn: 'Safety callout'          // optional — red left-rule block
+  warn: 'Safety callout',         // optional — red left-rule block. May also be
+                                  //   an ARRAY: some tasks carry two genuinely
+                                  //   separate cautions and merging them buries one
+  opt: true,                      // optional — an elective upgrade. Checkable and
+                                  //   celebrated, but EXCLUDED from the phase
+                                  //   denominator and from overall(). May be a
+                                  //   STRING to set the chip label ('If time')
+                                  //   where "Upgrade" would be untrue
+  bg: 'Started on tow day'        // optional — renders a RUNNING chip: begun,
+                                  //   working in the background, don't wait on it
 }
 ```
+
+**Why `opt` exists.** Without it, skipping air conditioning would mean the car never finishes revealing itself and the badge never fires — the reveal would stop being an honest mirror of the car's state, which is the only reason it earns its place. `phaseProgress()` and `overall()` both exclude optional tasks.
+
+### The someday shelf
+
+`PARKED` is a separate array of `{ n, b, when }` rendered as cards below the work in the Manual view. Not checkable, no progress effect, never in a denominator, hidden while searching. It exists so ideas stop rattling around loose.
 
 Add a task and the phase percentage, the car reveal, and the badge threshold all recompute automatically. Nothing else to update.
 
@@ -117,16 +161,50 @@ The `YT()` helper builds YouTube **search** URLs rather than hardcoding video ID
 
 Roughly in priority order.
 
-1. **Verify the external links.** They point at real classic-Volvo suppliers and reference sites (iPD, Skandix, VP Autoparts, Burlen, SW-EM, Volvo Owners Club, Turbobricks, Brickboard), but they were written from general knowledge — click through each one and swap anything dead. Deep-link to the actual P1800 category pages where you can.
-2. **Photo attachments per task.** The single highest-value addition for a real build. Before/after shots stored as base64 or object URLs against the task ID. Note the 5MB-per-key storage cap — resize on upload.
-3. **Offline support.** Service worker + web manifest. The whole point is using this on a phone in a barn with no signal.
-4. **Parts and cost ledger.** Part number, supplier, price, ordered/received status, rolling total. The tools arrays are already half of a shopping list.
-5. **Compression test widget.** A dedicated 4-cylinder input that stores the psi figures, computes the spread between cylinders, and flags anything outside 10–15%. This is the project's actual decision point and deserves more than a notes field.
-6. **Export.** Dump state to JSON or Markdown for backup and for the build thread on Turbobricks.
-7. **Gate enforcement.** Phase cards visually dim when the previous phase is incomplete, but nothing is actually blocked. That's intentional for now — real projects don't run strictly in order. Consider a soft warning rather than a hard lock.
-8. **Time logging.** Hours per task would make the next project estimable.
+1. **Export.** *Now the top item.* There is none at all, which sits against CTT
+   non-negotiable #1 ("one-tap export from day one, never regresses"), and this
+   is the surface most likely to lose data — a phone, in a carport, in a browser
+   that can evict storage. It also blocks any storage-key bump, since there is
+   currently no way to get the notes back out first. JSON for backup, Markdown
+   for the build thread on Turbobricks.
+2. **Verify the external links.** Still open, and now larger. The supplier and
+   reference links (iPD, Skandix, VP Autoparts, Burlen, SW-EM, Volvo Owners
+   Club, Turbobricks, Brickboard) were written from general knowledge and have
+   never been clicked. **Newly added and unverified: `https://dol.wa.gov/` and
+   `https://wsp.wa.gov/`** in tasks `1a` and `6e` — root domains were chosen
+   deliberately because the session that wrote them had no outbound network
+   access and could not check a deep path. Technique links use the `YT()` search
+   helper, which builds a YouTube *search* URL and therefore cannot rot.
+3. **Parts and cost ledger.** Part number, supplier, price, ordered/received,
+   rolling total. The `tools` arrays are already half a shopping list.
+4. **Compression test widget.** A four-cylinder input that stores the psi
+   figures, computes the spread, and flags anything outside 10–15%. Task `2f`
+   calls this the project's actual go/no-go; it deserves more than a notes field.
+5. **Gate enforcement.** Phase cards dim when the previous phase is incomplete,
+   but nothing is blocked. Intentional — real projects don't run strictly in
+   order. A soft warning would be better than a hard lock.
+6. **Time logging.** Hours per task would make the next project estimable.
 
----
+### Closed
+
+- ~~**Offline support.**~~ Shipped 2026-07-26. `sw.js` + `manifest.webmanifest`
+  + `icons/`, scoped to `/gertie/`. Navigations are network-first with a cached
+  shell fallback. **Bump `CACHE` in `sw.js` whenever a shell asset changes** —
+  unlike CTT's worker, this one does not re-cache the navigation response, so
+  the *offline* copy only refreshes when the cache name does.
+
+### Decided against
+
+- **Photo attachments per task.** Previously listed as "the single highest-value
+  addition." Dropped on 2026-08-13, on the merits rather than for effort. The
+  camera roll already stores photos better — backed up, searchable, nicer to
+  look at — and the only thing Gertie would have added is *association* with a
+  task id, which is cheaper as a caption in the existing notes field than as a
+  storage layer. Two further arguments settled it: Gertie shares an origin (and
+  a ~5MB budget) with CTT, so photos here could evict real ORDO data; and with
+  no export, this would have become a second, *worse* copy of irreplaceable
+  evidence in a store iOS can evict. Tasks `0g`, `0h` and `0i` still ask for
+  photographs — they just live in the phone's camera roll where they belong.
 
 ## Content caveat
 
