@@ -54,24 +54,33 @@ function loadApp(htmlPath, opts) {
     virtualConsole: opts.quiet === false ? undefined : quietConsole()
   });
 
-  // `let db` / `const SCHEMA` live in the global DECLARATIVE scope — they are
-  // never properties of window. Reaching them from Node needs a bridge built
-  // inside the same evaluation. Missing names throw here, which is the point:
-  // a renamed seam should fail the suite, not skip it.
+  // Top-level `let db` / `const SCHEMA` live in the global DECLARATIVE scope —
+  // they are never properties of window. Reaching them from Node needs a bridge
+  // built inside the same evaluation.
+  //
+  // get/set work on ANY single-file app: a direct eval inside these functions
+  // resolves through the scope chain to the global declarative record, which is
+  // also the only way to swap a seam (stub kvFetch) without editing the app.
   js += '\n;window.__ctt = {' +
-        '  get db(){ return db; }, set db(v){ db = v; },' +
-        '  normalize: normalize, mergeDefaults: mergeDefaults,' +
-        '  normalizeProject: normalizeProject, runMigrations: runMigrations,' +
-        '  SCHEMA: SCHEMA, STORE_KEY: STORE_KEY,' +
-        // Escape hatch for integration tests. A direct eval inside these
-        // functions resolves through the scope chain to the global declarative
-        // record, which is the only way to reach `let`/`const` bindings and the
-        // only way to swap a seam (e.g. stub kvFetch) without editing the app.
-        // Prefer the named exports above; reach for these when the thing you
-        // need is a function the app never hung on window.
         '  get: function(n){ return eval(n); },' +
         '  set: function(n, v){ window.__ctt.__tmp = v; eval(n + " = window.__ctt.__tmp"); }' +
         '};';
+
+  // The CTT storage seam, layered on top. Not every app in this repo has one —
+  // the Gertie workshop under src/gertie/ shares this harness and has no db, no
+  // normalize, no schema at all. Pass {seam:false} for those. Where the seam IS
+  // expected, a missing name throws: a renamed seam should fail the suite
+  // loudly rather than quietly skip the thing it was guarding.
+  if (opts.seam !== false) {
+    js += '\n;Object.defineProperty(window.__ctt, "db", ' +
+          '  { get: function(){ return db; }, set: function(v){ db = v; }, enumerable: true });' +
+          '\n;window.__ctt.normalize = normalize;' +
+          '  window.__ctt.mergeDefaults = mergeDefaults;' +
+          '  window.__ctt.normalizeProject = normalizeProject;' +
+          '  window.__ctt.runMigrations = runMigrations;' +
+          '  window.__ctt.SCHEMA = SCHEMA;' +
+          '  window.__ctt.STORE_KEY = STORE_KEY;';
+  }
 
   const win = dom.window;
 
@@ -95,8 +104,12 @@ function loadApp(htmlPath, opts) {
   }
 
   win.eval(js);
-  if (!win.__ctt || typeof win.__ctt.normalize !== 'function') {
-    throw new Error('harness bridge failed for ' + htmlPath + ' — normalize() not reachable');
+  if (!win.__ctt || typeof win.__ctt.get !== 'function') {
+    throw new Error('harness bridge failed for ' + htmlPath);
+  }
+  if (opts.seam !== false && typeof win.__ctt.normalize !== 'function') {
+    throw new Error('harness bridge failed for ' + htmlPath + ' — normalize() not reachable. ' +
+                    'If this app has no CTT storage seam, load it with {seam:false}.');
   }
   win.__dom = dom;
   return win;

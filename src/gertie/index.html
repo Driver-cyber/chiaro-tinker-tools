@@ -256,6 +256,16 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 .t-mid{flex:1;min-width:0;text-align:left}
 .t-name{font-weight:600;font-size:15.5px;line-height:1.35}
 .t-blurb{font-size:14px;color:#5C5646;margin-top:2px}
+/* Task flags. Longhand only — a later shorthand on .t-flag would flatten the
+   per-side padding, which is the regression that has bitten three times. */
+.t-flag{
+  display:inline-block;font-family:var(--util);font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+  padding-top:1px;padding-right:6px;padding-bottom:1px;padding-left:6px;
+  margin-left:7px;border-radius:var(--r);vertical-align:1px;
+}
+.t-flag.up{color:#1F5B7A;background:#1F5B7A14;border:1px solid #1F5B7A55}
+.t-flag.bg{color:#7A5210;background:#F0A73B22;border:1px solid var(--amber-dim)}
 .t-open{
   font-family:var(--util);font-size:12px;letter-spacing:.13em;text-transform:uppercase;
   color:#7A7362;flex:0 0 auto;padding-top:4px;
@@ -804,13 +814,26 @@ const PHASES = [
    DERIVED STATE
    ============================================================ */
 const allTasks = () => PHASES.flatMap(p => p.tasks.map(t => ({...t, phase:p})));
+const maxPhase = () => Math.max(...PHASES.map(p => p.id));
+/* Optional "upgrade" tasks are checkable and celebrated, but they must NOT
+   sit in the denominator. Skipping air conditioning would otherwise mean the
+   car never finishes revealing itself and the badge never fires — the reveal
+   would stop being an honest mirror of the car's state, which is the whole
+   reason it earns its place. Only required work counts toward completion. */
 function phaseProgress(p){
-  const total = p.tasks.length;
-  const done = p.tasks.filter(t => state.done[t.id]).length;
-  return { done, total, pct: total ? done/total : 0 };
+  const req = p.tasks.filter(t => !t.opt);
+  const opt = p.tasks.filter(t => t.opt);
+  const done = req.filter(t => state.done[t.id]).length;
+  const optDone = opt.filter(t => state.done[t.id]).length;
+  // A phase of nothing but upgrades has no required work, so it is complete by
+  // definition — 0 here would lock every later phase's gate forever.
+  return { done, total: req.length, pct: req.length ? done/req.length : 1,
+           opt: opt.length, optDone };
 }
 function overall(){
-  const t = allTasks();
+  // Same honest-mirror rule as phaseProgress: upgrades are elective, so they
+  // must not hold the odometer below 100% on a car that is genuinely finished.
+  const t = allTasks().filter(x => !x.opt);
   return t.length ? t.filter(x => state.done[x.id]).length / t.length : 0;
 }
 
@@ -828,8 +851,12 @@ function renderCar(){
     const el = document.getElementById('lay-' + p.id);
     if(el) el.style.setProperty('--p', phaseProgress(p).pct.toFixed(3));
   });
+  // Cosmetics fills the body colour LAST — look it up by id, never by index.
+  // PHASES[7] was Cosmetics only by accident of ids running 1-8; unshifting a
+  // Phase 0 silently made it Shakedown, painting the car during road testing.
   const paint = document.getElementById('paintfill');
-  if(paint) paint.style.setProperty('--p', phaseProgress(PHASES[7]).pct.toFixed(3));
+  const cos = PHASES.find(p => p.id === 8);
+  if(paint && cos) paint.style.setProperty('--p', phaseProgress(cos).pct.toFixed(3));
 }
 
 function renderRail(){
@@ -859,6 +886,27 @@ function matches(t, q){
   return hay.includes(q);
 }
 
+/* UPGRADE marks an elective task — checkable, celebrated, and deliberately
+   outside the denominator. RUNNING marks a background process already under
+   way (the cylinder soak): started, working, don't wait on it. */
+function taskFlags(t){
+  return (t.opt ? '<span class="t-flag up">Upgrade</span>' : '')
+       + (t.bg  ? `<span class="t-flag bg">&#8635; ${t.bg}</span>` : '');
+}
+function upLabel(pr){
+  if(!pr.opt) return '';
+  return pr.optDone
+    ? ` &middot; ${pr.optDone} of ${pr.opt} upgrades taken`
+    : ` &middot; ${pr.opt} upgrade${pr.opt === 1 ? '' : 's'} available`;
+}
+/* warn takes a string or an array — some tasks carry two genuinely separate
+   cautions (fumes AND electrocution) and merging them buries one. */
+function warnBlocks(w){
+  if(!w) return '';
+  return (Array.isArray(w) ? w : [w])
+    .map(x => `<div class="warn"><strong>Careful.</strong> ${x}</div>`).join('');
+}
+
 function renderManual(){
   const q = (document.getElementById('q').value || '').trim().toLowerCase();
   const host = document.getElementById('manual-body');
@@ -875,7 +923,7 @@ function renderManual(){
     block.id = 'ph-' + p.id;
     block.innerHTML = `
       <div class="phase-head">
-        <span class="phase-no">Phase ${p.id} / 8 · ${pr.done} of ${pr.total} complete</span>
+        <span class="phase-no">Phase ${p.id} / ${maxPhase()} · ${pr.done} of ${pr.total} complete${upLabel(pr)}</span>
       </div>
       <div class="phase-head"><h2>${p.name}</h2></div>
       <p class="phase-goal">${p.goal}</p>
@@ -892,7 +940,7 @@ function renderManual(){
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#E9E5DC" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button class="t-mid" data-open="${t.id}" aria-expanded="${open}">
-            <div class="t-name">${t.n}</div>
+            <div class="t-name">${t.n}${taskFlags(t)}</div>
             <div class="t-blurb">${t.b}</div>
           </button>
           <span class="t-open">${open ? 'Close' : 'Open'}</span>
@@ -902,7 +950,7 @@ function renderManual(){
           <ol>${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
           ${t.tools ? `<h4>Kit</h4><div class="kit">${t.tools.map(x=>`<span>${x}</span>`).join('')}</div>` : ''}
           ${t.links ? `<h4>Go deeper</h4><div class="links">${t.links.map(x=>`<a href="${x.u}" target="_blank" rel="noopener">${x.l}</a>`).join('')}</div>` : ''}
-          ${t.warn ? `<div class="warn"><strong>Careful.</strong> ${t.warn}</div>` : ''}
+          ${warnBlocks(t.warn)}
           <h4>Your notes</h4>
           <textarea class="notes" data-note="${t.id}" placeholder="Measurements, part numbers, what actually happened…">${state.notes[t.id] || ''}</textarea>
         </div>`;
