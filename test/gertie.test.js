@@ -191,6 +191,47 @@ describe('Gertie — the workshop', () => {
     assert.ok(g(win, 'state').done[id], 'checkmark did not survive');
   });
 
+  /* --- Phase 0 specifics (acceptance criteria 1, 5, 6) ------------------ */
+
+  test('Phase 0 exists, has no reveal layer, and does not break the car', () => {
+    const win = fresh();
+    const p0 = g(win, 'PHASES').find(x => x.id === 0);
+    assert.ok(p0, 'no Phase 0');
+    assert.equal(win.document.getElementById('lay-0'), null,
+      'Phase 0 grew an SVG layer — there is no car system for site prep, and inventing one weakens the mapping');
+    completePhase(win, 0);
+    assert.equal(fill(win, 'paintfill'), 0, 'finishing site prep painted the body');
+    assert.equal(g(win, 'phaseProgress')(p0).pct, 1, 'Phase 0 did not reach 100%');
+  });
+
+  test('the Phase 0 shield renders as 00', () => {
+    const win = fresh();
+    const idx = g(win, 'PHASES').findIndex(p => p.id === 0);
+    const shield = win.document.querySelectorAll('#case-grid .badge')[idx];
+    assert.ok(/>00</.test(shield.innerHTML), 'Phase 0 shield does not read 00');
+  });
+
+  test('search reaches Phase 0 task text', () => {
+    const win = fresh();
+    win.document.getElementById('q').value = 'vapor';
+    g(win, 'renderManual')();
+    const html = win.document.getElementById('manual-body').innerHTML;
+    assert.ok(!/class="empty"/.test(html), 'no hit for a Phase 0 term');
+    assert.ok(/Vapor barrier/.test(html), 'the Phase 0 task itself did not come back');
+  });
+
+  /* 0h is skippable-if-time, not an upgrade. Labelling it "Upgrade" in the UI
+     would simply be untrue, so opt carries its own chip text. */
+  test('an opt task can carry its own chip label', () => {
+    const win = fresh();
+    const soak = g(win, 'PHASES').find(p => p.id === 0).tasks.find(t => t.id === '0h');
+    assert.equal(soak.opt, 'If time', '0h should be optional with its own label');
+    const html = win.document.getElementById('manual-body').innerHTML;
+    assert.ok(/t-flag up">If time</.test(html), 'the custom opt label did not render');
+    assert.ok(/t-flag bg">&#8635; Soak starts here|t-flag bg">↻ Soak starts here/.test(html),
+      'the soak is not flagged as a background process');
+  });
+
   /* The storage key is load-bearing: bumping it silently discards every note
      Chad has written. There is no ID-scheme change here, so it must not move. */
   test('the storage key has not moved', () => {

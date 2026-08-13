@@ -373,8 +373,8 @@ footer .eyebrow{letter-spacing:.2em}
   .tick{position:relative}
   .tick::after{content:"";position:absolute;top:50%;left:50%;
     width:44px;height:44px;transform:translate(-50%,-50%)}
-  nav.tabs button{min-height:40px}
-  .chip{min-height:40px}
+  nav.tabs button{min-height:44px}
+  .chip{min-height:44px}
 }
 </style>
 </head>
@@ -550,6 +550,95 @@ let todoOnly = false;
 const YT = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
 
 const PHASES = [
+{ id:0, name:'Prep the shop, bring her home',
+  goal:'Make a dry, powered, safe place for the car to live \u2014 then go get her.',
+  gate:"The carport is ready before the car arrives. A car parked under a leak is a car that rots on your own property, not your grandfather's.",
+  badge:'Homecoming',
+  tasks:[
+  {id:'0a',n:'Clear the bay and claim a tool closet',b:'She needs somewhere to land, and the tools need somewhere that is not the kitchen.',
+   steps:['Clear the carport bay completely \u2014 you want room to open both doors and walk all the way around.',
+     'Empty one carport closet and make it automotive only: tools, fluids, parts. Household storage goes somewhere else.',
+     'No cardboard, fabric, or paper stored near the car. That is nesting material, and you are about to import mice.',
+     'Solvents and fuel get their own shelf, away from anything that sparks.'],
+   tools:['Shelving','Bins','Broom']},
+
+  {id:'0b',n:'Vapor barrier on the slab',b:'The cheapest high-value job in the entire project. Do it before she arrives.',
+   steps:['Lay 6-mil polyethylene sheeting across the whole footprint before the car is parked on it.',
+     'Run it wider than the car on every side, and overlap seams by a foot.',
+     'Concrete wicks ground moisture even when the surface looks bone dry \u2014 and that moisture goes straight up into the floor pans.',
+     'Tape or weight the edges so it does not walk when you drag a jack across it.'],
+   tools:['6-mil poly sheeting','Utility knife','Tape or weights'],
+   links:[{l:'Vapour barrier under a project car',u:YT('vapor barrier under project car concrete floor')}]},
+
+  {id:'0c',n:'Find the roof leaks and divert them',b:'Do this while the bay is still empty. It is far harder with a car in the way.',
+   steps:['Stand in the carport during rain, or run a hose over the roof on a dry day.',
+     'Chalk-mark the slab wherever water lands. Those marks are your map.',
+     'Patch what you can \u2014 flashing tape or roof cement, depending on the roof material.',
+     'For anything you cannot seal, hang a sloped plastic sheet BENEATH the roof to catch the drip and carry it out to the open side. Diverting is usually easier than sealing.'],
+   tools:['Chalk','Flashing tape or roof cement','Plastic sheeting','Ladder'],
+   warn:'Never put a tarp or waterproof cover directly on the car. Trapped condensation against paint does more damage than the drip you are stopping. Airflow beats sealing.'},
+
+  {id:'0d',n:'Power and light, honestly assessed',b:'One outlet rigged off the outdoor light switch is three problems stacked on each other.',
+   steps:['Now: a plug-in GFCI adapter, light loads only. This is a band-aid and deserves to be treated as one.',
+     'The right answer: an electrician runs a dedicated 20A GFCI circuit. Roughly $300\u2013600, and the best infrastructure money in the project.',
+     'While they are there, price a small subpanel \u2014 worth knowing the number if a compressor or a welder is ever likely.',
+     'Lighting: three walls makes it dark. Battery LED work lights are a fair interim, and they tie into the cordless platform decision you have not made yet.',
+     'Practical detail: an outlet fed from a light switch has unpredictable power. Battery chargers die overnight when somebody flips the porch light.'],
+   tools:['Plug-in GFCI adapter','LED work lights','Extension cord rated for the load'],
+   warn:['A likely 15A lighting circuit, a damp location with no GFCI, and a concrete slab underfoot \u2014 which is an excellent ground path through a human body. Add solvents and fuel and this stops being a code technicality.',
+     'Fumes and carbon monoxide. Three walls is close to enclosed. Do not run the engine in there without genuine cross-ventilation.']},
+
+  {id:'0e',n:'Stage the recovery kit',b:'Everything you want in your hands on Sunday, gathered on Saturday.',
+   steps:['Jack stands \u2014 the concrete slab is what makes these safe. They would not have been on gravel.',
+     'Wheel chocks.',
+     'Drip pan, or flattened cardboard, for under the drivetrain.',
+     'Work gloves, N95 or better, eye protection.',
+     'Flashlight, phone charged, notebook and pen.'],
+   tools:['Jack stands','Wheel chocks','Drip pan','Gloves','N95','Flashlight','Notebook']},
+
+  {id:'0f',n:'Brief the tow correctly',b:'AAA Plus covers 100 miles, so the 70-mile run is paid for. The risk is whether the truck that turns up can take her.',
+   steps:['Read this to the dispatcher, close to verbatim: 1966 Volvo, has not run in about 20 years, brakes likely seized so assume it does not roll, tires flat and rotten, vehicle is inside a barn on a gravel property, need a flatbed with a winch and ideally skates or dollies.',
+     'Find the key beforehand. A locked steering column turns a winch pull into a fight.',
+     'Ask grandpa whether the wheels turn at all, even a foot. That single fact is the most useful thing you can hand a dispatcher.',
+     'Have a local classic-car flatbed operator number as backup. AAA roadside is built for breakdowns rather than scheduled barn-find retrieval, and drivers have discretion.'],
+   tools:['AAA membership number','Backup tow operator number'],
+   warn:'Never tow a car with seized wheels on its own tyres. Twenty-year-old flat-spotted tyres can also come apart at speed.'},
+
+  {id:'0g',n:'Title and condition documentation, at the barn',b:'The step people defer and then chase for months. Do it standing there.',
+   steps:['Check the VIN on the title against the plate on the car BEFORE he signs anything. On a 1966 P1800S the plate sits on the firewall or the driver door pillar.',
+     'Photograph the VIN plate clearly and legibly, then photograph the signed title.',
+     'Grandpa signs the Oregon title as seller, in the correct box. A signature in the wrong place voids the title and means applying for a duplicate.',
+     'Write a bill of sale even though this is a gift.',
+     'Grandpa files the Oregon notice of sale or transfer on his side.',
+     'Condition photo set, before the car moves: flat rotten tyres, rodent damage, the non-running state, the whole story. This is evidence, not sentiment \u2014 it is what argues she is worth barn-find money rather than book value.',
+     'Take every loose part, manual, and coffee can of hardware in that barn. There is no second trip.'],
+   tools:['Bill of sale form','Pen','Phone camera'],
+   warn:'Do not let him sign until you have compared the VIN on the document to the plate on the car. Fixing that afterwards is weeks of paperwork.'},
+
+  {id:'0h',opt:'If time',bg:'Soak starts here',n:'Plug wells, plug read, and start the cylinder soak',
+   b:'The soak wants weeks, so starting it Sunday buys real time \u2014 but only if his shop has a compressor and the day is not running long.',
+   steps:['Blow out the plug wells FIRST. Twenty years of barn dust and rodent debris sits around the plug bases and drops straight into the cylinder the moment a plug breaks loose \u2014 putting grit onto exactly the surfaces you are trying to protect. Compressed air, or shop vac and brush at minimum. This is not the optional part.',
+     'Bring both 13/16 inch and 5/8 inch plug sockets plus an extension. Do not stand in a barn guessing sizes.',
+     'Pull the plugs. Photograph each one and label which cylinder it came from before you set it down. Oil fouling, carbon, rust, a wet one, a clean one \u2014 that is your first real diagnostic data, it is free, and you will want it when compression numbers arrive weeks from now.',
+     'Ask grandpa what he remembers about why it got parked. He is standing right there, and that answer exists nowhere else.',
+     'A tablespoon or two of penetrating oil per cylinder, enough to pool on the piston crown. Marvel Mystery Oil, Kroil, plain ATF, or a 50/50 ATF and acetone mix all work. Not WD-40 \u2014 that is a water displacer, not a penetrant.',
+     'Some pistons will be up and some down. That is normal and tells you nothing bad.',
+     'Plug the holes before the tow. Thread the plugs back finger-tight, or tape over them. Open cylinders on I-5 in the rain undoes the whole point.'],
+   tools:['13/16 in plug socket','5/8 in plug socket','Extension bar','Penetrating oil','Compressed air or shop vac','Phone camera'],
+   warn:['If a plug fights you, stop. Cast iron head, steel plugs, two decades of corrosion, and no way to warm the engine first. Snapping one off in the head on tow day turns a good afternoon into an extraction job. Hit the base with penetrant, walk away, and do it at home on a calm Saturday. Nothing is lost \u2014 the soak is measured in weeks, not hours.',
+     'Do not turn the engine over. Not by hand, not on the starter. That comes after the soak has had real time.'],
+   links:[{l:'Freeing a seized engine \u2014 technique',u:YT('free seized engine penetrating oil cylinder soak')}]},
+
+  {id:'0i',n:'Park her, and the day-one survey',b:'The Sunday evening hour. Designed to be unfailable \u2014 and it is the only hour in this whole project that can never be redone.',
+   steps:['Park on the poly. Chocks in.',
+     'Drip pan under the drivetrain. A car that has sat twenty years will weep old oil and fuel onto the slab permanently.',
+     'Pull the old battery. A twenty-year-old battery is a leaking fire hazard, and removal is two wrenches and five minutes.',
+     'Set snap traps around the perimeter immediately. Three walls is more attractive to mice than an open carport, and the car is importing a colony.',
+     'Day-one photo survey: 40 to 60 shots in a deliberate order \u2014 VIN plate, four corners, every panel, engine bay, interior, trunk, underside, odometer, and every piece of damage.',
+     'This looks like the soft task and it is not. Those photos are the use-tax evidence, the insurance documentation, the before shots for the build thread, and the only complete record of how she arrived.',
+     'Then write the first note in here. Anything at all. It is the start of the record.'],
+   tools:['Snap traps','Drip pan','Wrench for the battery','Phone camera']},
+]},
 { id:1, name:'Triage', goal:'Find out what car you actually have before you spend a dollar on it.',
   gate:'Rust verdict comes before every other decision. A rotten shell changes the whole project.',
   badge:'Barn Door',
@@ -890,7 +979,7 @@ function matches(t, q){
    outside the denominator. RUNNING marks a background process already under
    way (the cylinder soak): started, working, don't wait on it. */
 function taskFlags(t){
-  return (t.opt ? '<span class="t-flag up">Upgrade</span>' : '')
+  return (t.opt ? `<span class="t-flag up">${t.opt === true ? 'Upgrade' : t.opt}</span>` : '')
        + (t.bg  ? `<span class="t-flag bg">&#8635; ${t.bg}</span>` : '');
 }
 function upLabel(pr){
