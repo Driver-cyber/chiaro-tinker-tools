@@ -640,17 +640,20 @@ const PHASES = [
    tools:['Snap traps','Drip pan','Wrench for the battery','Phone camera']},
 ]},
 { id:1, name:'Triage', goal:'Find out what car you actually have before you spend a dollar on it.',
-  gate:'Rust verdict comes before every other decision. A rotten shell changes the whole project.',
+  gate:'Rust verdict comes before every other decision \u2014 a rotten shell changes the whole project. The cylinder soak is already running in the background from Phase 0; Triage happens WHILE it works, not after it.',
   badge:'Barn Door',
   tasks:[
-  {id:'1a',n:'Get the title in your name',b:'Paperwork is easiest while the car is still a favour, not a project.',
-   steps:['Ask your grandpa for the title, and check the VIN on the document against the plate on the car.','A 1966 P1800S VIN plate sits on the firewall or the driver door pillar — photograph it.','If the title is lost, start the state replacement process now; it can take weeks.','Get a signed bill of sale even for a gift — some states want one for the transfer.'],
-   tools:['Phone camera','Bill of sale form'],
-   links:[{l:'Volvo P1800 chassis number reference',u:'https://www.volvoclub.org.uk/tech/'}]},
-
-  {id:'1b',n:'Recover the car safely',b:'It almost certainly will not roll. Plan for that.',
-   steps:['Book a flatbed with a winch, not a wheel-lift tow truck.','Warn the driver the wheels may not turn and the steering may be locked.','Clear a level, dry spot at home with room to open both doors and walk around.','Chock the wheels the moment it is off the truck — the parking brake is unknown.'],
-   tools:['Wheel chocks','Flatbed with winch'],warn:'Never tow a car with seized wheels on its own tyres. Flat-spotted 20-year-old tyres can also come apart at speed.'},
+  {id:'1a',n:'Register an Oregon title in Washington',b:'An out-of-state transfer with a tighter clock than most people expect, and a tax question that is genuinely unsettled.',
+   steps:['You have 15 days, not 30. Washington applies a $50 penalty on day 16, then $2 per day after that, up to $125. Put the date in your calendar before you do anything else.',
+     'STEP ONE, BEFORE SUNDAY: call WA DOL and ask directly whether an immediate-family gift of a vehicle is exempt from use tax in your situation. Do not rely on this app, or a forum, or a summary. Ask, and write down who you spoke to.',
+     'Why it is unsettled: the exemption generally turns on whether the donor previously paid sales or use tax IN WASHINGTON, with tax paid to another state credited against use tax on current value. Grandpa bought the car in Oregon, which has no sales tax \u2014 so there may be nothing to credit. Sources conflict on whether the family-gift exemption applies regardless.',
+     'If use tax does apply, it is assessed on fair market value. Book value for a 1966 P1800S reflects a running, sorted car. This one is a non-running barn find with seized brakes and rotten tyres \u2014 which is exactly what the 0g condition photos are for. Bring them.',
+     'VIN inspection risk: Washington normally requires one only for homemade, salvage, rebuilt, or ownership-in-doubt vehicles. But a 1966 car has a short pre-1981 VIN rather than the modern 17-digit format, and \u201cVIN does not meet state standards\u201d is a trigger. If a licensing agent escalates it to State Patrol, you have to get a non-running car to an inspection appointment.',
+     'Worth knowing as a fallback: the regulations do allow alternate inspectors where a State Patrol inspection would cause undue hardship. Ask about it rather than assuming you are stuck.',
+     'Bring: the signed Oregon title, the bill of sale, your ID, and the condition photos.'],
+   tools:['Signed Oregon title','Bill of sale','Condition photos from 0g','Calendar reminder'],
+   warn:'The 15-day clock starts when you take possession, not when you get around to it. Day 16 is $50, and it climbs.',
+   links:[{l:'Washington State Department of Licensing',u:'https://dol.wa.gov/'},{l:'Washington State Patrol',u:'https://wsp.wa.gov/'}]},
 
   {id:'1c',n:'Rodent cleanup — respirator on',b:'Twenty barn years means nests. Dried droppings are a genuine health hazard.',
    steps:['Wear an N95 or better, plus nitrile gloves and eye protection.','Never dry-sweep or vacuum droppings. Spray everything with a 1:10 bleach-water solution and let it sit 10 minutes.','Wipe up with disposable rags and bag them.','Check the air cleaner, exhaust tip, heater box, under the intake, and inside the seats for nests.','Ventilate the space the whole time.'],
@@ -658,8 +661,14 @@ const PHASES = [
    warn:'Hantavirus is spread by disturbing dried rodent waste. This step is not optional and it comes before the fun parts.',
    links:[{l:'CDC — cleaning up after rodents',u:'https://www.cdc.gov/rodents/index.html'}]},
 
-  {id:'1d',n:'Rust verdict',b:'The single measurement that decides whether this is a weekend project or a shell swap.',
-   steps:['Get the car on stands or ramps so you can see underneath with a bright light.','Probe with a screwdriver: front and rear floor pans, rocker panels (sills), jacking points, inner and outer wheel arches, trunk floor, spare wheel well.','P1800 trouble spots: the sills are structural and rot from the inside; check the front fender bottoms behind the wheels and the battery tray.','Photograph everything, including anything that looks fine — you will want a before set.','Soft spots that go through are repairable; a soft jacking point or sill means welding and a bigger budget.'],
+  {id:'1d',n:'Rust verdict \u2014 the first real decision point',b:'This outranks everything mechanical, and it can override the drive-it-first plan entirely.',
+   steps:['Get the car on stands so you can see underneath with a bright light. The slab and the jack stands from 0e are what make this safe.',
+     'Probe with a screwdriver, in this order: floor pans, box-section sills, jacking points, front and rear wheel arches, spare wheel well, trunk floor, battery tray, and the base of the A-pillars.',
+     'The jacking points are a reasonable proxy for overall sill health \u2014 if they are soft, assume the sills are too.',
+     'These are unibody cars. The sills are STRUCTURAL, not trim. That is the whole reason this task outranks the engine.',
+     'An engine is rebuildable or replaceable, and B18s are common and not precious. A rotten shell is a parts car. Those are not comparable problems.',
+     'Sound structure or patchable floors: proceed as planned. Structurally gone sills and floors: this is a different project, and there is no point doing suspension or interior work that would only be torn back out.',
+     'Photograph everything, including what looks fine \u2014 you will want the before set.'],
    tools:['Jack + jack stands','Bright work light','Old screwdriver','Small hammer','Camera'],
    links:[{l:'Volvo Owners Club — P1800 technical articles',u:'https://www.volvoclub.org.uk/tech/'},{l:'Video: inspecting a barn find for rust',u:YT('barn find rust inspection sills floor pans')}]},
 
@@ -672,41 +681,41 @@ const PHASES = [
    steps:['Drain the engine oil — note whether it looks milky (water) or has metal glitter in it.','Drain the coolant and check for oil contamination or heavy rust.','Drain the fuel tank and lines; 20-year-old petrol is varnish and it will clog everything downstream.','Drain the gearbox and rear axle oil, and inspect for metal on the drain plug magnet.','Take the fluid to a recycling centre — do not put it in the bin.'],
    tools:['Drain pan','13mm/17mm sockets','Funnel','Sealed fuel containers','Torque wrench']},
 
-  {id:'1g',n:'Photograph and inventory everything',b:'Your future self, disassembling, will need this.',
-   steps:['Shoot every panel, the engine bay from six angles, the interior, the trunk, and under the dash.','Photograph any parts boxes, loose trim, or spares stored with the car.','Note what is missing — the P1800 grille, trim, and badges are the expensive things to replace.','Start a parts wish list you will add to as you go.'],
-   tools:['Camera','Notebook']}
+  {id:'1g',n:'Inventory what came back from the barn',b:'The day-one photo survey is already done in 0i. This is the boxes, the manuals, and the coffee cans of hardware.',
+   steps:['Lay out every loose part, manual, and box that travelled home with the car.',
+     'Catalogue it \u2014 what it is, and where you think it belongs.',
+     'Note what is MISSING. The P1800 grille, trim and badges are the expensive things to replace, and knowing early changes what you watch for.',
+     'Start the parts wish list you will add to for the next year.'],
+   tools:['Notebook','Boxes and labels']}
 ]},
 
 { id:2, name:'Make it turn', goal:'Free the engine and prove it is worth waking up.',
   gate:'Do not touch the starter until the crank turns freely by hand. Cranking a seized engine breaks rings and bends rods.',
   badge:'First Rotation',
   tasks:[
-  {id:'2a',n:'Blow out the spark plug wells',b:'Barn dust sitting on the plugs will fall straight into the cylinders when you unscrew them.',
-   steps:['The plugs screw into the side of the cylinder head, under the four thick wires from the distributor.','Each plug sits at the bottom of a recessed pocket — that pocket is the well.','Pull one plug wire at a time and mark it, or you will scramble the firing order.','Blow out each well with compressed air or a can of duster before loosening anything.'],
-   tools:['Compressed air or duster can','Masking tape + marker','Eye protection']},
-
-  {id:'2b',n:'Pull the plugs and read them',b:'Their colour and condition is free diagnostic information.',
-   steps:['Use a 13/16" spark plug socket with a rubber insert.','Loosen each plug a quarter turn, then back it out slowly.','Lay them out in cylinder order, 1 at the front of the car.','Oily and black means rings or valve stem seals; chalky white means it ran lean; even light tan is a good sign.','A wet plug in only one hole is a clue worth remembering later.'],
-   tools:['13/16" plug socket','3/8" ratchet','Extension','Anti-seize (for reinstall)'],
-   links:[{l:'Video: how to read spark plugs',u:YT('how to read spark plugs diagnosis chart')}]},
-
-  {id:'2c',n:'Soak the cylinders',b:'The rings are almost certainly varnished to the bores.',
-   steps:['Squirt roughly a tablespoon of penetrating oil down each open plug hole — it goes straight in on top of the piston.','Use a squirt can or a cheap syringe; the aerosol straw wastes most of it.','Lay a rag loosely over the holes to keep dust out.','Re-dose every few days for one to two weeks. Patience here saves an engine rebuild.'],
+  {id:'2c',bg:'Started on tow day',n:'Keep the cylinder soak running',b:'This one is already working. It started at the barn in 0h, and it wants weeks, not an afternoon.',
+   steps:['Nothing to start here \u2014 0h began this on tow day. This task is the checkpoint, not the job.',
+     'Top the oil up after a week or two: another tablespoon or so down each plug hole.',
+     'The rings are almost certainly varnished to the bores. That is what is being dissolved, slowly, while you get on with Triage.',
+     'Lay a rag loosely over the holes to keep dust out, or leave the plugs threaded finger-tight.',
+     'Tick this when you have topped it up at least once and given it real time. Patience here is what saves an engine rebuild.',
+     'If 0h did not happen at the barn \u2014 no compressor, long day, a plug that fought back \u2014 start it now instead. Nothing is lost; the clock just begins today.'],
    tools:['PB Blaster or Kroil','Squirt can or syringe','Clean rags'],
    warn:'Use a real penetrating oil. WD-40 is a water displacer, not a penetrant, and it will not do this job.'},
 
   {id:'2d',n:'Turn the crank by hand',b:'The moment you find out if the engine is free.',
    steps:['Put the gearbox in neutral and chock the wheels.','Fit a socket to the crankshaft pulley bolt on the front of the engine.','Turn clockwise, gently, with a normal-length ratchet. It should move with firm but reasonable effort.','If it will not budge, stop. Soak longer, try again in a week.','Once it turns, rotate it through several full revolutions and feel for tight spots.'],
    tools:['Large socket for the crank pulley bolt','Breaker bar (gently)','Wheel chocks'],
-   warn:'If it resists hard, do not lean on the breaker bar and never use the starter to free it. Both break things that cost real money.'},
+   warn:['Not until the soak has had real time \u2014 days at minimum, longer if anything feels tight. Forcing this is exactly how a stuck engine becomes a scrap engine.','If it resists hard, do not lean on the breaker bar and never use the starter to free it. Both break things that cost real money.']},
 
   {id:'2e',n:'Change the oil and prime the system',b:'You want oil on the bearings before anything spins fast.',
    steps:['Fit a new filter and fill with fresh oil — a 20W-50 conventional suits a warm-running B18.','Hand-crank the engine through several more revolutions to move oil around.','With plugs still out and ignition disabled, bump the starter in short bursts and watch for oil pressure.','Do not run it. You are only priming.'],
    tools:['Oil filter wrench','Fresh oil + filter','Drain pan','Funnel'],
    links:[{l:'iPD — classic Volvo parts',u:'https://www.ipdusa.com/'},{l:'Skandix — Volvo parts catalogue',u:'https://www.skandix.de/en/'}]},
 
-  {id:'2f',n:'Run the compression test',b:'The fork in the road: weekend project, or engine out.',
-   steps:['Use a screw-in compression tester with a 14mm adapter, not the press-in rubber cone type.','Battery must be strong — slow cranking gives falsely low numbers.','Disable ignition: pull the coil high-tension lead from the distributor cap and ground it to bare metal, away from the carbs.','Block the throttle wide open and make sure the choke is open.','Thread the gauge into cylinder 1 hand-tight. Crank about 5 seconds or until the needle stops climbing. Record it. Repeat for 2, 3, 4.'],
+  {id:'2f',n:'Run the compression test',b:'The project\u2019s actual go/no-go on the engine. Do not run it early.',
+   steps:['Timing first: a test run before a proper soak gives you both a misleading number AND real damage \u2014 dragging surface rust across bare cylinder walls is manufacturing the very thing the test is looking for.',
+     'Use a screw-in compression tester with a 14mm adapter, not the press-in rubber cone type.','Battery must be strong — slow cranking gives falsely low numbers.','Disable ignition: pull the coil high-tension lead from the distributor cap and ground it to bare metal, away from the carbs.','Block the throttle wide open and make sure the choke is open.','Thread the gauge into cylinder 1 hand-tight. Crank about 5 seconds or until the needle stops climbing. Record it. Repeat for 2, 3, 4.'],
    tools:['Screw-in compression tester','14mm adapter','Jump pack or charged battery','Notepad'],
    links:[{l:'Video: compression testing an engine',u:YT('screw in compression test engine step by step')}]},
 
@@ -820,7 +829,7 @@ const PHASES = [
 ]},
 
 { id:6, name:'Make it legal', goal:'Lights, glass, wipers, horn — then plates and insurance.',
-  gate:'Check your state’s inspection requirements before you start buying parts. Rules for 1966 vehicles vary widely.',
+  gate:'Good news, and it is worth saying out loud: Washington ended its emissions programme on 1 January 2020, and there is no periodic safety inspection either. This phase is far lighter here than it would have been in Oregon. What is left is genuinely about making the car safe, plus two real decisions on plates and insurance.',
   badge:'Plated',
   tasks:[
   {id:'6a',n:'Lighting all round',b:'Every bulb, lens, and ground.',
@@ -837,13 +846,27 @@ const PHASES = [
    tools:['Glass cleaner','Seal replacement kit']},
 
   {id:'6d',n:'Seat belts',b:'Volvo invented the three-point belt. Do not daily this car without good ones.',
-   steps:['Inspect original belts for fraying, sun damage, and a working retractor.','Replace anything questionable — webbing degrades invisibly with age.','Confirm the anchor points are solid metal, not rust.','Check what your state requires for a 1966 vehicle.'],
+   steps:['Inspect original belts for fraying, sun damage, and a working retractor.','Replace anything questionable — webbing degrades invisibly with age.','Confirm the anchor points are solid metal, not rust — this is the Phase 1 rust verdict cashing out.','Washington does not inspect a 1966 car for this, which means the standard is yours to set.','If the originals are lap belts, see the three-point upgrade in this phase. Volvo invented the three-point belt; there is something fitting about putting proper ones back in.'],
    tools:['Socket set','Torque wrench'],
    warn:'There are no airbags and no crumple zones in this car. Belts are the entire safety system.'},
 
-  {id:'6e',n:'Inspection, registration, insurance',b:'The paperwork lap.',
-   steps:['Check your state’s rules for a 1966 vehicle — many exempt classics from emissions and some from safety inspection.','Decide between standard registration, historic, or classic plates. Historic plates are cheaper but often limit annual mileage, which matters if this is your daily.','Get a classic car policy quote and an agreed-value appraisal if the car warrants it.','Standard insurance may undervalue it; classic policies often restrict mileage. Read both carefully against how you actually plan to drive it.'],
-   tools:['Title','Bill of sale','Photos for appraisal']}
+
+  {id:'6e',n:'Plates: standard or collector',b:'A real decision with a real trade-off, not a recommendation.',
+   steps:['No emissions test and no safety inspection in Washington. Nothing to book, nothing to pass.',
+     'Collector vehicle plates are available for vehicles 30 years and older. Registration is permanent \u2014 one fee, no annual renewal \u2014 and it is cheap.',
+     'The catch: collector plates carry use restrictions. Read them against how you actually intend to drive this car.',
+     'The whole plan is drive-it-first and improve-it-over-a-year. If that means real mileage, the restrictions probably conflict with it and standard registration is the honest answer.',
+     'This is a decision to make deliberately once, not to drift into. Write down which you chose and why \u2014 future you will want the reasoning.'],
+   tools:['Title','Bill of sale'],
+   links:[{l:'Washington State Department of Licensing',u:'https://dol.wa.gov/'}]},
+
+  {id:'6f',n:'Insurance: agreed value or standard',b:'A standard policy values a 60-year-old car as an old car. That is the problem.',
+   steps:['Get quotes from the classic specialists \u2014 Hagerty, Grundy and similar \u2014 alongside a standard policy.',
+     'The difference that matters is AGREED VALUE: you and the insurer settle on what the car is worth now, in writing, and that is what gets paid. A standard policy pays actual cash value, which for a 1966 car can be insultingly little after you have put a year into it.',
+     'Read the mileage limits. Classic policies often cap annual miles, and that interacts directly with the daily-driver ambition.',
+     'Read the storage requirements too. Some policies expect a locked garage; an open three-wall carport may not qualify. Ask before you buy, not after a claim.',
+     'The 0i day-one photos and the condition set from 0g are your appraisal evidence \u2014 both for what she was, and for what you have made her.'],
+   tools:['Photos from 0g and 0i','Receipts folder']}
 ]},
 
 { id:7, name:'Shakedown', goal:'Find the failures on your terms, close to home.',
