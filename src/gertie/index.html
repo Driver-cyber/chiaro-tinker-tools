@@ -302,6 +302,29 @@ svg.car{display:block;width:100%;height:auto;position:relative;z-index:1}
 }
 .empty{padding:40px 0;color:#7A7362;font-size:15px}
 
+/* ============ THE SOMEDAY SHELF ============
+   Visually distinct from tasks on purpose: dashed rule, no tick, no chevron.
+   Padding is longhand — a later shorthand on .park would flatten it, which is
+   the regression that has now cost three fixes across PJT and CTT. */
+.parked{margin-top:46px;border-top:1px solid var(--paper-line);padding-top:26px}
+.parked h2{font-size:21px;letter-spacing:-.01em}
+.parked-lede{font-size:14px;color:#5C5646;margin-top:5px}
+.parked-grid{
+  display:grid;gap:12px;margin-top:18px;
+  grid-template-columns:repeat(auto-fit,minmax(238px,1fr));
+}
+.park{
+  background:var(--paper-2);border:1px dashed var(--paper-line);border-radius:var(--r);
+  padding-top:14px;padding-right:15px;padding-bottom:14px;padding-left:15px;
+}
+.park h3{font-size:15.5px;font-weight:600;line-height:1.35}
+.park p{font-size:14px;color:#5C5646;margin-top:7px;line-height:1.5}
+.park-when{color:var(--ink)}
+.park-when span{
+  font-family:var(--util);font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:#7A7362;margin-right:6px;
+}
+
 /* ============ TROPHY CASE ============ */
 .case{padding-block:34px 70px}
 .case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:22px}
@@ -755,6 +778,20 @@ const PHASES = [
    steps:['Fit a correctly sized new battery and clean the cable ends and grounds to bright metal.','Bench-test or replace the starter; 20 years of sitting kills bushings and brushes.','Check the generator or alternator output. Many P1800s have been converted to an alternator — confirm which you have.','Verify the ignition switch and starter solenoid work before you rely on them.'],
    tools:['Multimeter','Wire brush','Battery','Socket set']},
 
+  {id:'3h',opt:true,n:'Alternator conversion',b:'The change that makes modern electrical loads viable \u2014 if the car is still on a generator.',
+   steps:['VERIFY FIRST, on this car: does it have a generator (dynamo) or an alternator? Do not assume either way. Look before you order anything.',
+     'If it is a generator, this is the upgrade that makes a stereo, an electric fan, and modern lighting realistic instead of marginal.',
+     'Do it now, in the same window as 3f \u2014 you are already inside the charging circuit with the wiring exposed.',
+     'Kits exist for the B18. Decide whether you want the period look preserved or simply do not care.'],
+   tools:['Alternator conversion kit','Spanners','Multimeter'],
+   links:[{l:'Generator to alternator conversion, classic Volvo',u:YT('volvo b18 generator to alternator conversion')}]},
+
+  {id:'3i',opt:true,n:'Electric cooling fan',b:'Frees up a little power and stops the traffic-jam anxiety.',
+   steps:['Same window as 3e \u2014 the cooling system is already apart.',
+     'A thermostatically switched electric fan removes the engine-driven fan drag and gives real margin in slow traffic.',
+     'This wants the charging system to be up to it. If 3h is on the list, do that first.'],
+   tools:['Electric fan kit','Thermostatic switch','Relay and fusing']},
+
   {id:'3g',n:'First start',b:'Have a plan, an extinguisher, and a friend.',
    steps:['Feed fuel from a small temporary container, not the car tank.','Have a fire extinguisher within arm’s reach and someone standing by.','Crank in short bursts. Let the starter cool between attempts.','The moment it fires, watch oil pressure and coolant temperature above everything else.','Run it only a few minutes the first time. Shut down and check for leaks everywhere.','Expect smoke as old oil burns off the exhaust — that is normal and it should clear.'],
    tools:['Fire extinguisher (ABC)','Temporary fuel container','Helper'],
@@ -773,6 +810,13 @@ const PHASES = [
    steps:['A 1966 P1800S has a dual-circuit master cylinder — a good safety feature worth keeping correct.','Replace rather than rebuild if the bore is pitted; new units are readily available.','Bench-bleed the new master before fitting. This saves an hour of frustration.','Inspect the brake booster if fitted, and check its vacuum hose.'],
    tools:['Line wrenches (flare nut spanners)','Master cylinder','DOT 4 fluid','Bench bleed kit'],
    links:[{l:'iPD — brake parts',u:'https://www.ipdusa.com/'}]},
+
+  {id:'4b2',opt:true,n:'Dual-circuit master cylinder',b:'A near-free safety upgrade, because 4b already has the master cylinder out.',
+   steps:['VERIFY WHAT THIS CAR HAS before ordering. Single-circuit or dual-circuit is not something to assume from the model year.',
+     'If it is single-circuit: one hydraulic failure anywhere takes ALL the brakes at once. Dual-circuit splits that, so a failure costs you half the system rather than all of it.',
+     'The window is now. The master is already coming out in 4b, and doing this later means doing that job twice.'],
+   tools:['Dual-circuit master cylinder','Brake fluid','Flare nut spanners'],
+   warn:'Brakes are not the place to improvise. If you are unsure what the car has or what the conversion needs, ask a marque specialist before you order parts.'},
 
   {id:'4c',n:'Front discs and calipers',b:'The P1800 has front disc brakes — good news for a daily driver.',
    steps:['Rebuild or replace the calipers; seized pistons are near-guaranteed after this long.','Fit new discs and pads unless the discs measure within spec and are not scored or rusted deeply.','Replace the flexible hoses — old rubber swells internally and can act as a one-way valve.','Clean and repack the front wheel bearings, and fit new seals.'],
@@ -818,6 +862,35 @@ const PHASES = [
    tools:['Spring compressor (with care)','Bushing kit','Shocks','Breaker bar'],
    warn:'Coil spring compressors are genuinely dangerous. If a spring is under load and you are unsure, hand that part to a shop.'},
 
+  {id:'5g',opt:true,n:'Shocks \u2014 Bilstein or Koni',b:'Same window as 5d. The suspension is already apart.',
+   steps:['Do this with the suspension refresh, not after it.','Bilstein and Koni are the usual answers for a P1800 that gets driven.','Decide firmness honestly against the daily-driver plan \u2014 this is a comfortable car by design.'],
+   tools:['Shock set','Spring compressor','Spanners']},
+
+  {id:'5h',opt:true,n:'Bushing refresh',b:'Worth doing while everything is off the car \u2014 but read the caution.',
+   steps:['Polyurethane everywhere makes the ride harsh and squeaky. That is the mistake people make once.',
+     'The usual compromise for a car meant to be comfortable: poly on the sway bar, rubber in the control arms.',
+     'You are already in here for 5d. Doing it later means stripping the same corners a second time.'],
+   tools:['Bushing kit','Press or drift','Grease']},
+
+  {id:'5i',opt:true,n:'Larger front sway bar',b:'A small, cheap change to how the car turns in.',
+   steps:['Same window as the suspension work.','Pairs with the bushing choice above \u2014 poly on the bar is the standard pick.'],
+   tools:['Sway bar','Bushings and end links']},
+
+  {id:'5j',opt:true,n:'Sound deadening',b:'The single biggest change in how this car FEELS. Cheap, beginner-proof, and gated on rust repair.',
+   steps:['GATE: rust repair must be finished first. Do not deaden over metal that still needs welding \u2014 you will be cutting it all back out.',
+     'These shells drum like a steel drum. That is not a fault to fix later, it is the main thing standing between this and a car you want to drive for an hour.',
+     'Butyl mats \u2014 Kilmat, Noico or similar \u2014 on floors, transmission tunnel, doors and rear bulkhead. Coverage matters more than thickness; roughly 25\u201350% is plenty.',
+     'Closed-cell foam over the butyl. The butyl kills panel ring, the foam blocks airborne noise. They do different jobs.',
+     'No special skill required. A roller, a knife, and patience.'],
+   tools:['Butyl sound deadening mats','Closed-cell foam','Roller','Utility knife'],
+   links:[{l:'Sound deadening a classic car properly',u:YT('sound deadening classic car butyl closed cell foam')}]},
+
+  {id:'5k',opt:true,n:'Speakers and interior wiring repair',b:'The trim is already off for the sound deadening. This is the window.',
+   steps:['Run speaker cable and repair any interior wiring while the panels are out and the floors are bare.',
+     'Pairs with the head unit in Phase 8 \u2014 do the hidden half now, the visible half later.',
+     'Any chewed interior harness noted back in 1e gets fixed here.'],
+   tools:['Speaker cable','Crimps and heat-shrink','Multimeter']},
+
   {id:'5e',n:'Exhaust system',b:'A rusted-through system will fail inspection and gas you out.',
    steps:['Inspect from the manifold back for holes, thin spots, and broken hangers.','Replace the full system if it is original; stainless is a buy-once option for a daily driver.','Fit new hangers and check clearance to the floor and fuel lines.','Check the manifold-to-head gasket for leaks once running.'],
    tools:['Penetrating oil','Exhaust hangers','Angle grinder or sawzall']},
@@ -850,6 +923,20 @@ const PHASES = [
    tools:['Socket set','Torque wrench'],
    warn:'There are no airbags and no crumple zones in this car. Belts are the entire safety system.'},
 
+
+  {id:'6g',opt:true,n:'H4 headlights, LED tail and dash bulbs',b:'Cheap, a real safety gain, and less load on sixty-year-old wiring.',
+   steps:['Same window as 6a \u2014 you are already in every lamp on the car.',
+     'H4 conversion is a genuine step change over sealed beams for night driving.',
+     'LED tail and dash bulbs draw far less, which matters on a harness this age. Check flasher compatibility if you convert indicators.',
+     'Clean every ground while you are in there. Most classic Volvo lighting faults are grounds, not bulbs.'],
+   tools:['H4 conversion kit','LED bulb assortment','Multimeter','Dielectric grease']},
+
+  {id:'6h',opt:true,n:'Three-point belt upgrade',b:'Volvo invented these. There is something fitting about putting proper ones in.',
+   steps:['Cross-referenced from 6d. If the originals are lap belts, this is the upgrade that matters most in this whole list.',
+     'Confirm the anchor points are solid metal \u2014 the Phase 1 rust verdict decides whether this is even possible.',
+     'Washington will not inspect this on a 1966 car. The standard is entirely yours to set.'],
+   tools:['Three-point belt kit','Socket set','Torque wrench'],
+   warn:'No airbags, no crumple zones. Belts are the entire safety system in this car.'},
 
   {id:'6e',n:'Plates: standard or collector',b:'A real decision with a real trade-off, not a recommendation.',
    steps:['No emissions test and no safety inspection in Washington. Nothing to book, nothing to pass.',
@@ -911,6 +998,24 @@ const PHASES = [
    steps:['Decide honestly between preserving the original paint, spot repairs, or a full respray.','A full respray on a driver often costs more than the car is worth — and original paint only exists once.','If you found rust in Phase 1, repair it properly before any paint goes on.','Rustproof the underside and inside the sills. This is the single best long-term investment for a driven car.'],
    tools:['Body shop quotes','Cavity wax','Underseal']},
 
+  {id:'8f',opt:true,n:'Wood-rim steering wheel',b:'Highest joy-per-dollar item on this entire list. Half an hour.',
+   steps:['Nardi or Moto-Lita style, plus the correct boss adapter for the car.',
+     'It transforms both the driving position and the look, and it is genuinely a half-hour job.',
+     'If you only ever do one thing from the upgrade list, this is the one.'],
+   tools:['Wheel','Boss adapter','Socket set']},
+
+  {id:'8g',opt:true,n:'Retro-face head unit',b:'Modern internals behind a period face.',
+   steps:['RetroSound or Custom Autosound make units that look right in a sixties dash.',
+     'RetroSound\u2019s adjustable shafts are the practical reason to prefer them \u2014 vintage dash apertures are awkward and rarely match anything modern.',
+     'The hidden half \u2014 speaker cable \u2014 was already run in 5k.'],
+   tools:['Head unit','Wiring harness adapter','Trim tools']},
+
+  {id:'8h',opt:true,n:'Seat rebuild or recover',b:'A bigger comfort win than anything electronic. Original seats are usually finished after sixty years.',
+   steps:['Foam collapses long before the covers look bad. Sitting on a sixty-year-old seat is most of why an old car feels old.',
+     'Rebuild the foam and springs, or recover entirely \u2014 decide once you have the seat out and can see what is left.',
+     'Do it in the same window as the interior work, while the trim is already off.'],
+   tools:['Upholstery kit or foam','Hog ring pliers','Trim tools']},
+
   {id:'8d',n:'Winter plan',b:'Decide how you will actually use it.',
    steps:['Road salt is the real enemy of an unrusty Swedish car. A P1800 makes an excellent fair-weather daily and a poor winter one.','Plan a winter storage routine: fuel stabiliser, battery tender, tyres at pressure, a breathable cover.','Or commit to washing the underside religiously all winter — and accept the consequences.','Line up a second car for salt season if you can.'],
    tools:['Battery tender','Fuel stabiliser','Car cover']},
@@ -925,6 +1030,22 @@ const PHASES = [
 /* ============================================================
    DERIVED STATE
    ============================================================ */
+/* THE SOMEDAY SHELF. Not tasks: not checkable, no progress effect, never in
+   a denominator. It exists so ideas stop rattling around loose — a lump of
+   clay on a shelf with a note about what it wants to become. Honest about
+   cost and sequence, and deliberately not discouraging. Shape: {n, b, when}. */
+const PARKED = [
+  {n:'Fuel injection',
+   b:'Rebuild the twin SUs properly first. Set up correctly they are reliable, and they are a great deal of what this car actually is — the noise, the throttle, the character. Learning to tune them is a real skill and it is most of the argument against replacing them.',
+   when:'After a year of driving. If the itch survives that long it will be an informed decision made with real skills, which is a much better place to spend the money from.'},
+  {n:'Air conditioning',
+   b:'Expensive, a serious fabrication job in a dash with no room for it, and a genuine load on roughly 100 horsepower. And she lives in Vancouver — working heat and a defroster that clears the screen nine months of the year matter far more than cooling for three weeks of it.',
+   when:'Revisit after a full year. Get the original heater and vents right first, and insulate the floors and firewall (5j) — that alone changes the cabin more than you would expect, in both directions.'},
+  {n:'Gearbox swap',
+   b:'Probably never, and it is worth knowing exactly why. She already has the M41 with Laycock overdrive, which is functionally a fifth gear — flick it on at cruise and the revs drop. This would be real money spent to obtain something that is already fitted.',
+   when:'Only if the overdrive itself fails and cannot be rebuilt. Fix what is there.'},
+];
+
 const allTasks = () => PHASES.flatMap(p => p.tasks.map(t => ({...t, phase:p})));
 const maxPhase = () => Math.max(...PHASES.map(p => p.id));
 /* Optional "upgrade" tasks are checkable and celebrated, but they must NOT
@@ -1019,6 +1140,24 @@ function warnBlocks(w){
     .map(x => `<div class="warn"><strong>Careful.</strong> ${x}</div>`).join('');
 }
 
+/* The shelf sits under the work, and only when you are not searching — it is
+   not a task, so it has no business appearing in a filtered result. */
+function renderParked(host, q){
+  if(q || !PARKED.length) return;
+  const sec = document.createElement('section');
+  sec.className = 'parked';
+  sec.innerHTML = `
+    <h2>The someday shelf</h2>
+    <p class="parked-lede">Not on the list, and not forgotten. Written down so they stop taking up room in your head.</p>
+    <div class="parked-grid">${PARKED.map(x => `
+      <article class="park">
+        <h3>${x.n}</h3>
+        <p>${x.b}</p>
+        <p class="park-when"><span>When</span> ${x.when}</p>
+      </article>`).join('')}</div>`;
+  host.appendChild(sec);
+}
+
 function renderManual(){
   const q = (document.getElementById('q').value || '').trim().toLowerCase();
   const host = document.getElementById('manual-body');
@@ -1074,6 +1213,7 @@ function renderManual(){
   if(!shown){
     host.innerHTML = `<p class="empty">Nothing matches that. Try a broader word — “brake”, “carb”, “rust”.</p>`;
   }
+  renderParked(host, q);
 
   host.querySelectorAll('[data-tick]').forEach(el => el.onclick = () => toggleDone(el.dataset.tick));
   host.querySelectorAll('[data-open]').forEach(el => el.onclick = () => toggleOpen(el.dataset.open));

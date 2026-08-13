@@ -98,13 +98,15 @@ describe('Gertie — the workshop', () => {
     const win = fresh();
     const PHASES = g(win, 'PHASES');
     const p = PHASES.find(x => x.id === 5);
-    const before = g(win, 'phaseProgress')(p).total;
+    const before = g(win, 'phaseProgress')(p);
 
-    // mark a real task optional in-memory — tests the mechanism, not content
-    p.tasks[0].opt = true;
+    // mark a REQUIRED task optional in-memory — tests the mechanism, not the
+    // content. Counts are relative: this phase already carries real upgrades.
+    const victim = p.tasks.find(t => !t.opt);
+    victim.opt = true;
     const after = g(win, 'phaseProgress')(p);
-    assert.equal(after.total, before - 1, 'an opt task stayed in the denominator');
-    assert.equal(after.opt, 1, 'opt task not counted as an upgrade');
+    assert.equal(after.total, before.total - 1, 'an opt task stayed in the denominator');
+    assert.equal(after.opt, before.opt + 1, 'opt task not counted as an upgrade');
 
     completePhase(win, 5);   // required only; the opt task stays unticked
     const pr = g(win, 'phaseProgress')(p);
@@ -230,6 +232,49 @@ describe('Gertie — the workshop', () => {
     assert.ok(/t-flag up">If time</.test(html), 'the custom opt label did not render');
     assert.ok(/t-flag bg">&#8635; Soak starts here|t-flag bg">↻ Soak starts here/.test(html),
       'the soak is not flagged as a background process');
+  });
+
+  /* --- upgrades and the someday shelf ---------------------------------- */
+
+  test('upgrades exist, are optional, and never enter a denominator', () => {
+    const win = fresh();
+    const PHASES = g(win, 'PHASES');
+    const ups = PHASES.flatMap(p => p.tasks.filter(t => t.opt === true));
+    assert.ok(ups.length >= 10, 'expected the upgrade set, found ' + ups.length);
+
+    // every phase carrying upgrades must still be completable without them
+    PHASES.filter(p => p.tasks.some(t => t.opt)).forEach(p => {
+      completePhase(win, p.id);
+      assert.equal(g(win, 'phaseProgress')(p).pct, 1,
+        'phase ' + p.id + ' cannot reach 100% with its upgrades undone');
+    });
+  });
+
+  test('the someday shelf renders, and is not a task', () => {
+    const win = fresh();
+    const parked = g(win, 'PARKED');
+    assert.ok(parked.length >= 3, 'expected the parked ideas');
+
+    const host = win.document.getElementById('manual-body');
+    assert.equal(host.querySelectorAll('.park').length, parked.length, 'shelf card count');
+    assert.equal(host.querySelectorAll('.park [data-tick]').length, 0,
+      'a parked idea is checkable — it must never be');
+
+    // and it must not touch progress in any way
+    const before = g(win, 'overall')();
+    g(win, 'render')();
+    assert.equal(g(win, 'overall')(), before, 'the shelf moved the odometer');
+  });
+
+  test('the shelf hides while searching — it is not a result', () => {
+    const win = fresh();
+    win.document.getElementById('q').value = 'brake';
+    g(win, 'renderManual')();
+    assert.equal(win.document.querySelectorAll('.park').length, 0,
+      'parked ideas appeared in a filtered search');
+    win.document.getElementById('q').value = '';
+    g(win, 'renderManual')();
+    assert.ok(win.document.querySelectorAll('.park').length > 0, 'shelf did not come back');
   });
 
   /* The storage key is load-bearing: bumping it silently discards every note
