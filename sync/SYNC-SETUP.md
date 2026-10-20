@@ -43,6 +43,31 @@ In the app: **Settings (☁) → Cloud Sync**:
 - On another device: **Connect** with the same URL + secret, then **Join an
   existing journal** and paste the Journal ID → **Pull**. Turn on **Auto-sync**.
 
+## 6. Outlook feed (optional — view-only calendar for the Blueprint day map)
+The day map can show your real Outlook events as read-only shadows to plan
+around. The Worker fetches your published calendar server-side (browsers can't
+read Outlook's ICS link directly — no CORS), so it needs **redeploying with the
+current `chiaro-sync-worker.js`** first.
+1. **Check that it's allowed.** A published calendar link is readable by anyone
+   who has it, and it's your employer's data. Many firms turn publishing off,
+   and some prohibit it. If the option is missing or policy says no, use the
+   file route below instead.
+2. Outlook on the web → **Settings → Calendar → Shared calendars → Publish a
+   calendar** → choose the calendar, **Can view all details** → **Publish** →
+   copy the **ICS** link.
+3. Worker → **Settings → Variables → Secrets** → add **`ICS_URL`** = that link
+   → **Deploy**. (It's a secret for the same reason SYNC_SECRET is. Never paste
+   it into the app or this repo.)
+4. In the app: **Blueprint → Day → ↻ Pull feed**.
+
+**File route (no Worker, no publishing):** classic Outlook for Windows/Mac →
+**File → Save Calendar** (pick a date range + full details) → `.ics`; then
+**Blueprint → Day → Import .ics**. Re-import whenever you want a fresher copy.
+
+Either way, the events are kept **on that device only**, outside the journal.
+They never sync to KV, never appear in exports, and nothing is written back
+to Outlook. Unpublish any time from the same Outlook settings page.
+
 ---
 
 ### Notes

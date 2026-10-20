@@ -17,6 +17,13 @@
      4. Copy the Worker URL (…workers.dev). In the app: Settings → Cloud Sync →
         paste the URL + the same SYNC_SECRET, Connect, then Create my journal.
 
+   OPTIONAL — Outlook feed (view-only calendar for the Blueprint day map):
+     5. In Outlook on the web: Settings → Calendar → Shared calendars →
+        Publish a calendar → pick a calendar + "Can view all details" →
+        Publish → copy the ICS link.
+     6. Worker → Settings → Variables → Secrets → add  ICS_URL  = that link.
+        Deploy. In the app: Blueprint → Day → ↻ Pull feed.
+
    The secret is sent in the X-Sync-Secret header. Anyone without it gets 401.
    CORS is open (*) so the Pages site (a different origin) can call it.
    ===================================================================== */
@@ -37,11 +44,27 @@ export default {
     if (!env.SYNC_SECRET || provided !== env.SYNC_SECRET) {
       return new Response('Unauthorized', { status: 401, headers: CORS });
     }
+    const url = new URL(request.url);
+
+    // Optional Outlook feed — GET ?feed=outlook returns the calendar published
+    // at the ICS_URL Worker secret. Read-only: this Worker only ever GETs it.
+    // The URL itself is a capability (anyone holding it can read the calendar),
+    // so it lives as a Worker secret — never in the app, this repo, or the db.
+    if (url.searchParams.get('feed') === 'outlook') {
+      if (request.method !== 'GET') return new Response('Method Not Allowed', { status: 405, headers: CORS });
+      if (!env.ICS_URL) return new Response('ICS_URL is not set on this Worker', { status: 404, headers: CORS });
+      const src = env.ICS_URL.trim().replace(/^webcal:/i, 'https:');
+      let r;
+      try { r = await fetch(src, { headers: { 'Accept': 'text/calendar' }, cf: { cacheTtl: 300 } }); }
+      catch (e) { return new Response('Could not reach the calendar', { status: 502, headers: CORS }); }
+      if (!r.ok) return new Response('Calendar returned ' + r.status, { status: 502, headers: CORS });
+      return new Response(await r.text(), { status: 200, headers: { ...CORS, 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
+
     if (!env.CHIARO_KV) {
       return new Response('KV namespace CHIARO_KV is not bound', { status: 500, headers: CORS });
     }
 
-    const url = new URL(request.url);
     const journal = (url.searchParams.get('journal') || 'default').slice(0, 128);
     const kvKey = 'journal:' + journal;
 

@@ -614,6 +614,58 @@
       could perform itself is a bug report in prose.** Worth grepping the
       guide text of anything for that pattern.
 
+* **[2026-10-20] v0.10.0 — the day's map: Blueprint grows a Day view (Chad).**
+  Ask: "a daily time block calendar … similar to how Outlook looks, but a
+  scratchpad version to make my plan without scheduling events in our Outlook
+  database," and better still, view-only import of his real work meetings.
+    * *Placement:* a **Week / Day toggle inside Blueprint**, not a new tab. It
+      is the same room at a closer zoom (the week's three per day → one
+      day's hours), and tapping a day's name on the board opens its map.
+      Rooms stay five.
+    * *Interaction:* Outlook-shaped. Drag across empty hours to sketch, drag
+      to move, bottom-edge to stretch, click to rename, ✕ to remove; 15-min
+      snap; overlaps sit side by side; now-line on today. `place →` drops one
+      of the day's Blueprint three into the first open hour. A deliberate
+      bridge between the two zoom levels of the *same* room. It does **not**
+      touch Opening intentions, which stay separate as ratified 2026-07-22.
+    * *Schema:* `db.blocks[date] = [{id,s,e,text}]`, minutes after midnight.
+      Syncs and exports like the rest of the plan. **Lockstep debt:** mobile
+      needs the one-line default; its normalizer preserves unknown keys, so
+      nothing is lost in the meantime (verified on desktop against a
+      legacy-shaped db with a canary key).
+    * *Outlook, view-only, and the line that matters:* events are a
+      **device-local mirror (`ctt_cal_v1`) outside `db`**. They never sync to
+      KV, never appear in exports or backups, and nothing is written back.
+      It's the employer's data: it stays on the device that fetched it, gone
+      with *Forget*. Encrypted journals keep it in memory only.
+    * *Two doors in:* (1) **Import .ics**, from classic Outlook's File → Save
+      Calendar; zero infrastructure. (2) **↻ Pull feed**, a new optional
+      `?feed=outlook` GET route on the sync Worker that fetches a published
+      ICS link stored as the `ICS_URL` **Worker secret**. A browser can't read
+      Outlook's ICS directly (no CORS), and the link is a capability URL, so
+      it belongs with SYNC_SECRET, never in the app or repo. Inert until Chad
+      redeploys the Worker and adds the secret. **Policy flag recorded:**
+      publishing a work calendar may be off or prohibited at the firm; check
+      before using door 2.
+    * *Microsoft Graph OAuth considered and declined:* app registration plus
+      likely tenant admin consent for Calendars.Read is a wall a personal
+      tool shouldn't have to climb, and the ICS paths deliver the same
+      read-only picture.
+    * *ICS reader, hand-rolled (~120 lines, no library):* RFC 5545 unfolding,
+      quoted TZIDs, Windows zone names → IANA, DST-correct wall-time
+      conversion via `Intl`, RRULE DAILY/WEEKLY/MONTHLY/YEARLY with INTERVAL,
+      COUNT, UNTIL, BYDAY ordinals, BYMONTHDAY, BYMONTH, BYSETPOS, WKST, plus
+      EXDATE, RECURRENCE-ID overrides, cancellations, nested VALARMs skipped,
+      cross-midnight splitting. Stored copy is pre-expanded to a window (45
+      days back, 150 ahead) to stay small inside the origin's shared ~5 MB.
+    * *Verified:* parser unit run in Pacific time against an Outlook-shaped
+      fixture (exception skipped, moved instance replaces its original, 3rd
+      Wednesday right Oct/Nov/Dec, Eastern invite lands 3 h earlier, UTC
+      converts, DST boundary holds, COUNT exact, alarm text never leaks);
+      CDP suite 30/30 with real mouse drags and a real file-input upload;
+      the actual Worker code hosted under Node: 401 without the secret, 405
+      on non-GET, and the in-app button pulls and draws the feed.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
