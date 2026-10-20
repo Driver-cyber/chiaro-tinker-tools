@@ -266,6 +266,51 @@ body.cream #openArt{filter:none}
 .wb-note-btn{width:100%;margin-top:7px;font-size:11px;color:var(--muted);padding:5px 8px}
 .wb-note-btn .wb-note-dot{color:var(--accent);font-weight:800}
 .wb-note{width:100%;margin-top:7px;min-height:96px;font-size:12.5px;line-height:1.5;resize:vertical}
+.wb-day h4 .wb-map{cursor:pointer;border-radius:4px;padding:0 2px;margin:0 -2px}
+.wb-day h4 .wb-map:hover{color:var(--accent);background:rgba(242,162,74,.10)}
+/* Blueprint · Day map — time grid. Your blocks are lit; Outlook's fixed points are shadows. */
+.bp-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.bp-seg button{background:transparent;color:var(--muted);border:none;border-radius:0;padding:5px 12px;font-size:12px;font-weight:600}
+.bp-seg button+button{border-left:1px solid var(--border)}
+.bp-seg button.on{background:rgba(242,162,74,.14);color:var(--accent)}
+.dm-wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;padding-top:6px}
+@media (max-width:980px){ .dm-wrap{grid-template-columns:1fr} }
+.dm-allday{display:flex;flex-wrap:wrap;gap:5px;padding-left:56px;margin-bottom:6px}
+.dm-allday:empty{display:none}
+.dm-chip{font-size:11.5px;padding:3px 8px;border-radius:6px;border:1px dashed var(--border);color:var(--muted)}
+.dm-grid{position:relative;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.dm-hour{position:absolute;left:56px;right:0;border-top:1px solid var(--border)}
+.dm-half{position:absolute;left:56px;right:0;border-top:1px dashed var(--border);opacity:.45}
+.dm-hlabel{position:absolute;left:0;width:48px;text-align:right;font-size:11px;color:var(--muted);transform:translateY(-7px)}
+.dm-col{position:absolute;left:58px;right:2px;top:0;bottom:0;cursor:crosshair}
+.dm-item{position:absolute;box-sizing:border-box;border-radius:7px;padding:3px 7px 6px;overflow:hidden;font-size:12.5px;line-height:1.3;min-height:16px}
+.dm-item .dm-time{display:block;font-size:10.5px;opacity:.75;white-space:nowrap}
+.dm-item .dm-title{display:block;white-space:pre-wrap;word-break:break-word;padding-right:14px}
+.dm-item.short{display:flex;gap:6px;align-items:baseline;padding-top:1px;padding-bottom:1px}
+.dm-item.short .dm-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-item.cal{background:rgba(156,138,110,.13);border:1px dashed rgba(156,138,110,.55);color:var(--muted);z-index:1;pointer-events:auto;cursor:default}
+.dm-item.cal .dm-title::before{content:'🗓 ';opacity:.7}
+.dm-item.blk{background:color-mix(in srgb,var(--accent) 17%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-left:3px solid var(--accent);color:var(--text);z-index:2;cursor:grab;touch-action:none}
+.dm-item.blk.dragging{cursor:grabbing;opacity:.9;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:5}
+.dm-item.blk .dm-untitled{opacity:.55;font-style:italic}
+.dm-item.ghost{background:rgba(242,162,74,.12);border:1px dashed var(--accent);z-index:4;pointer-events:none;color:var(--accent)}
+.dm-x{position:absolute;top:2px;right:3px;border:none;background:transparent;color:inherit;opacity:0;font-size:12px;padding:0 4px;cursor:pointer;line-height:1.4}
+.dm-item.blk:hover .dm-x,.dm-item.blk:focus-within .dm-x{opacity:.65}
+.dm-x:hover{opacity:1!important}
+.dm-grip{position:absolute;left:0;right:0;bottom:0;height:7px;cursor:ns-resize;touch-action:none}
+.dm-item.blk input{width:100%;font:inherit;background:transparent;border:none;border-bottom:1px solid var(--accent);color:inherit;padding:0;border-radius:0}
+.dm-item.blk input:focus{outline:none}
+.dm-now{position:absolute;left:56px;right:0;height:0;border-top:2px solid var(--accent);z-index:6;pointer-events:none}
+.dm-now::before{content:'';position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.dm-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.dm-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.dm-card h4{margin:0 0 8px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.dm-three-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
+.dm-three-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-three-row.done span{text-decoration:line-through;opacity:.55}
+.dm-cal-stat{font-size:12.5px;margin-bottom:8px}
+.dm-cal-btns{display:flex;flex-wrap:wrap;gap:6px}
+.dm-cal-note{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.45}
 /* Carry-forward ritual */
 .carry-sec{margin:14px 0 2px;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .carry-row{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:1px solid var(--border)}
@@ -402,7 +447,7 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.9.3</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.10.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -728,18 +773,48 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 <div class="wrap">
   <div class="toolbar">
     <div class="datectrl">
-      <button class="ghost small" onclick="weekShift(-7)">◀</button>
+      <button class="ghost small" onclick="bpShift(-1)">◀</button>
       <span class="dow" id="weekLabel"></span>
-      <button class="ghost small" onclick="weekShift(7)">▶</button>
-      <button class="ghost small" onclick="weekToday()">This week</button>
+      <button class="ghost small" onclick="bpShift(1)">▶</button>
+      <button class="ghost small" id="bpTodayBtn" onclick="bpToday()">This week</button>
+    </div>
+    <div class="bp-seg" role="group" aria-label="Blueprint view">
+      <button type="button" data-v="week" class="on" onclick="setBpMode('week')">Week</button>
+      <button type="button" data-v="day" onclick="setBpMode('day')">Day</button>
     </div>
     <span class="spacer"></span>
-    <button class="ghost small" onclick="copyWeekPlan()">Copy Week Plan</button>
+    <button class="ghost small" id="bpCopyBtn" onclick="bpMode==='day'?copyDayMap():copyWeekPlan()">Copy Week Plan</button>
   </div>
-  <div class="panel">
+  <div class="panel" id="bpWeekPanel">
     <h3><span>The week's skeleton — three per day</span><span class="muted" id="weekProgress"></span></h3>
     <div class="body"><div class="week-board" id="weekBoard"></div></div>
-    <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral.</div>
+    <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral. Tap a day's name to map its hours.</div>
+  </div>
+  <div class="panel hidden" id="bpDayPanel">
+    <h3><span>The day's map — a scratchpad, not a schedule</span><span class="muted" id="dayMapStat"></span></h3>
+    <div class="body">
+      <div class="dm-wrap">
+        <div class="dm-scroll"><div class="dm-allday" id="dmAllDay"></div><div class="dm-grid" id="dmGrid"></div></div>
+        <aside class="dm-side">
+          <div class="dm-card">
+            <h4>The day's three</h4>
+            <div id="dmThree"></div>
+          </div>
+          <div class="dm-card">
+            <h4>Outlook <span class="muted">· view-only</span></h4>
+            <div class="dm-cal-stat" id="dmCalStat"></div>
+            <div class="dm-cal-btns">
+              <button type="button" class="ghost small" onclick="document.getElementById('icsFile').click()">Import .ics</button>
+              <button type="button" class="ghost small" id="dmFeedBtn" onclick="pullCalFeed()">↻ Pull feed</button>
+              <button type="button" class="ghost small hidden" id="dmForgetBtn" onclick="forgetCal()">Forget</button>
+            </div>
+            <input type="file" id="icsFile" accept=".ics,text/calendar" class="hidden" onchange="importIcsFile(this)">
+            <div class="dm-cal-note">Your Outlook events show here as shadows to plan around. They stay on this device only: never synced, never exported. Nothing is ever written back to Outlook.</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div class="hint">Drag across empty hours to sketch a block. Drag a block to move it, drag its bottom edge to stretch it, click it to rename. Double-click an empty hour for a one-hour block. None of this reaches Outlook. It's a napkin for the day, not an invitation.</div>
   </div>
 </div>
 </div>
@@ -970,7 +1045,7 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
   <details class="sync-row" open>
     <summary style="cursor:pointer;font-weight:600;font-size:14px">About this app</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day, plus a hidden ✎ notes drawer under each day for brain-dumps that shouldn't crowd the three), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
+      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day, plus a hidden ✎ notes drawer under each day for brain-dumps that shouldn't crowd the three, and a Day view that maps a single day's hours under your Outlook meetings), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
       Everything saves automatically — the dot in the top-right reads <strong>Saved</strong> after each change. Nothing leaves your machine unless you turn on cloud sync. Because it's a single file, it's portable and hard to break: if a build ever misbehaves, an earlier version still opens your data.
     </div>
   </details>
@@ -1023,7 +1098,9 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
   <details class="sync-row">
     <summary style="cursor:pointer;font-weight:600;font-size:14px">Blueprint</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      A seven-day board with three slots per day — sketch the week's skeleton (Sunday works well), check things off as they land, and come back to re-ground when the day goes sideways. Today's three also show on the Time Card. It's a compass, not a task manager: three per day is the whole point.
+      A seven-day board with three slots per day — sketch the week's skeleton (Sunday works well), check things off as they land, and come back to re-ground when the day goes sideways. Today's three also show on the Time Card. It's a compass, not a task manager: three per day is the whole point.<br><br>
+      <strong>Day</strong> (or tap a day's name on the board) opens <strong>the day's map</strong>: an hour grid for sketching where the time goes. Drag across empty hours to make a block, drag it to move, drag its bottom edge to stretch, click to rename, ✕ to remove; <em>place →</em> drops one of the day's three into the first open hour. It's a napkin, not a calendar: nothing here ever reaches Outlook.<br><br>
+      <strong>Outlook, view-only:</strong> <em>Import .ics</em> (classic Outlook → File → Save Calendar) or <em>↻ Pull feed</em> (a published calendar link stored as a secret on your sync Worker; see <code>sync/SYNC-SETUP.md</code>) lays your real meetings underneath as dim shadows to plan around. That copy stays on the device that fetched it: never synced, never exported, gone with <em>Forget</em>.
     </div>
   </details>
 
@@ -1143,7 +1220,10 @@ table.scratch td input.sc-err{color:var(--danger);text-align:center;}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.9.3 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.10.0 — forked from PJT 3.3.0. Single-file HTML.
+   v0.10.0: Blueprint grows a Day view — the day's map, an hour grid for sketching
+            blocks (db.blocks) under view-only Outlook events read from an .ics
+            file or the sync Worker's optional ?feed=outlook (device-local only).
    v0.9.3: import takes a one-step undo snapshot before overwriting anything
    (both modes — merge clobbers same-date days too). Carried back from PJT's
    pre-release audit; worse here because this surface has no file backup and
@@ -1269,6 +1349,7 @@ function mergeDefaults(p){
   p.timecard=Object.assign({days:{},currentDate:null}, p.timecard||{});
   p.intentions=p.intentions||{};   // Opening tab: per-date session intentions [{text,from,to,done}]
   p.closing=p.closing||{};         // Closing tab: per-date {enough:bool} — never read after its day
+  p.blocks=p.blocks||{};           // Blueprint day map: per-date [{id,s,e,text}], s/e = minutes after midnight — SCHEMA LOCKSTEP: mobile must carry this default too (its normalizer preserves unknown keys meanwhile)
   p.scratch=Object.assign({cells:{}}, p.scratch||{});   // Scratch sheet (pocket tool): raw strings keyed "A1".."H25" — SCHEMA LOCKSTEP: this default exists in both sibling repos
   p.prompts=Object.assign({open:[
     "What is this session for?",
@@ -2728,6 +2809,15 @@ function weekDates(){
   return Array.from({length:7},(_,i)=>{ const x=new Date(dt); x.setDate(dt.getDate()+i); return iso(x); });
 }
 function renderBlueprint(){
+  const day=bpMode==='day';
+  document.querySelectorAll('.bp-seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===bpMode));
+  document.getElementById('bpWeekPanel').classList.toggle('hidden',day);
+  document.getElementById('bpDayPanel').classList.toggle('hidden',!day);
+  document.getElementById('bpTodayBtn').textContent=day?'Today':'This week';
+  document.getElementById('bpCopyBtn').textContent=day?'Copy Day Map':'Copy Week Plan';
+  if(day) renderDayMap(); else renderWeekBoard();
+}
+function renderWeekBoard(){
   const days=weekDates(); const today=todayStr();
   document.getElementById('weekLabel').textContent='Week of '+dowName(days[0]);
   const board=document.getElementById('weekBoard'); board.innerHTML='';
@@ -2737,6 +2827,7 @@ function renderBlueprint(){
     const col=document.createElement('div'); col.className='wb-day'+(ds===today?' today':'');
     const h=document.createElement('h4');
     const wd=document.createElement('span'); wd.textContent=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short'});
+    wd.className='wb-map'; wd.title='Map this day\u2019s hours'; wd.onclick=()=>openDayMap(ds);
     const md=document.createElement('span'); md.textContent=m+'/'+d;
     h.append(wd,md); col.appendChild(h);
     let n=3; if(day&&Array.isArray(day.win)) day.win.forEach((w,i)=>{ if(w&&(w.text||'').trim()&&i>=n) n=i+1; });   // legacy days may hold >3
@@ -2787,6 +2878,351 @@ function copyWeekPlan(){ const plain=[],html=[];
     plain.push(''); html.push(''); });
   if(!plain.length){ plain.push('(empty week)'); html.push('(empty week)'); }
   showCopy('Week Plan', plain.join('\n'), html.join('\n')); }
+/* ---- Blueprint · Day map — the hours, sketched ----
+   A scratchpad time grid. Your blocks live in db.blocks[date] = [{id,s,e,text}]
+   (minutes after midnight) and sync like everything else. Outlook events are
+   view-only shadows read from an .ics (a file, or the sync Worker's feed) and
+   kept in a device-local slot OUTSIDE db: never synced, never exported, never
+   written back. Work-calendar data stays on the device that pulled it. */
+let bpMode='week';      // 'week' | 'day' — view state, not persisted
+let dayAnchor=null;     // ISO date shown in the day map; null = today
+const DM_PPM=0.8;       // pixels per minute (48px an hour)
+const DM_SNAP=15;       // minutes
+let dmR0=360, dmR1=1260;   // visible range for the current render (minutes)
+function dmDate(){ return dayAnchor||todayStr(); }
+function setBpMode(m){ bpMode=m; renderBlueprint(); }
+function openDayMap(ds){ dayAnchor=ds; bpMode='day'; renderBlueprint(); }
+function bpShift(n){ if(bpMode!=='day') return weekShift(7*n);
+  const [y,m,d]=dmDate().split('-').map(Number); dayAnchor=iso(new Date(y,m-1,d+n)); renderBlueprint(); }
+function bpToday(){ if(bpMode!=='day') return weekToday(); dayAnchor=null; renderBlueprint(); }
+function dmBlocks(ds,create){ if(!Array.isArray(db.blocks[ds])){ if(!create) return []; db.blocks[ds]=[]; } return db.blocks[ds]; }
+function fmtMin(m){ m=Math.round(m); const h=Math.floor(m/60)%24, mm=m%60;
+  return ((h%12)||12)+(mm?':'+String(mm).padStart(2,'0'):'')+(h<12?' AM':' PM'); }
+function fmtSpan(m){ const h=Math.floor(m/60), r=m%60; return (h?h+'h':'')+(r?(h?' ':'')+r+'m':'')||'0m'; }
+const dmSnap=m=>Math.round(m/DM_SNAP)*DM_SNAP;
+const dmClamp=m=>Math.max(dmR0,Math.min(dmR1,m));
+function dmYToMin(col,clientY){ return dmR0+(clientY-col.getBoundingClientRect().top)/DM_PPM; }
+function dmRange(items){ let a=6*60, b=21*60;
+  items.forEach(it=>{ a=Math.min(a,it.s); b=Math.max(b,it.e); });
+  return [Math.floor(a/60)*60, Math.min(1440,Math.ceil(b/60)*60)]; }
+// Side-by-side lanes for overlaps, Outlook-style: each cluster of mutually
+// overlapping items splits the column evenly.
+function dmLayout(items){
+  items.sort((x,y)=>x.s-y.s||(y.e-y.s)-(x.e-x.s));
+  let cluster=[], clusterEnd=-1, lanes=[];
+  const flush=()=>{ cluster.forEach(it=>it.lanes=lanes.length); cluster=[]; lanes=[]; };
+  items.forEach(it=>{ const end=Math.max(it.e,it.s+20);   // a short item still occupies its drawn height
+    if(cluster.length && it.s>=clusterEnd) flush();
+    let li=lanes.findIndex(x=>x<=it.s); if(li<0){ li=lanes.length; lanes.push(end); } else lanes[li]=end;
+    it.lane=li; cluster.push(it); clusterEnd=Math.max(clusterEnd,end); });
+  if(cluster.length) flush(); return items; }
+function dmPlace(el,it){
+  el.style.top=((it.s-dmR0)*DM_PPM)+'px'; el.style.height=Math.max(16,(it.e-it.s)*DM_PPM-2)+'px';
+  const w=100/(it.lanes||1); el.style.left='calc('+(w*(it.lane||0))+'% + 1px)'; el.style.width='calc('+w+'% - 3px)';
+  el.classList.toggle('short',(it.e-it.s)<45); }
+function dmFillTitle(span,b){ if((b.text||'').trim()) span.textContent=b.text;
+  else span.innerHTML='<span class="dm-untitled">untitled block</span>'; }
+function dmBlurEditing(){ const a=document.activeElement; if(a&&a.closest&&a.closest('#dmGrid')) a.blur(); }
+function renderDayMap(){
+  const ds=dmDate(), today=todayStr();
+  document.getElementById('weekLabel').textContent=dowName(ds)+(ds===today?' · today':'');
+  const cal=calForDate(ds);
+  const ad=document.getElementById('dmAllDay'); ad.innerHTML='';
+  cal.filter(e=>e.allDay).forEach(e=>{ const c=document.createElement('span'); c.className='dm-chip';
+    c.textContent='🗓 '+(e.title||'(busy)'); c.title='All day · from Outlook, view only'; ad.appendChild(c); });
+  const items=[...cal.filter(e=>!e.allDay).map(e=>({kind:'cal',s:e.s,e:e.e,ev:e})),
+               ...dmBlocks(ds,false).map(b=>({kind:'blk',s:b.s,e:b.e,b:b}))];
+  [dmR0,dmR1]=dmRange(items);
+  const grid=document.getElementById('dmGrid'); grid.innerHTML=''; grid.style.height=((dmR1-dmR0)*DM_PPM)+'px';
+  for(let m=dmR0;m<=dmR1;m+=30){ const y=(m-dmR0)*DM_PPM;
+    const ln=document.createElement('div'); ln.className=m%60?'dm-half':'dm-hour'; ln.style.top=y+'px'; grid.appendChild(ln);
+    if(!(m%60)&&m<dmR1){ const lb=document.createElement('div'); lb.className='dm-hlabel'; lb.style.top=y+'px'; lb.textContent=fmtMin(m); grid.appendChild(lb); } }
+  const col=document.createElement('div'); col.className='dm-col'; grid.appendChild(col);
+  dmLayout(items).forEach(it=>col.appendChild(dmItemEl(it,ds)));
+  if(ds===today){ const n=new Date(), nm=n.getHours()*60+n.getMinutes();
+    if(nm>=dmR0&&nm<=dmR1){ const nl=document.createElement('div'); nl.className='dm-now'; nl.style.top=((nm-dmR0)*DM_PPM)+'px'; grid.appendChild(nl); } }
+  wireDayCol(col,ds);
+  renderDmThree(ds); renderCalStat(); updateDayStat(ds);
+}
+function dmItemEl(it,ds){
+  const el=document.createElement('div'); el.className='dm-item '+it.kind;
+  const ti=document.createElement('span'); ti.className='dm-title';
+  const tm=document.createElement('span'); tm.className='dm-time';
+  if(it.kind==='cal'){ ti.textContent=it.ev.title||'(busy)';
+    tm.textContent=fmtMin(it.s)+' – '+fmtMin(it.e)+(it.ev.loc?' · '+it.ev.loc:'');
+    el.title=(it.ev.title||'(busy)')+'\n'+tm.textContent+'\nFrom Outlook · view only';
+    el.append(ti,tm); }
+  else { const b=it.b; el.dataset.id=b.id; dmFillTitle(ti,b); tm.textContent=fmtMin(b.s)+' – '+fmtMin(b.e);
+    const x=document.createElement('button'); x.type='button'; x.className='dm-x'; x.textContent='✕';
+    x.title='Remove block'; x.setAttribute('aria-label','Remove block');
+    x.addEventListener('pointerdown',e=>e.stopPropagation());
+    x.onclick=e=>{ e.stopPropagation(); removeBlock(ds,b.id); };
+    const g=document.createElement('div'); g.className='dm-grip'; g.title='Drag to stretch';
+    el.append(ti,tm,x,g); wireBlock(el,b,ds); }
+  dmPlace(el,it); return el; }
+// Empty hours: drag to sketch a block (mouse/pen; touch keeps scrolling), double-click for an hour.
+function wireDayCol(col,ds){
+  col.addEventListener('pointerdown',e=>{
+    if(e.target!==col||e.button!==0||e.pointerType==='touch') return;
+    dmBlurEditing(); e.preventDefault();
+    const y0=e.clientY, m0=dmClamp(Math.floor(dmYToMin(col,y0)/DM_SNAP)*DM_SNAP); let ghost=null;
+    const mv=ev=>{ if(!ghost&&Math.abs(ev.clientY-y0)<5) return;
+      const m1=dmClamp(dmSnap(dmYToMin(col,ev.clientY)));
+      let s=Math.min(m0,m1), en=Math.max(m0,m1); if(en-s<DM_SNAP) en=Math.min(dmR1,s+DM_SNAP);
+      if(!ghost){ ghost=document.createElement('div'); ghost.className='dm-item ghost'; col.appendChild(ghost); }
+      ghost._s=s; ghost._e=en; dmPlace(ghost,{s:s,e:en});
+      ghost.innerHTML='<span class="dm-time">'+fmtMin(s)+' – '+fmtMin(en)+'</span>'; };
+    const up=()=>{ col.removeEventListener('pointermove',mv); col.removeEventListener('pointerup',up); col.removeEventListener('pointercancel',up);
+      if(ghost){ const s=ghost._s, en=ghost._e; ghost.remove(); if(en>s) addBlock(ds,s,en); } };
+    try{ col.setPointerCapture(e.pointerId); }catch(_){}
+    col.addEventListener('pointermove',mv); col.addEventListener('pointerup',up); col.addEventListener('pointercancel',up);
+  });
+  col.addEventListener('dblclick',e=>{ if(e.target!==col) return;
+    const s=dmClamp(Math.floor(dmYToMin(col,e.clientY)/30)*30); addBlock(ds,s,Math.min(1440,s+60)); });
+}
+// A block: drag to move, drag the bottom edge to stretch, click (no drag) to rename.
+function wireBlock(el,b,ds){
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0||e.target.tagName==='INPUT') return;
+    dmBlurEditing(); e.stopPropagation(); e.preventDefault();
+    const resize=e.target.classList.contains('dm-grip');
+    const y0=e.clientY, s0=b.s, e0=b.e; let moved=false;
+    const mv=ev=>{ const dy=ev.clientY-y0; if(!moved&&Math.abs(dy)<4) return;
+      moved=true; el.classList.add('dragging'); const dm=dmSnap(dy/DM_PPM);
+      if(resize) b.e=Math.max(b.s+DM_SNAP,Math.min(dmR1,e0+dm));
+      else { const len=e0-s0, ns=Math.max(dmR0,Math.min(dmR1-len,s0+dm)); b.s=ns; b.e=ns+len; }
+      dmPlace(el,{s:b.s,e:b.e}); el.querySelector('.dm-time').textContent=fmtMin(b.s)+' – '+fmtMin(b.e); };
+    const up=()=>{ el.removeEventListener('pointermove',mv); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up);
+      if(moved){ save(); renderDayMap(); } else if(!resize) editBlock(ds,b.id); };
+    try{ el.setPointerCapture(e.pointerId); }catch(_){}
+    el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  });
+}
+function addBlock(ds,s,e){ const b={id:uid(),s:s,e:e,text:''}; dmBlocks(ds,true).push(b); save(); renderDayMap(); editBlock(ds,b.id); }
+function removeBlock(ds,id){ const a=dmBlocks(ds,false), i=a.findIndex(b=>b.id===id); if(i<0) return;
+  a.splice(i,1); if(!a.length) delete db.blocks[ds]; save(); renderDayMap(); }
+// Rename in place — no re-render on commit, so a drag that started the blur
+// keeps hold of its element.
+function editBlock(ds,id){
+  const el=document.querySelector('#dmGrid .dm-item.blk[data-id="'+id+'"]'), b=dmBlocks(ds,false).find(x=>x.id===id);
+  if(!el||!b) return;
+  const ti=el.querySelector('.dm-title'); if(!ti) return;
+  const inp=document.createElement('input'); inp.type='text'; inp.value=b.text||''; inp.placeholder='What goes here?'; inp.maxLength=200;
+  ti.replaceWith(inp);
+  let done=false; const commit=keep=>{ if(done) return; done=true;
+    if(keep){ const v=inp.value.trim()?inp.value:''; if(b.text!==v){ b.text=v; save(); renderDmThree(ds); } }
+    const sp=document.createElement('span'); sp.className='dm-title'; dmFillTitle(sp,b); inp.replaceWith(sp); };
+  inp.addEventListener('pointerdown',e=>e.stopPropagation());
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); }
+    else if(e.key==='Escape'){ e.preventDefault(); commit(false); } });
+  inp.addEventListener('blur',()=>commit(true));
+  inp.focus(); inp.select(); }
+function renderDmThree(ds){ const box=document.getElementById('dmThree'); box.innerHTML='';
+  const day=db.timecard.days[ds]; const items=((day&&day.win)||[]).filter(w=>w&&(w.text||'').trim());
+  if(!items.length){ box.innerHTML='<div class="muted" style="font-size:12.5px">Nothing on the board for this day.</div>'; return; }
+  const placed=new Set(dmBlocks(ds,false).map(b=>(b.text||'').trim()));
+  items.forEach(w=>{ const r=document.createElement('div'); r.className='dm-three-row'+(w.done?' done':'');
+    const t=document.createElement('span'); t.textContent=w.text; t.title=w.text;
+    const btn=document.createElement('button'); btn.type='button'; btn.className='ghost small';
+    if(placed.has(w.text.trim())){ btn.textContent='placed'; btn.disabled=true; }
+    else { btn.textContent='place →'; btn.title='Drop an hour for this onto the first open slot'; btn.onclick=()=>placeThree(ds,w.text.trim()); }
+    r.append(t,btn); box.appendChild(r); }); }
+// First open hour from 9 AM (or from now, on today), around blocks and Outlook events.
+function placeThree(ds,text){
+  const busy=[...dmBlocks(ds,false),...calForDate(ds).filter(e=>!e.allDay)];
+  const n=new Date(); let s=9*60;
+  if(ds===todayStr()) s=Math.max(s,Math.ceil((n.getHours()*60+n.getMinutes())/30)*30);
+  while(s+60<=1440&&busy.some(x=>x.s<s+60&&x.e>s)) s+=30;
+  if(s+60>1440) s=9*60;
+  dmBlocks(ds,true).push({id:uid(),s:s,e:s+60,text:text}); save(); renderDayMap(); flash('Placed at '+fmtMin(s)); }
+function updateDayStat(ds){ const bl=dmBlocks(ds,false), mins=bl.reduce((a,b)=>a+(b.e-b.s),0);
+  const cal=calForDate(ds).filter(e=>!e.allDay).length; const parts=[];
+  if(bl.length) parts.push(bl.length+' block'+(bl.length>1?'s':'')+' · '+fmtSpan(mins)+' sketched');
+  if(cal) parts.push(cal+' on Outlook');
+  document.getElementById('dayMapStat').textContent=parts.join(' · '); }
+function copyDayMap(){ const ds=dmDate(), cal=calForDate(ds);
+  const rows=[...dmBlocks(ds,false).map(b=>({s:b.s,e:b.e,t:(b.text||'').trim()||'(untitled)',cal:false})),
+              ...cal.filter(e=>!e.allDay).map(e=>({s:e.s,e:e.e,t:e.title||'(busy)',cal:true}))].sort((a,b)=>a.s-b.s);
+  const head=dowName(ds), plain=[head], html=['<b>'+escapeHtml(head)+'</b>'];
+  const line=l=>{ plain.push(l); html.push(escapeHtml(l)); };
+  cal.filter(e=>e.allDay).forEach(e=>line('  All day  '+(e.title||'(busy)')+'  (Outlook)'));
+  rows.forEach(r=>line('  '+fmtMin(r.s)+' – '+fmtMin(r.e)+'  '+r.t+(r.cal?'  (Outlook)':'')));
+  if(plain.length===1) line('  (nothing mapped)');
+  showCopy('Day Map', plain.join('\n'), html.join('\n')); }
+
+/* ---- Outlook mirror — device-local, view-only ---- */
+const CAL_KEY='ctt_cal_v1';   // {at, src:'file'|'feed', name, events:[{d,s,e,allDay,title,loc}]} — outside db
+let calStore=null;
+function calLoad(){ if(calStore) return calStore; try{ calStore=JSON.parse(localStorage.getItem(CAL_KEY)||'null'); }catch(e){ calStore=null; } return calStore; }
+function calSave(){
+  // An encrypted journal must not sit beside a plaintext calendar: memory only, re-pull per session.
+  if(encState.enabled){ try{ localStorage.removeItem(CAL_KEY); }catch(e){} return; }
+  try{ localStorage.setItem(CAL_KEY, JSON.stringify(calStore)); }
+  catch(e){ flash('Outlook copy too big to keep — held for this session only'); } }
+function calForDate(ds){ const c=calLoad(); return (c&&Array.isArray(c.events))? c.events.filter(e=>e.d===ds) : []; }
+function renderCalStat(){ const c=calLoad(), cfg=kvCfg(), st=document.getElementById('dmCalStat');
+  document.getElementById('dmFeedBtn').classList.toggle('hidden',!cfg.url);
+  document.getElementById('dmForgetBtn').classList.toggle('hidden',!c);
+  if(!c){ st.innerHTML='<span class="muted">Nothing imported yet.</span>'; return; }
+  st.textContent=c.events.length+' events held · '+(c.src==='feed'?'pulled ':'imported ')+
+    new Date(c.at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+function ingestIcs(text,src,name){
+  if(!/BEGIN:VCALENDAR/i.test(text)){ flash('That didn’t read as a calendar (.ics)'); return false; }
+  let evs; try{ evs=parseIcs(text); }catch(e){ console.error('ics',e); flash('Couldn’t read that calendar'); return false; }
+  calStore={at:Date.now(),src:src,name:name||'',events:evs}; calSave(); renderBlueprint();
+  flash(evs.length+' Outlook events held, view only'); return true; }
+function importIcsFile(inp){ const f=inp.files&&inp.files[0]; inp.value=''; if(!f) return;
+  const r=new FileReader(); r.onload=()=>ingestIcs(String(r.result||''),'file',f.name); r.readAsText(f); }
+async function pullCalFeed(){ const c=kvCfg(); if(!c.url){ flash('The feed rides your sync Worker — connect Cloud Sync first'); return; }
+  const btn=document.getElementById('dmFeedBtn'); btn.disabled=true; btn.textContent='↻ Pulling…';
+  try{
+    let r; try{ r=await fetch(c.url.replace(/\/+$/,'')+'?feed=outlook',{headers:{'X-Sync-Secret':c.secret}}); }
+    catch(e){ flash('Couldn’t reach the sync Worker'); return; }
+    const text=await r.text().catch(()=>'');
+    if(r.status===401) flash('The Worker refused the sync secret');
+    else if(r.status===404||r.status===405) flash('No feed on the Worker yet — see sync/SYNC-SETUP.md, “Outlook feed”');
+    else if(!r.ok) flash('Feed failed ('+r.status+')'+(text?': '+text.slice(0,80):''));
+    else ingestIcs(text,'feed','Outlook feed');
+  } finally { btn.disabled=false; btn.textContent='↻ Pull feed'; } }
+function forgetCal(){ calStore=null; try{ localStorage.removeItem(CAL_KEY); }catch(e){} renderBlueprint(); flash('Outlook copy forgotten'); }
+
+/* ---- ICS reader — just enough RFC 5545 for an Outlook calendar ----
+   Unfolds lines; reads VEVENTs (skipping nested VALARMs); converts TZID wall
+   times — IANA or Windows zone names — to this device's time; expands RRULE
+   (DAILY/WEEKLY/MONTHLY/YEARLY · INTERVAL, COUNT, UNTIL, BYDAY with ordinals,
+   BYMONTHDAY, BYMONTH, BYSETPOS, WKST); honors EXDATE, RECURRENCE-ID
+   overrides and cancellations. Emits per-day segments in a window around
+   today (45 days back, 150 ahead) so the stored copy stays small. */
+const ICS_DOWS=['SU','MO','TU','WE','TH','FR','SA'];
+const WIN_TZ={'Pacific Standard Time':'America/Los_Angeles','Mountain Standard Time':'America/Denver',
+  'US Mountain Standard Time':'America/Phoenix','Central Standard Time':'America/Chicago','Eastern Standard Time':'America/New_York',
+  'US Eastern Standard Time':'America/Indianapolis','Alaskan Standard Time':'America/Anchorage','Hawaiian Standard Time':'Pacific/Honolulu',
+  'Atlantic Standard Time':'America/Halifax','GMT Standard Time':'Europe/London','Greenwich Standard Time':'Atlantic/Reykjavik',
+  'W. Europe Standard Time':'Europe/Berlin','Romance Standard Time':'Europe/Paris','Central Europe Standard Time':'Europe/Budapest',
+  'India Standard Time':'Asia/Kolkata','China Standard Time':'Asia/Shanghai','Tokyo Standard Time':'Asia/Tokyo',
+  'AUS Eastern Standard Time':'Australia/Sydney','UTC':'UTC','Coordinated Universal Time':'UTC'};
+const TZ_HINTS=[[/pacific/i,'America/Los_Angeles'],[/arizona/i,'America/Phoenix'],[/mountain/i,'America/Denver'],
+  [/central time/i,'America/Chicago'],[/eastern/i,'America/New_York']];
+const _tzFmt={};
+function resolveZone(tzid){ if(!tzid) return null; tzid=tzid.replace(/^"|"$/g,'').trim();
+  let z=WIN_TZ[tzid]||tzid;
+  try{ new Intl.DateTimeFormat('en-US',{timeZone:z}); return z; }catch(e){}
+  for(const [re,iana] of TZ_HINTS) if(re.test(tzid)) return iana;
+  return null; }   // unknown zone → read as this device's wall time
+function tzOffsetMs(zone,ms){
+  const f=_tzFmt[zone]||(_tzFmt[zone]=new Intl.DateTimeFormat('en-US',{timeZone:zone,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}));
+  const p={}; f.formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value);
+  return Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute,+p.second)-Math.floor(ms/1000)*1000; }
+function wallToMs(w,zone){
+  if(!zone) return new Date(w.y,w.mo-1,w.d,w.h,w.mi,w.s).getTime();
+  const guess=Date.UTC(w.y,w.mo-1,w.d,w.h,w.mi,w.s); if(zone==='UTC') return guess;
+  const off=tzOffsetMs(zone,guess); let ms=guess-off; const off2=tzOffsetMs(zone,ms); if(off2!==off) ms=guess-off2; return ms; }
+function icsDT(v,params){ const m=/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec((v||'').trim()); if(!m) return null;
+  const dateOnly=!m[4];
+  return {w:{y:+m[1],mo:+m[2],d:+m[3],h:+(m[4]||0),mi:+(m[5]||0),s:+(m[6]||0)}, dateOnly:dateOnly,
+          zone:m[7]?'UTC':(dateOnly?null:resolveZone(params&&params.TZID))}; }
+const dtMs=dt=>wallToMs(dt.w,dt.zone);
+function icsText(p){ return p? p.val.replace(/\\n/gi,' ').replace(/\\([,;\\])/g,'$1').trim() : ''; }
+function icsDur(v){ const m=/^([+-])?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec((v||'').trim()); if(!m) return 0;
+  const ms=((+(m[2]||0)*7+ +(m[3]||0))*86400+ +(m[4]||0)*3600+ +(m[5]||0)*60+ +(m[6]||0))*1000; return m[1]==='-'?-ms:ms; }
+function icsRule(v){ const r={};
+  v.split(';').forEach(kv=>{ const i=kv.indexOf('='); if(i<1) return; const k=kv.slice(0,i).toUpperCase(), x=kv.slice(i+1);
+    if(k==='FREQ') r.FREQ=x.toUpperCase();
+    else if(k==='INTERVAL') r.INTERVAL=Math.max(1,parseInt(x,10)||1);
+    else if(k==='COUNT') r.COUNT=parseInt(x,10)||Infinity;
+    else if(k==='UNTIL') r.UNTIL=icsDT(x,{});
+    else if(k==='BYDAY') r.BYDAY=x.split(',').map(t=>{ const m=/^([+-]?\d+)?(SU|MO|TU|WE|TH|FR|SA)$/i.exec(t.trim());
+        return m?{n:m[1]?parseInt(m[1],10):0, dow:ICS_DOWS.indexOf(m[2].toUpperCase())}:null; }).filter(Boolean);
+    else if(k==='BYMONTHDAY') r.BYMONTHDAY=x.split(',').map(Number).filter(n=>n);
+    else if(k==='BYMONTH') r.BYMONTH=x.split(',').map(Number).filter(n=>n);
+    else if(k==='BYSETPOS') r.BYSETPOS=x.split(',').map(Number).filter(n=>n);
+    else if(k==='WKST') r.WKST=ICS_DOWS.indexOf(x.toUpperCase()); });
+  return r; }
+function icsColon(ln){ let q=false; for(let i=0;i<ln.length;i++){ const c=ln[i]; if(c==='"') q=!q; else if(c===':'&&!q) return i; } return -1; }
+function parseIcs(text){
+  const lines=text.replace(/\r\n?/g,'\n').replace(/\n[ \t]/g,'').split('\n');
+  const vevents=[]; let cur=null, depth=0;
+  for(const ln of lines){ const ci=icsColon(ln); if(ci<1) continue;
+    const parts=ln.slice(0,ci).split(';'), name=parts[0].toUpperCase(), val=ln.slice(ci+1), params={};
+    parts.slice(1).forEach(p=>{ const i=p.indexOf('='); if(i>0) params[p.slice(0,i).toUpperCase()]=p.slice(i+1); });
+    if(name==='BEGIN'){ if(cur) depth++; else if(val.trim().toUpperCase()==='VEVENT'){ cur={exdates:[]}; depth=0; } continue; }
+    if(name==='END'){ if(cur){ if(depth>0) depth--; else if(val.trim().toUpperCase()==='VEVENT'){ vevents.push(cur); cur=null; } } continue; }
+    if(!cur||depth>0) continue;
+    if(name==='EXDATE') val.split(',').forEach(x=>{ const d=icsDT(x,params); if(d) cur.exdates.push(d); });
+    else cur[name]={val:val,params:params};
+  }
+  const now=new Date(), DAY=86400000;
+  const winA=new Date(now.getFullYear(),now.getMonth(),now.getDate()-45).getTime();
+  const winB=new Date(now.getFullYear(),now.getMonth(),now.getDate()+150).getTime();
+  const overrides={}, singles=[], series=[];
+  vevents.forEach(v=>{ if(!v.DTSTART) return; const st=icsDT(v.DTSTART.val,v.DTSTART.params); if(!st) return;
+    const cancelled=v.STATUS&&v.STATUS.val.trim().toUpperCase()==='CANCELLED';
+    const ev={uid:v.UID?v.UID.val.trim():'', title:icsText(v.SUMMARY), loc:icsText(v.LOCATION), st:st};
+    const en=v.DTEND?icsDT(v.DTEND.val,v.DTEND.params):null;
+    if(st.dateOnly){ ev.days=en? Math.max(1,Math.round((Date.UTC(en.w.y,en.w.mo-1,en.w.d)-Date.UTC(st.w.y,st.w.mo-1,st.w.d))/DAY))
+                              : Math.max(1,Math.round(icsDur(v.DURATION&&v.DURATION.val)/DAY)||1); }
+    else ev.dur=Math.max(0, en? dtMs(en)-dtMs(st) : icsDur(v.DURATION&&v.DURATION.val));
+    if(v['RECURRENCE-ID']){ const rid=icsDT(v['RECURRENCE-ID'].val,v['RECURRENCE-ID'].params);
+      if(rid) (overrides[ev.uid]=overrides[ev.uid]||new Set()).add(dtMs(rid));
+      if(!cancelled) singles.push(ev); return; }
+    if(cancelled) return;
+    const rule=v.RRULE?icsRule(v.RRULE.val):null;
+    if(rule&&/^(DAILY|WEEKLY|MONTHLY|YEARLY)$/.test(rule.FREQ||'')){ ev.rule=rule; ev.ex=new Set(v.exdates.map(dtMs)); series.push(ev); }
+    else singles.push(ev); });
+  const out=[];
+  singles.forEach(ev=>icsEmit(out,ev,dtMs(ev.st),winA,winB));
+  series.forEach(ev=>{ const ov=overrides[ev.uid];
+    icsExpand(ev,winB,ms=>{ if(!ev.ex.has(ms)&&!(ov&&ov.has(ms))) icsEmit(out,ev,ms,winA,winB); }); });
+  return out.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.allDay?-1:b.allDay?1:a.s-b.s));
+}
+function icsExpand(ev,winB,cb){
+  const r=ev.rule, st=ev.st, w=st.w, ivl=r.INTERVAL||1, DAY=86400000;
+  const base=Date.UTC(w.y,w.mo-1,w.d), startDow=new Date(base).getUTCDay(), wkst=r.WKST>=0?r.WKST:1;
+  const wkStart=t=>t-((new Date(t).getUTCDay()-wkst+7)%7)*DAY;
+  let until=Infinity;
+  if(r.UNTIL){ const u=r.UNTIL; until=u.dateOnly? wallToMs(u.w,st.zone)+DAY-1 : wallToMs(u.w,u.zone||st.zone); }
+  const maxCount=r.COUNT||Infinity, byday=r.BYDAY&&r.BYDAY.length?r.BYDAY:null, months={};
+  const monthDays=(y,m)=>{ const key=y*12+m; if(months[key]) return months[key];
+    const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate(); let set=[];
+    if(r.BYMONTHDAY) r.BYMONTHDAY.forEach(n=>{ const d=n>0?n:dim+n+1; if(d>=1&&d<=dim) set.push(d); });
+    else if(byday) byday.forEach(b=>{ const ds=[]; for(let d=1;d<=dim;d++) if(new Date(Date.UTC(y,m,d)).getUTCDay()===b.dow) ds.push(d);
+        if(b.n){ const d=b.n>0?ds[b.n-1]:ds[ds.length+b.n]; if(d) set.push(d); } else set.push(...ds); });
+    else if(w.d<=dim) set.push(w.d);
+    set=[...new Set(set)].sort((a,b)=>a-b);
+    if(r.BYSETPOS){ const pick=[]; r.BYSETPOS.forEach(p=>{ const d=p>0?set[p-1]:set[set.length+p]; if(d) pick.push(d); });
+      set=[...new Set(pick)].sort((a,b)=>a-b); }
+    return months[key]=set; };
+  const match=t=>{ const dt=new Date(t), y=dt.getUTCFullYear(), m=dt.getUTCMonth(), d=dt.getUTCDate(), dow=dt.getUTCDay();
+    if(r.BYMONTH&&r.FREQ!=='YEARLY'&&!r.BYMONTH.includes(m+1)) return false;
+    switch(r.FREQ){
+      case 'DAILY': return !(Math.round((t-base)/DAY)%ivl) && (!byday||byday.some(b=>b.dow===dow));
+      case 'WEEKLY': return !(Math.round((wkStart(t)-wkStart(base))/(7*DAY))%ivl) && (byday?byday.some(b=>b.dow===dow):dow===startDow);
+      case 'MONTHLY': return !(((y-w.y)*12+m-(w.mo-1))%ivl) && monthDays(y,m).includes(d);
+      case 'YEARLY': if((y-w.y)%ivl||!(r.BYMONTH||[w.mo]).includes(m+1)) return false;
+        return (r.BYMONTHDAY||byday)? monthDays(y,m).includes(d) : d===w.d;
+    } return false; };
+  let count=0;
+  for(let t=base, guard=0; guard<366*40; t+=DAY, guard++){
+    if(!match(t)) continue;
+    const dt=new Date(t), ms=wallToMs({y:dt.getUTCFullYear(),mo:dt.getUTCMonth()+1,d:dt.getUTCDate(),h:w.h,mi:w.mi,s:w.s}, st.zone);
+    if(ms>until||ms>winB||++count>maxCount) break;
+    cb(ms);
+  }
+}
+function icsEmit(out,ev,ms,winA,winB){
+  if(ev.st.dateOnly){ const d0=new Date(ms);
+    for(let i=0;i<(ev.days||1);i++){ const d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i);
+      if(d.getTime()>=winA&&d.getTime()<=winB) out.push({d:iso(d),allDay:true,title:ev.title,loc:ev.loc}); }
+    return; }
+  const end=ms+ev.dur; if(end<winA||ms>winB) return;
+  let a=new Date(ms);
+  for(let i=0;i<14;i++){   // split across midnights; two weeks is plenty for a timed event
+    const next=new Date(a.getFullYear(),a.getMonth(),a.getDate()+1).getTime();
+    const segEnd=Math.min(end,next), s=a.getHours()*60+a.getMinutes();
+    const e=segEnd>=next?1440:(()=>{ const z=new Date(segEnd); return z.getHours()*60+z.getMinutes(); })();
+    out.push({d:iso(a),s:s,e:Math.max(e,s+15),allDay:false,title:ev.title,loc:ev.loc});
+    if(segEnd>=end) break; a=new Date(next); }
+}
 /* ---- Opening — the threshold room ----
    Default tab. The Thinker draws himself in (~6s, tap to pause), a prompt asks
    what the session is for, and up to three intentions with time boxes live
