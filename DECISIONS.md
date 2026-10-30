@@ -666,6 +666,49 @@
       the actual Worker code hosted under Node: 401 without the secret, 405
       on non-GET, and the in-app button pulls and draws the feed.
 
+* **[2026-10-30] v0.11.0 — Primes: a prime-or-composite mental-math drill
+  (Chad's handoff, lockstep with mobile v0.10.0).** A number from 2 to 999;
+  call it Prime or Composite; every answer teaches the divisibility method.
+  The mobile surface (chiaromobile) is the primary target; desktop carries
+  the same engine.
+    * *Placement (Chad, asked and answered):* a **sixth tab**, after Closing,
+      not a pocket tool, even though "tabs are rooms, pockets are tools" was
+      the pattern. A drill you sit down to is a room. `#primes` deep-links
+      straight to it (a home-screen bookmark lands on the game).
+    * *The streak, and why it doesn't break the ethos (Chad ratified):* the
+      constitution says "no streaks… ever." The handoff asked for one. We
+      kept it, **in memory only**: it resets on a wrong answer and dies on
+      refresh or tab close. The ethos forbids *re-engagement* mechanics,
+      chains that pull you back tomorrow. A counter that can't outlive the
+      sitting is practice feedback, not a leash. The line, recorded so it
+      holds: **nothing about the game persists, so nothing about it can
+      summon.** Playing writes zero bytes to storage (verified).
+    * *Open/Close lens:* on open, one number and two buttons, first function
+      fast. On close, nothing to tidy and nothing held. Walk away mid-run and
+      the bench is exactly as you left it.
+    * *Engine:* identical in both sibling repos (byte-for-byte, asserted).
+      Weighted buckets (obvious / threes / hard composites / primes) per tier
+      in one `PC_CONFIG` object; never repeats the previous number. Every
+      answer shows the method: `n = p × q` plus p's trick worked on n (chops
+      re-applied while ≥100, one step per line so phones don't wrap
+      mid-sum), or the root bound plus tappable primes that open their trick
+      failing on n. Sheets: one at a time; ✕, backdrop, Escape; ← Back from a
+      Checklist trick, never a stacked sheet.
+    * *Deviations from the handoff, deliberate:* theme follows CTT's own
+      tokens and Cream toggle rather than `prefers-color-scheme` (the
+      handoff also says to match the site); muted red is `--danger` mixed
+      toward `--muted`; reference "tables" render as grid rows, because the
+      mobile surface keeps no `<table>`.
+    * *Verified:* 168 primes; all 11 tricks agree with real divisibility on
+      every n in 2–999 (10,978 cases) and every composite gets a ✓ worked
+      example; spot checks 221/377/403/961/997; 1,000 draws per tier within
+      ±2.4 pts of the weights, Hard never below 100 or a multiple of 2/3/5.
+      UI suites with real taps: mobile 37/37 at 390×844 (answer buttons
+      mid-screen, reference row in the bottom third, every button ≥48px, no
+      sideways scroll, refresh → welcome), desktop 35/35. A screenshot caught
+      the sheets falling back from monospace (the font variable was scoped
+      inside the column the sheets render outside of), fixed and asserted.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
