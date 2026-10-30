@@ -385,8 +385,6 @@ body.modal-open{overflow:hidden;}
 .hidden{display:none}
 @media(max-width:880px){.stats,.tcards{grid-template-columns:repeat(2,1fr)}.app{flex-direction:column}.sidebar{width:100%;height:auto;position:static}}
 /* ---------- Scratch sheet — a pocket tool, not a room ---------- */
-.pocket-btn{font-size:15px;line-height:1;padding:7px 10px;opacity:.6;}
-.pocket-btn:hover{opacity:1;}
 .scratch-over{position:fixed;inset:0;background:rgba(5,4,2,.62);display:none;z-index:70;padding:26px 18px;overscroll-behavior:contain;}
 .scratch-over.open{display:flex;align-items:flex-start;justify-content:center;}
 .scratch-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;max-width:100%;max-height:calc(100vh - 60px);display:flex;flex-direction:column;box-shadow:0 18px 60px rgba(0,0,0,.45);}
@@ -540,12 +538,33 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 .pc-pocket .pc-seg button.on:hover{background:rgba(242,162,74,.14)}
 .pc-pocket .pc-ans:hover{background:var(--panel)}
 .pc-pocket .pc-ans:active{background:rgba(242,162,74,.20)}
+/* Pocket FAB: the pocket tools behind one bottom-right button, fanned out in
+   an arc. Layer 60 — under the pockets (70/80), the full bell (90), modals (99). */
+body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so the button never sits on the last thing on a page */
+.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:60;width:60px;height:60px}
+.fab-main{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0;border-radius:50%;
+  border:1.5px solid var(--accent);background:var(--panel);color:var(--accent);font-size:24px;line-height:1;
+  box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 18px rgba(242,162,74,.20)}
+.fab-main:hover,.fab-item:hover{background:var(--panel)}
+.fab-main:hover{box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 26px rgba(242,162,74,.35)}
+.fab-main:active{transform:scale(.94)}
+.fab-item{position:absolute;left:4px;top:4px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:50%;
+  border:1px solid var(--border);background:var(--panel);color:var(--text);box-shadow:0 4px 14px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transform:scale(.4);transition:transform .24s cubic-bezier(.2,.9,.3,1.25),opacity .16s}
+.fab-item:hover{border-color:var(--accent)}
+.fab-ico{font-size:21px;line-height:1}
+.fab-lbl{position:absolute;left:0;top:0;padding:2px 8px;border-radius:7px;   /* placed by fabToggle: just outside its button, away from the arc */
+  background:var(--bg);border:1px solid var(--border);font-size:12px;font-weight:600;white-space:nowrap;color:var(--text);pointer-events:none}
+.fab.open .fab-item{opacity:1;pointer-events:auto}
+.fab-scrim{position:fixed;inset:0;z-index:59;display:none;background:rgba(5,4,2,.62)}
+.fab-scrim.open{display:block}
+@media (prefers-reduced-motion:reduce){ .fab-item{transition:none} }
 </style>
 </head>
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.12.3</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.13.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -554,9 +573,7 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
     <div class="maintab" data-m="closing" onclick="switchMain('closing')">Closing</div>
   </div>
   <div class="spacer"></div>
-  <button class="ghost small pocket-btn" onclick="scratchToggle()" title="Scratch sheet — an 8×25 pocket grid with basic math (Esc puts it back)">▦</button>
-  <button class="ghost small pocket-btn" onclick="pcOpenPocket()" title="Primes — prime or composite, by hand (Esc puts it back)" aria-label="Primes">÷</button>
-  <div class="save-pill"><span class="save-dot" id="saveDot"></span><span id="saveStatus">Saved</span></div>
+    <div class="save-pill"><span class="save-dot" id="saveDot"></span><span id="saveStatus">Saved</span></div>
   <div class="sync-pill" id="syncPill" onclick="openSettings()" title="Storage & cloud sync settings"><span class="sync-dot" id="syncDot"></span><span id="syncStatus">Local only</span></div>
   <div class="gear-wrap">
     <button class="ghost small gear-btn" onclick="toggleGearMenu(event)" title="Menu" aria-label="Menu">⚙</button>
@@ -918,6 +935,14 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 </div>
 </div>
 
+<!-- ========================== POCKET FAB ========================== -->
+<div class="fab-scrim" id="fabScrim" onclick="fabToggle(false)"></div>
+<div class="fab" id="fab">
+  <button type="button" class="fab-item" tabindex="-1" onclick="fabPick('scratch')" aria-label="Scratch sheet"><span class="fab-ico">▦</span><span class="fab-lbl">Scratch</span></button>
+  <button type="button" class="fab-item" tabindex="-1" onclick="fabPick('primes')" aria-label="Primes"><span class="fab-ico">÷</span><span class="fab-lbl">Primes</span></button>
+  <button type="button" class="fab-item" tabindex="-1" onclick="fabPick('bell')" aria-label="Tinker's bell"><span class="fab-ico">🔔</span><span class="fab-lbl">Bell</span></button>
+  <button type="button" class="fab-main" id="fabMain" onclick="fabToggle()" aria-label="Pocket tools" aria-expanded="false"><span>✦</span></button>
+</div>
 <!-- ======================= PRIMES (pocket tool) ======================= -->
 <div class="pc-pocket" id="pcPocket" role="dialog" aria-modal="true" aria-label="Prime or Composite">
 <div class="pc-pocket-head"><span class="pc-pocket-name">÷ Primes</span><button type="button" class="pc-x" id="pcPocketX" onclick="pcClosePocket()" aria-label="Close Primes">✕</button></div>
@@ -1376,7 +1401,9 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.12.3 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.13.0 — forked from PJT 3.3.0. Single-file HTML.
+   v0.13.0: the pocket FAB comes to desktop — ▦/÷ leave the appbar for a bottom-right
+            button that fans out Scratch, Primes and the Bell (Bell = ⧉ pop-out from any room).
    v0.12.3: the Primes number sits a little higher, with air above an open sheet.
    v0.12.2: Primes sheets take the bottom half at most; the number stays in view.
    v0.12.1: Checklist tricks close back to the Checklist; Back button pinned at the bottom.
@@ -3390,6 +3417,29 @@ function icsEmit(out,ev,ms,winA,winB){
     out.push({d:iso(a),s:s,e:Math.max(e,s+15),allDay:false,title:ev.title,loc:ev.loc});
     if(segEnd>=end) break; a=new Date(next); }
 }
+/* ---- Pocket FAB ----
+   The pocket tools live behind one bottom-right button: tap it and Scratch,
+   Primes and the Bell fan out in an arc; a tool, the button (now ✕), the
+   scrim, or Escape folds it. A new pocket tool is one more .fab-item plus a
+   case in fabPick — the arc and the labels place themselves for any count.
+   Each label sits just outside its button, pointing away from the arc, so
+   labels never land on a neighbour. */
+function fabToggle(force){ const f=document.getElementById('fab'), open=(force!=null)?force:!f.classList.contains('open');
+  const items=[...f.querySelectorAll('.fab-item')], n=items.length, R=n>2?110:92;
+  items.forEach((it,i)=>{ const deg=n>1?95+80*i/(n-1):135, a=deg*Math.PI/180, ux=Math.cos(a), uy=-Math.sin(a);   // 95°…175°: up and left of the thumb
+    it.style.transform=open?'translate('+Math.round(ux*R)+'px,'+Math.round(uy*R)+'px)':'';
+    it.style.transitionDelay=open?(i*35)+'ms':'0ms'; it.tabIndex=open?0:-1;
+    const l=it.querySelector('.fab-lbl'), w=l.offsetWidth, h=l.offsetHeight;
+    const d=32+Math.abs(ux)*w/2+Math.abs(uy)*h/2;   // the label box's reach along u, so even a diagonal label clears its button
+    l.style.left=Math.round(26+ux*d-w/2)+'px'; l.style.top=Math.round(26+uy*d-h/2)+'px'; });
+  f.classList.toggle('open',open); document.getElementById('fabScrim').classList.toggle('open',open);
+  const m=document.getElementById('fabMain'); m.setAttribute('aria-expanded',open?'true':'false'); m.firstElementChild.textContent=open?'✕':'✦'; }
+function fabPick(k){ fabToggle(false);
+  if(k==='scratch') scratchToggle(true); else if(k==='primes') pcOpenPocket(); else if(k==='bell') fabBell(); }
+function fabBell(){   // float the bell (Document PiP) from any room; elsewhere, open it on the Time Card
+  if('documentPictureInPicture' in window){ if(bellPip){ flash('The bell is already floating'); return; } bellPopOut(); return; }
+  switchMain('timecard'); bellToggle(true); bellEls().panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&document.getElementById('fab').classList.contains('open')) fabToggle(false); });
 /* ---- Primes — prime or composite, by hand ----
    A mental-math drill: a number from 2 to 999; call it Prime or Composite, and
    every answer teaches the method — the smallest factor's trick worked on the
