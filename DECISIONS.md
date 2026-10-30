@@ -746,6 +746,15 @@
     * *Verified:* mobile 59/59 and desktop 57/57 with real taps; acceptance
       20/20; engine still byte-identical across repos.
 
+* **[2026-10-30] Checklist tricks close back to the Checklist (Chad's dogfood
+  note; desktop v0.12.1 / mobile v0.11.1).** ✕ on a trick opened from the
+  Checklist used to close everything, back to the question. Now ✕, the
+  backdrop and Escape all close **just the trick** and land on the Checklist,
+  ticks intact, and **← Back to checklist** moved from the header to a
+  full-width button pinned at the bottom of the sheet (thumb zone). From the
+  Checklist itself, ✕ closes all the way. Answer-screen tricks have no
+  checklist behind them, so their ✕ still closes completely.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
