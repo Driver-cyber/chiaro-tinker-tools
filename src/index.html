@@ -466,7 +466,7 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 .pc-title{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-size:34px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
 .pc-sub{color:var(--muted);font-size:15px;line-height:1.55;margin:12px auto 0;max-width:300px}
 .pc-play{width:100%;min-height:60px;border:none;border-radius:14px;background:var(--accent);color:var(--btn-ink);font-size:20px;font-weight:700}
-.pc-qbox{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px 0}
+.pc-qbox{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px 0 clamp(24px,11vh,96px)}   /* extra room below lifts the number a little: it breathes above a half-height sheet */
 .pc-num{font-family:var(--pc-mono);font-variant-numeric:tabular-nums;font-size:clamp(80px,27vw,116px);font-weight:700;line-height:1;letter-spacing:.02em}
 .pc-prompt{color:var(--muted);font-size:16px;margin:10px 0 22px}
 .pc-answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
@@ -545,7 +545,7 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.12.2</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.12.3</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -1376,7 +1376,8 @@ html.pc-locked,html.pc-locked body{overflow:hidden}
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.12.2 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.12.3 — forked from PJT 3.3.0. Single-file HTML.
+   v0.12.3: the Primes number sits a little higher, with air above an open sheet.
    v0.12.2: Primes sheets take the bottom half at most; the number stays in view.
    v0.12.1: Checklist tricks close back to the Checklist; Back button pinned at the bottom.
    v0.12.0: Primes becomes a pocket tool (÷ in the appbar, full screen, ✕/Esc) with the

@@ -764,6 +764,16 @@
   Measured: number fully above the sheet at 360×740, 375×667, 390×844,
   430×932, 844×390, 1280×720 and 1440×900.
 
+* **[2026-10-30] Primes: room to breathe (Chad).** The number sat right on the
+  top edge of a half-height sheet (11–20px). The question block now has extra
+  space below it (`clamp(24px, 11vh, 96px)`), which lifts the number about
+  30–40px. Measured: ~50px of air between number and sheet on every portrait
+  phone and desktop, answer buttons still mid-screen, sideways phones keep
+  their compact layout. *Test scar:* a CDP navigation that only changes the
+  `#hash` can reuse the in-memory document, so a "fresh" measurement ran on
+  the pre-edit page. Navigate via about:blank (or drop the hash) before
+  measuring.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the
