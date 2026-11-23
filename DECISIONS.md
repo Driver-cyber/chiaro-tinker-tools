@@ -855,6 +855,52 @@
       the divider as a sibling; and the container's Chromium moved to
       `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome`.
 
+* **[2026-11-23] Sandwich Tour moves in: the second workshop, at
+  `/sandwich-tour/` (Chad).** A sandwich and sandwich-shop journal for a new
+  personal project. Same pattern as Gertie: a single-file app in
+  `src/sandwich-tour/`, its own PWA (manifest, scoped service worker,
+  icons), linked from the CTT project through its ⧉ Workshop field.
+    * *Shape:* **Journal** (sandwich, shop, where, date, ★1–5, price, bread,
+      "go back?" yes/maybe/no, tags, notes, photos; search + tag chips),
+      **Shops** (grouped case-insensitively, best average first, ties →
+      more visits, with the best sandwich at each) and **Up next** (shops to
+      try; "Ate here →" starts an entry pre-filled and clears it from the
+      list on save). Butcher-paper light theme with mustard and pickle,
+      plus a dark mode. Its own identity, like Gertie's petrol.
+    * *The storage line that matters:* entries (text) in localStorage
+      `sandwich-tour-v1`; **photos in IndexedDB**, downscaled on the phone
+      to a 1600px JPEG plus a 360px thumb. This honours the 2026-07-26 rule:
+      the origin's ~5 MB localStorage is shared with CTT, and one photo
+      could evict ORDO data. It asks the browser for persistent storage.
+      **Export** writes one JSON with photos inside; **Import only adds**
+      (by id), so a wrong file can't overwrite anything. No sync, by design
+      for now; Export is the backup.
+    * *Scars honoured:* system fonts only (no render-blocking web font),
+      16px fields (no iOS zoom), 44px targets, longhand padding (the
+      shorthand-flattens-longhand trap), a save receipt that floats and
+      **doesn't fade on a refused write**, and a worker whose scope is
+      `/sandwich-tour/` and that also refuses any path outside it.
+    * *Found in testing:* Edit opened the editor *under* the detail view
+      (equal z-index, later in the DOM), invisible. A class check had said
+      "open". The test now asserts the editor is what's actually at the
+      centre of the screen. Also, the IndexedDB helper returned the request
+      object for a missing photo, so deleted photos looked present; it now
+      resolves `undefined`.
+    * *Verified* at 390×844 with touch input, 37/37, twice:
+      - a 2400×1800 photo is stored as 1600+360 JPEGs, with zero photo
+        bytes in localStorage, and CTT's key untouched;
+      - stats, search, tags, detail, edit-in-place, shops and up-next flows;
+      - a cancelled entry leaves no orphan photo, and deleting an entry
+        deletes its photos;
+      - reload persistence, and an export/wipe/import round trip (a second
+        import adds nothing);
+      - an offline reload opens; the worker is scoped to `/sandwich-tour/`;
+        CTT at the root is not controlled by it; no uncaught errors.
+    * *Linking:* the project lives in Chad's synced db, so he sets its
+      Workshop field himself. Use the **absolute** URL
+      (`https://chiaro.chadstewartcpa.com/sandwich-tour/`); synced fields take
+      absolute URLs, because desktop and mobile are different origins.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the

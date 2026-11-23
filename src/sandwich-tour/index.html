@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6EEDD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A140E" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sandwich Tour">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<title>Sandwich Tour</title>
+<!--
+  Sandwich Tour — a field journal of bread and fillings. A CTT workshop:
+  Chad's project page in CTT links here through its ⧉ Workshop field.
+
+  One file, no build, no network calls. Entries (text only) live in
+  localStorage under 'sandwich-tour-v1'; PHOTOS live in IndexedDB
+  ('sandwich-tour' → 'photos'), NEVER localStorage — this page shares an
+  origin (and its ~5 MB localStorage budget) with CTT, and one phone photo
+  could evict real CTT data. Export writes everything, photos included, to
+  one JSON file; Import only ever ADDS. Fonts are system fonts on purpose:
+  a render-blocking web font stalls the page at a deli with one bar of signal.
+-->
+<style>
+:root{
+  --paper:#F6EEDD; --card:#FFF9EE; --ink:#2B1D12; --muted:#7A6247; --line:#E3D3B4;
+  --mustard:#C98F12; --mustard-soft:rgba(217,162,27,.16); --pickle:#56733A; --crust:#8A4B22; --tomato:#B8442E;
+  --on-accent:#2B1D12; --shadow:0 2px 10px rgba(80,50,20,.10);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root{
+  --paper:#1A140E; --card:#241B13; --ink:#F1E6D2; --muted:#B39C7E; --line:#3A2C1E;
+  --mustard:#E5B23A; --mustard-soft:rgba(229,178,58,.14); --pickle:#8DAA5E; --crust:#D08A55; --tomato:#E07A5F;
+  --on-accent:#1A140E; --shadow:0 2px 12px rgba(0,0,0,.35); } }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-size:16px}   /* below 16px iOS zooms the page on focus */
+.wrap{max-width:720px;margin:0 auto;padding-left:16px;padding-right:16px;padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+header.top{padding-top:calc(18px + env(safe-area-inset-top));padding-bottom:6px}
+h1{font-family:var(--serif);font-size:32px;line-height:1.1;margin:0;letter-spacing:-.01em}
+h1 .bite{color:var(--mustard)}
+.tag-line{color:var(--muted);font-size:14.5px;margin-top:4px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.stat{flex:1 1 0;min-width:88px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding-top:10px;padding-bottom:10px;padding-left:12px;padding-right:12px}
+.stat b{display:block;font-family:var(--serif);font-size:24px;line-height:1.1}
+.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--paper);display:flex;gap:6px;padding-top:12px;padding-bottom:10px;margin-top:6px;border-bottom:1px solid var(--line)}
+nav.tabs button{flex:1;min-height:44px;border:1px solid var(--line);background:var(--card);border-radius:12px;font-weight:600;font-size:15px;cursor:pointer}
+nav.tabs button.on{background:var(--mustard);border-color:var(--mustard);color:var(--on-accent)}
+.toolbar{display:flex;gap:8px;margin-top:12px;align-items:center}
+.search{flex:1;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding-left:12px;padding-right:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding-top:6px;padding-bottom:6px;padding-left:12px;padding-right:12px;font-size:13.5px;cursor:pointer;min-height:34px}
+.chip.on{background:var(--pickle);border-color:var(--pickle);color:#fff}
+.filter-note{margin-top:10px;font-size:14px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.filter-note button{border:none;background:none;color:var(--mustard);font-weight:600;cursor:pointer;padding:0;min-height:32px}
+.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow);cursor:pointer;text-align:left;width:100%}
+.card .thumb{flex:none;width:78px;height:78px;border-radius:12px;object-fit:cover;background:var(--mustard-soft);display:flex;align-items:center;justify-content:center;font-size:34px}
+.card .body{flex:1;min-width:0}
+.card .sw{font-family:var(--serif);font-size:19px;line-height:1.2;margin:0;word-break:break-word}
+.card .meta{font-size:13.5px;color:var(--muted);margin-top:2px}
+.card .excerpt{font-size:14px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stars{color:var(--mustard);letter-spacing:1px;font-size:15px;white-space:nowrap}
+.stars .off{color:var(--line)}
+.tagrow{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.tagrow span{font-size:12px;background:var(--mustard-soft);border-radius:999px;padding-top:2px;padding-bottom:2px;padding-left:8px;padding-right:8px}
+.again{font-size:12px;font-weight:700;border-radius:999px;padding-top:2px;padding-bottom:2px;padding-left:8px;padding-right:8px;margin-left:6px;vertical-align:1px}
+.again.yes{background:rgba(86,115,58,.16);color:var(--pickle)} .again.maybe{background:var(--mustard-soft);color:var(--crust)} .again.no{background:rgba(184,68,46,.14);color:var(--tomato)}
+.empty{text-align:center;color:var(--muted);padding-top:42px;padding-bottom:30px;padding-left:12px;padding-right:12px}
+.empty .big{font-size:52px;line-height:1}
+.empty p{margin-top:10px;margin-bottom:0}
+.shop{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);cursor:pointer;width:100%;text-align:left}
+.shop h3{margin:0;font-family:var(--serif);font-size:20px}
+.shop .meta{font-size:13.5px;color:var(--muted);margin-top:2px}
+.shop .best{font-size:14px;margin-top:6px}
+.next{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--shadow)}
+.next .body{flex:1;min-width:0}
+.next h3{margin:0;font-family:var(--serif);font-size:19px}
+.next .meta{font-size:13.5px;color:var(--muted)}
+.next .why{font-size:14px;margin-top:4px}
+.btn{min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding-left:14px;padding-right:14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--mustard);border-color:var(--mustard);color:var(--on-accent)}
+.btn.danger{color:var(--tomato)}
+.btn.ghost{background:transparent}
+.icon-btn{min-width:44px;min-height:44px;border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--muted);border-radius:12px}
+.addnext{display:grid;gap:8px;background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:12px;margin-top:12px}
+.addnext input{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--paper);padding-left:10px;padding-right:10px}
+.fab{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));z-index:20;
+  min-height:56px;padding-left:20px;padding-right:22px;border:none;border-radius:999px;background:var(--mustard);color:var(--on-accent);
+  font-weight:800;font-size:16px;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
+.backup{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.backup .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+/* overlays: editor + detail */
+.over{position:fixed;inset:0;z-index:40;background:var(--paper);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:none}
+.over.open{display:block}
+#editor{z-index:45}   /* above the detail view: Edit opens the editor OVER the entry it came from */
+.over .bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;background:var(--paper);border-bottom:1px solid var(--line);
+  padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:8px;padding-left:8px;padding-right:8px}
+.over .bar h2{flex:1;margin:0;font-family:var(--serif);font-size:20px}
+.over .inner{max-width:640px;margin:0 auto;padding-left:16px;padding-right:16px;padding-top:14px;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field textarea,.field select{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding-left:12px;padding-right:12px}
+.field textarea{min-height:120px;padding-top:10px;padding-bottom:10px;resize:vertical;line-height:1.5}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rate{display:flex;gap:4px}
+.rate button{width:48px;height:48px;border:none;background:transparent;font-size:32px;line-height:1;color:var(--line);cursor:pointer;padding:0}
+.rate button.on{color:var(--mustard)}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{flex:1;min-height:46px;border:none;background:var(--card);cursor:pointer;font-weight:600}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--mustard-soft);color:var(--crust)}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.ph{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--mustard-soft)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .x{position:absolute;top:4px;right:4px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:15px;cursor:pointer}
+.addph{aspect-ratio:1;border:2px dashed var(--line);border-radius:12px;background:transparent;font-size:14px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.addph b{font-size:26px;line-height:1}
+.actions{display:flex;gap:10px;margin-top:8px}
+.actions .btn{flex:1}
+.detail-hero{width:100%;max-height:60vh;object-fit:cover;border-radius:16px;display:block}
+.detail-strip{display:flex;gap:8px;overflow-x:auto;margin-top:8px}
+.detail-strip img{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none;cursor:pointer}
+.detail h3{font-family:var(--serif);font-size:28px;line-height:1.15;margin-top:14px;margin-bottom:0}
+.detail .meta{color:var(--muted);margin-top:4px}
+.detail .notes{white-space:pre-wrap;margin-top:14px;font-size:16px}
+.detail dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin-top:14px;font-size:15px}
+.detail dt{color:var(--muted)}
+.detail dd{margin:0}
+.receipt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom));z-index:60;background:var(--ink);color:var(--paper);
+  border-radius:999px;padding-top:8px;padding-bottom:8px;padding-left:16px;padding-right:16px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none}
+.receipt.show{opacity:.92}
+.receipt.err{background:var(--tomato);color:#fff;opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Sandwich <span class="bite">Tour</span></h1>
+    <div class="tag-line">A field journal of bread and fillings.</div>
+    <div class="stats">
+      <div class="stat"><b id="stSandwiches">0</b><span>Sandwiches</span></div>
+      <div class="stat"><b id="stShops">0</b><span>Shops</span></div>
+      <div class="stat"><b id="stAvg">–</b><span>Avg ★</span></div>
+    </div>
+  </header>
+  <nav class="tabs" role="tablist">
+    <button type="button" data-v="journal" class="on" onclick="setView('journal')">Journal</button>
+    <button type="button" data-v="shops" onclick="setView('shops')">Shops</button>
+    <button type="button" data-v="next" onclick="setView('next')">Up next</button>
+  </nav>
+
+  <section id="vJournal">
+    <div class="toolbar"><input class="search" id="q" type="search" placeholder="Search sandwiches, shops, notes" autocomplete="off" oninput="renderJournal()"></div>
+    <div class="chips" id="tagChips"></div>
+    <div class="filter-note hidden" id="shopFilter"></div>
+    <div class="list" id="journalList"></div>
+  </section>
+  <section id="vShops" class="hidden"><div class="list" id="shopList"></div></section>
+  <section id="vNext" class="hidden">
+    <form class="addnext" onsubmit="addNext(event)">
+      <input id="nShop" placeholder="A shop to try" autocomplete="off" required>
+      <input id="nPlace" placeholder="Where (neighbourhood, city)" autocomplete="off">
+      <input id="nWhy" placeholder="Why — who told you, what to order" autocomplete="off">
+      <button class="btn primary" type="submit">Add to Up next</button>
+    </form>
+    <div class="list" id="nextList"></div>
+  </section>
+
+  <section class="backup">
+    Your journal lives on this device. <b>Export</b> writes everything, photos included, to one file worth keeping somewhere safe; <b>Import</b> only ever adds.
+    <div class="row">
+      <button class="btn" type="button" onclick="exportAll()">⤓ Export</button>
+      <button class="btn" type="button" onclick="document.getElementById('importFile').click()">⤒ Import</button>
+      <input type="file" id="importFile" accept="application/json,.json" class="hidden" onchange="importAll(this)">
+    </div>
+    <div id="storeNote" style="margin-top:8px"></div>
+  </section>
+</div>
+
+<button class="fab" type="button" id="fab" onclick="openEditor()">+ Sandwich</button>
+
+<!-- Editor -->
+<div class="over" id="editor" role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <div class="bar">
+    <button class="icon-btn" type="button" onclick="closeEditor()" aria-label="Cancel">✕</button>
+    <h2 id="edTitle">New sandwich</h2>
+    <button class="btn primary" type="button" onclick="saveEntry()">Save</button>
+  </div>
+  <div class="inner">
+    <label class="field"><span>Sandwich</span><input id="fSandwich" placeholder="The Italian, a Cubano, egg salad on rye…" autocomplete="off"></label>
+    <label class="field"><span>Shop</span><input id="fShop" list="shopNames" placeholder="Where you ate it" autocomplete="off"></label>
+    <datalist id="shopNames"></datalist>
+    <div class="two">
+      <label class="field"><span>Where</span><input id="fPlace" placeholder="Neighbourhood, city" autocomplete="off"></label>
+      <label class="field"><span>Date</span><input id="fDate" type="date"></label>
+    </div>
+    <div class="field"><span>Rating</span><div class="rate" id="fRate"></div></div>
+    <div class="two">
+      <label class="field"><span>Price</span><input id="fPrice" inputmode="decimal" placeholder="$14" autocomplete="off"></label>
+      <label class="field"><span>Bread</span><input id="fBread" placeholder="Seeded roll, sourdough…" autocomplete="off"></label>
+    </div>
+    <div class="field"><span>Go back?</span><div class="seg" id="fAgain">
+      <button type="button" data-v="yes">Yes</button><button type="button" data-v="maybe">Maybe</button><button type="button" data-v="no">No</button>
+    </div></div>
+    <label class="field"><span>Tags</span><input id="fTags" placeholder="hoagie, spicy, vegetarian" autocomplete="off"></label>
+    <label class="field"><span>Notes</span><textarea id="fNotes" placeholder="The bread, the balance, the one thing you'd change."></textarea></label>
+    <div class="field"><span>Photos</span>
+      <div class="photos" id="fPhotos"></div>
+      <input type="file" id="photoFile" accept="image/*" multiple class="hidden" onchange="addPhotos(this)">
+    </div>
+    <div class="actions"><button class="btn danger hidden" type="button" id="edDelete" onclick="deleteEntry()">Delete this entry</button></div>
+  </div>
+</div>
+
+<!-- Detail -->
+<div class="over" id="detail" role="dialog" aria-modal="true" aria-labelledby="dtTitle">
+  <div class="bar">
+    <button class="icon-btn" type="button" onclick="closeDetail()" aria-label="Back">←</button>
+    <h2 id="dtTitle">Sandwich</h2>
+    <button class="btn" type="button" onclick="editFromDetail()">Edit</button>
+  </div>
+  <div class="inner detail" id="dtBody"></div>
+</div>
+
+<div class="receipt" id="receipt" role="status" aria-live="polite"></div>
+
+<script>
+/* ---- storage seam: text in localStorage, photos in IndexedDB ---- */
+const KEY='sandwich-tour-v1';
+const blank=()=>({v:1,entries:[],next:[]});
+let st=blank();
+function load(){ try{ const raw=localStorage.getItem(KEY); if(raw){ const o=JSON.parse(raw); st=Object.assign(blank(),o);
+  if(!Array.isArray(st.entries)) st.entries=[]; if(!Array.isArray(st.next)) st.next=[]; } }catch(e){ console.error('load',e); receipt('Couldn’t read the journal on this device',true); } }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(st)); receipt('Saved'); return true; }
+  catch(e){ console.error('save',e); receipt('Not saved: this device refused the write',true); return false; } }
+let rcT=null;
+function receipt(msg,err){ const r=document.getElementById('receipt'); r.textContent=msg; r.classList.toggle('err',!!err); r.classList.add('show');
+  clearTimeout(rcT); if(!err) rcT=setTimeout(()=>r.classList.remove('show'),1700); }   // a refused write does not fade
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const fmtDate=s=>{ if(!s) return ''; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); };
+
+let idb=null;
+function db(){ if(idb) return idb; idb=new Promise((res,rej)=>{ const q=indexedDB.open('sandwich-tour',1);
+  q.onupgradeneeded=()=>q.result.createObjectStore('photos',{keyPath:'id'}); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); }); return idb; }
+async function tx(mode,fn){ const d=await db(); return new Promise((res,rej)=>{ const t=d.transaction('photos',mode), s=t.objectStore('photos');
+  const out=fn(s); t.oncomplete=()=>res(out instanceof IDBRequest?out.result:out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }); }   // a missing photo resolves undefined, never the request object
+const photoPut=p=>tx('readwrite',s=>s.put(p));
+const photoGet=id=>tx('readonly',s=>s.get(id));
+const photoDel=id=>tx('readwrite',s=>s.delete(id));
+const urlCache={};
+async function photoUrl(id,thumb){ const k=id+(thumb?':t':''); if(urlCache[k]) return urlCache[k];
+  const p=await photoGet(id); if(!p) return ''; return urlCache[k]=URL.createObjectURL(thumb?(p.thumb||p.full):p.full); }
+// Phone photos are 3-5 MB; keep a 1600px JPEG and a 360px thumb.
+async function shrink(file,max,q){ const bmp=await createImageBitmap(file);
+  const k=Math.min(1,max/Math.max(bmp.width,bmp.height)), w=Math.round(bmp.width*k), h=Math.round(bmp.height*k);
+  const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(bmp,0,0,w,h); bmp.close&&bmp.close();
+  return new Promise(r=>c.toBlob(r,'image/jpeg',q)); }
+
+/* ---- views ---- */
+let view='journal', tagOn='', shopOn='';
+function setView(v){ view=v; document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  ['journal','shops','next'].forEach(k=>document.getElementById('v'+k[0].toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==v));
+  render(); window.scrollTo(0,0); }
+const shopKey=s=>(s||'').trim().toLowerCase();
+const tagsOf=e=>(e.tags||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
+function stars(n){ n=Math.round(n||0); let h='<span class="stars" aria-label="'+n+' of 5 stars">'; for(let i=1;i<=5;i++) h+=i<=n?'★':'<span class="off">★</span>'; return h+'</span>'; }
+function againBadge(a){ return a?'<span class="again '+a+'">'+({yes:'go back',maybe:'maybe',no:'once was enough'}[a])+'</span>':''; }
+function render(){ renderStats(); if(view==='journal') renderJournal(); else if(view==='shops') renderShops(); else renderNext(); }
+function renderStats(){ const e=st.entries, shops=new Set(e.map(x=>shopKey(x.shop)).filter(Boolean)), rated=e.filter(x=>x.rating);
+  document.getElementById('stSandwiches').textContent=e.length; document.getElementById('stShops').textContent=shops.size;
+  document.getElementById('stAvg').textContent=rated.length?(rated.reduce((a,x)=>a+x.rating,0)/rated.length).toFixed(1):'–';
+  const dl=document.getElementById('shopNames'); const names={}; e.forEach(x=>{ if(x.shop&&x.shop.trim()) names[shopKey(x.shop)]=x.shop.trim(); });
+  st.next.forEach(x=>{ if(x.shop) names[shopKey(x.shop)]=names[shopKey(x.shop)]||x.shop.trim(); });
+  dl.innerHTML=Object.values(names).map(n=>'<option value="'+esc(n)+'">').join(''); }
+function sorted(){ return st.entries.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.created||0)-(a.created||0)); }
+function renderJournal(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const all=sorted(), counts={}; all.forEach(e=>tagsOf(e).forEach(t=>counts[t]=(counts[t]||0)+1));
+  const chips=document.getElementById('tagChips');
+  chips.innerHTML=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b)).slice(0,14)
+    .map(t=>'<button type="button" class="chip'+(t===tagOn?' on':'')+'" data-t="'+esc(t)+'">'+esc(t)+' · '+counts[t]+'</button>').join('');
+  chips.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ tagOn=tagOn===c.dataset.t?'':c.dataset.t; renderJournal(); });
+  const sf=document.getElementById('shopFilter'); sf.classList.toggle('hidden',!shopOn);
+  if(shopOn){ const nm=(all.find(e=>shopKey(e.shop)===shopOn)||{}).shop||shopOn; sf.innerHTML='Only <b>'+esc(nm)+'</b> <button type="button">show all</button>';
+    sf.querySelector('button').onclick=()=>{ shopOn=''; renderJournal(); }; }
+  const list=all.filter(e=>(!tagOn||tagsOf(e).includes(tagOn))&&(!shopOn||shopKey(e.shop)===shopOn)&&
+    (!q||[e.sandwich,e.shop,e.place,e.notes,e.tags,e.bread].join(' ').toLowerCase().includes(q)));
+  const box=document.getElementById('journalList');
+  if(!st.entries.length){ box.innerHTML='<div class="empty"><div class="big">🥪</div><p>No sandwiches yet.<br>The tour starts with the next good lunch: tap <b>+ Sandwich</b>.</p></div>'; return; }
+  if(!list.length){ box.innerHTML='<div class="empty"><p>Nothing matches. Try another word or tag.</p></div>'; return; }
+  box.innerHTML=list.map(e=>'<button type="button" class="card" data-id="'+e.id+'">'+
+    (e.photos&&e.photos.length?'<img class="thumb" alt="" data-ph="'+e.photos[0]+'">':'<span class="thumb">🥪</span>')+
+    '<span class="body"><span class="sw" style="display:block">'+esc(e.sandwich||'A sandwich')+'</span>'+
+    '<span class="meta" style="display:block">'+[esc(e.shop),esc(e.place),fmtDate(e.date)].filter(Boolean).join(' · ')+'</span>'+
+    '<span style="display:block;margin-top:3px">'+stars(e.rating)+againBadge(e.again)+'</span>'+
+    (e.notes?'<span class="excerpt">'+esc(e.notes)+'</span>':'')+
+    (tagsOf(e).length?'<span class="tagrow">'+tagsOf(e).map(t=>'<span>'+esc(t)+'</span>').join('')+'</span>':'')+
+    '</span></button>').join('');
+  box.querySelectorAll('.card').forEach(c=>c.onclick=()=>openDetail(c.dataset.id));
+  box.querySelectorAll('img[data-ph]').forEach(async im=>{ im.src=await photoUrl(im.dataset.ph,true); });
+}
+function renderShops(){ const g={};
+  st.entries.forEach(e=>{ const k=shopKey(e.shop)||'(no shop)'; (g[k]=g[k]||{name:(e.shop||'').trim()||'(no shop)',place:e.place,list:[]}).list.push(e); });
+  const shops=Object.entries(g).map(([k,s])=>{ const r=s.list.filter(x=>x.rating); s.key=k; s.avg=r.length?r.reduce((a,x)=>a+x.rating,0)/r.length:0;
+    s.best=s.list.slice().sort((a,b)=>(b.rating||0)-(a.rating||0))[0]; s.last=s.list.map(x=>x.date||'').sort().pop(); return s; })
+    .sort((a,b)=>b.avg-a.avg||b.list.length-a.list.length);
+  const box=document.getElementById('shopList');
+  if(!shops.length){ box.innerHTML='<div class="empty"><div class="big">🏪</div><p>Shops appear here as you log sandwiches.</p></div>'; return; }
+  box.innerHTML=shops.map(s=>'<button type="button" class="shop" data-k="'+esc(s.key)+'"><h3>'+esc(s.name)+'</h3>'+
+    '<div class="meta">'+[esc(s.place),s.list.length+' visit'+(s.list.length>1?'s':''),s.last?'last '+fmtDate(s.last):''].filter(Boolean).join(' · ')+'</div>'+
+    '<div style="margin-top:4px">'+stars(s.avg)+(s.avg?' <span class="meta">'+s.avg.toFixed(1)+'</span>':'')+'</div>'+
+    (s.best&&s.best.sandwich?'<div class="best">Best: <b>'+esc(s.best.sandwich)+'</b></div>':'')+'</button>').join('');
+  box.querySelectorAll('.shop').forEach(b=>b.onclick=()=>{ shopOn=b.dataset.k; tagOn=''; document.getElementById('q').value=''; setView('journal'); }); }
+function renderNext(){ const box=document.getElementById('nextList');
+  if(!st.next.length){ box.innerHTML='<div class="empty"><div class="big">🗺️</div><p>Shops you mean to try. Add one when someone says “you have to go to…”.</p></div>'; return; }
+  box.innerHTML=st.next.map(n=>'<div class="next" data-id="'+n.id+'"><div class="body"><h3>'+esc(n.shop)+'</h3>'+
+    (n.place?'<div class="meta">'+esc(n.place)+'</div>':'')+(n.why?'<div class="why">'+esc(n.why)+'</div>':'')+
+    '<div style="margin-top:8px"><button type="button" class="btn primary ate">Ate here →</button></div></div>'+
+    '<button type="button" class="icon-btn del" aria-label="Remove '+esc(n.shop)+'">✕</button></div>').join('');
+  box.querySelectorAll('.next').forEach(el=>{ const id=el.dataset.id;
+    el.querySelector('.ate').onclick=()=>{ const n=st.next.find(x=>x.id===id); openEditor(null,{shop:n.shop,place:n.place,fromNext:id}); };
+    el.querySelector('.del').onclick=()=>{ st.next=st.next.filter(x=>x.id!==id); save(); render(); }; }); }
+function addNext(ev){ ev.preventDefault(); const s=document.getElementById('nShop').value.trim(); if(!s) return;
+  st.next.unshift({id:uid(),shop:s,place:document.getElementById('nPlace').value.trim(),why:document.getElementById('nWhy').value.trim(),added:Date.now()});
+  ['nShop','nPlace','nWhy'].forEach(i=>document.getElementById(i).value=''); save(); render(); }
+
+/* ---- editor ---- */
+let ed=null;   // {id, rating, again, photos:[ids], newPhotos:Set, removed:Set, fromNext}
+function openEditor(id,pre){ const e=id?st.entries.find(x=>x.id===id):null; pre=pre||{};
+  ed={id:e?e.id:null, rating:e?e.rating||0:0, again:e?e.again||'':'', photos:e?(e.photos||[]).slice():[], added:new Set(), removed:new Set(), fromNext:pre.fromNext||null};
+  document.getElementById('edTitle').textContent=e?'Edit sandwich':'New sandwich';
+  const set=(i,v)=>document.getElementById(i).value=v||'';
+  set('fSandwich',e&&e.sandwich); set('fShop',e?e.shop:pre.shop); set('fPlace',e?e.place:pre.place); set('fDate',e?e.date:today());
+  set('fPrice',e&&e.price); set('fBread',e&&e.bread); set('fTags',e&&e.tags); set('fNotes',e&&e.notes);
+  document.getElementById('edDelete').classList.toggle('hidden',!e);
+  drawRate(); drawAgain(); drawPhotos();
+  document.getElementById('editor').classList.add('open'); document.getElementById('editor').scrollTop=0; lockBody(true); }
+function closeEditor(discard=true){ if(discard&&ed) ed.added.forEach(id=>photoDel(id).catch(()=>{}));   // photos added then cancelled don't linger
+  ed=null; document.getElementById('editor').classList.remove('open'); lockBody(!!document.querySelector('.over.open')); }
+function drawRate(){ const box=document.getElementById('fRate'); box.innerHTML='';
+  for(let i=1;i<=5;i++){ const b=document.createElement('button'); b.type='button'; b.textContent='★'; b.className=i<=ed.rating?'on':'';
+    b.setAttribute('aria-label',i+' star'+(i>1?'s':'')); b.onclick=()=>{ ed.rating=ed.rating===i?0:i; drawRate(); }; box.appendChild(b); } }
+function drawAgain(){ document.querySelectorAll('#fAgain button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===ed.again);
+  b.onclick=()=>{ ed.again=ed.again===b.dataset.v?'':b.dataset.v; drawAgain(); }; }); }
+async function drawPhotos(){ const box=document.getElementById('fPhotos'); box.innerHTML='';
+  for(const id of ed.photos){ const d=document.createElement('div'); d.className='ph';
+    d.innerHTML='<img alt=""><button type="button" class="x" aria-label="Remove photo">✕</button>';
+    d.querySelector('.x').onclick=()=>{ ed.photos=ed.photos.filter(x=>x!==id); ed.removed.add(id); drawPhotos(); };
+    box.appendChild(d); photoUrl(id,true).then(u=>d.querySelector('img').src=u); }
+  const add=document.createElement('button'); add.type='button'; add.className='addph'; add.innerHTML='<b>+</b>Photo';
+  add.onclick=()=>document.getElementById('photoFile').click(); box.appendChild(add); }
+async function addPhotos(inp){ const files=[...(inp.files||[])]; inp.value=''; if(!files.length||!ed) return;
+  receipt('Adding '+files.length+' photo'+(files.length>1?'s':'')+'…');
+  for(const f of files){ try{ const full=await shrink(f,1600,.82), thumb=await shrink(f,360,.78), id=uid();
+      await photoPut({id,full,thumb,added:Date.now()}); ed.photos.push(id); ed.added.add(id); }
+    catch(e){ console.error('photo',e); receipt('A photo couldn’t be read',true); } }
+  drawPhotos(); receipt('Photo added'); }
+async function saveEntry(){ if(!ed) return; const v=i=>document.getElementById(i).value.trim();
+  if(!v('fSandwich')&&!v('fShop')){ receipt('Give it a sandwich or a shop name',true); setTimeout(()=>document.getElementById('receipt').classList.remove('show'),2200); return; }
+  const now=Date.now(), base=ed.id?st.entries.find(x=>x.id===ed.id):null;
+  const e=Object.assign(base||{id:uid(),created:now},{sandwich:v('fSandwich'),shop:v('fShop'),place:v('fPlace'),date:v('fDate')||today(),
+    rating:ed.rating,price:v('fPrice'),bread:v('fBread'),again:ed.again,tags:v('fTags'),notes:document.getElementById('fNotes').value.trim(),photos:ed.photos.slice(),updated:now});
+  if(!base) st.entries.push(e);
+  if(ed.fromNext) st.next=st.next.filter(x=>x.id!==ed.fromNext);
+  ed.removed.forEach(id=>photoDel(id).catch(()=>{}));
+  const was=ed.id; closeEditor(false); save();
+  if(!was&&view!=='journal') setView('journal'); else render();
+  if(document.getElementById('detail').classList.contains('open')) openDetail(e.id); }
+async function deleteEntry(){ if(!ed||!ed.id) return; const e=st.entries.find(x=>x.id===ed.id);
+  if(!confirm('Delete “'+(e.sandwich||e.shop||'this entry')+'” and its photos?')) return;
+  (e.photos||[]).concat([...ed.added]).forEach(id=>photoDel(id).catch(()=>{}));
+  st.entries=st.entries.filter(x=>x.id!==e.id); ed=null; document.getElementById('editor').classList.remove('open'); closeDetail(); save(); render(); }
+
+/* ---- detail ---- */
+let dtId=null;
+async function openDetail(id){ const e=st.entries.find(x=>x.id===id); if(!e) return; dtId=id;
+  document.getElementById('dtTitle').textContent=e.shop||'Sandwich';
+  const ph=e.photos||[];
+  let h='';
+  if(ph.length) h+='<img class="detail-hero" id="dtHero" alt="">'+(ph.length>1?'<div class="detail-strip">'+ph.map(p=>'<img alt="" data-ph="'+p+'">').join('')+'</div>':'');
+  h+='<h3>'+esc(e.sandwich||'A sandwich')+'</h3><div class="meta">'+[esc(e.shop),esc(e.place),fmtDate(e.date)].filter(Boolean).join(' · ')+'</div>'+
+    '<div style="margin-top:6px">'+stars(e.rating)+againBadge(e.again)+'</div>';
+  const dl=[['Bread',e.bread],['Price',e.price],['Tags',tagsOf(e).join(', ')]].filter(x=>x[1]);
+  if(dl.length) h+='<dl>'+dl.map(x=>'<dt>'+x[0]+'</dt><dd>'+esc(x[1])+'</dd>').join('')+'</dl>';
+  if(e.notes) h+='<div class="notes">'+esc(e.notes)+'</div>';
+  const body=document.getElementById('dtBody'); body.innerHTML=h;
+  if(ph.length){ const hero=document.getElementById('dtHero'); hero.src=await photoUrl(ph[0],false);
+    body.querySelectorAll('.detail-strip img').forEach(async im=>{ im.src=await photoUrl(im.dataset.ph,true); im.onclick=async()=>{ hero.src=await photoUrl(im.dataset.ph,false); }; }); }
+  document.getElementById('detail').classList.add('open'); document.getElementById('detail').scrollTop=0; lockBody(true); }
+function closeDetail(){ dtId=null; document.getElementById('detail').classList.remove('open'); lockBody(!!document.querySelector('.over.open')); }
+function editFromDetail(){ if(dtId) openEditor(dtId); }
+function lockBody(on){ document.documentElement.style.overflow=on?'hidden':''; document.getElementById('fab').classList.toggle('hidden',on); }
+document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
+  if(document.getElementById('editor').classList.contains('open')) closeEditor(); else if(dtId) closeDetail(); });
+
+/* ---- backup: one file, photos inside; import only adds ---- */
+const blobToData=b=>new Promise(r=>{ const f=new FileReader(); f.onload=()=>r(f.result); f.readAsDataURL(b); });
+const dataToBlob=d=>fetch(d).then(r=>r.blob());
+async function exportAll(){ receipt('Packing…'); const photos=[];
+  for(const e of st.entries) for(const id of (e.photos||[])){ const p=await photoGet(id); if(p) photos.push({id, full:await blobToData(p.full), thumb:p.thumb?await blobToData(p.thumb):null}); }
+  const out=JSON.stringify({app:'sandwich-tour',v:1,exported:new Date().toISOString(),entries:st.entries,next:st.next,photos});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([out],{type:'application/json'}));
+  a.download='sandwich-tour-'+today()+'.json'; document.body.appendChild(a); a.click(); a.remove();
+  receipt('Exported '+st.entries.length+' sandwich'+(st.entries.length===1?'':'es')); }
+async function importAll(inp){ const f=inp.files&&inp.files[0]; inp.value=''; if(!f) return;
+  let o; try{ o=JSON.parse(await f.text()); }catch(e){ receipt('That file isn’t a Sandwich Tour export',true); return; }
+  if(o.app!=='sandwich-tour'||!Array.isArray(o.entries)){ receipt('That file isn’t a Sandwich Tour export',true); return; }
+  const have=new Set(st.entries.map(e=>e.id)), haveN=new Set(st.next.map(n=>n.id)), need=new Set();
+  const add=o.entries.filter(e=>e&&e.id&&!have.has(e.id)); add.forEach(e=>(e.photos||[]).forEach(p=>need.add(p)));
+  for(const p of (o.photos||[])) if(need.has(p.id)){ try{ await photoPut({id:p.id,full:await dataToBlob(p.full),thumb:p.thumb?await dataToBlob(p.thumb):null,added:Date.now()}); }catch(e){ console.error(e); } }
+  st.entries=st.entries.concat(add); st.next=st.next.concat((o.next||[]).filter(n=>n&&n.id&&!haveN.has(n.id)));
+  save(); render(); receipt('Imported '+add.length+' new sandwich'+(add.length===1?'':'es')); }
+async function storeNote(){ try{ if(navigator.storage&&navigator.storage.estimate){ const e=await navigator.storage.estimate();
+  document.getElementById('storeNote').textContent='Using '+(e.usage/1048576).toFixed(1)+' MB on this device.'; } }catch(_){} }
+
+load(); render(); storeNote();
+if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});   // ask the browser not to evict photos under pressure
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>console.error('sw register',e)));
+}
+</script>
+</body>
+</html>
