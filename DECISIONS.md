@@ -800,6 +800,61 @@
       and the no-PiP fallback both exercised); Primes 63/61; acceptance 20/20;
       half-sheet geometry at every size; day map 30/30.
 
+* **[2026-11-23] v0.14.0 — the week, down to the minute (Chad's three ideas).**
+  One loop: name the week → plan the day → map the hours → ring the bell.
+    * *Week focus:* a hero above the week board with three serif lines and
+      happy checkboxes, stored in `db.weeks[sundayISO] = {focus:[{text,done}]}`
+      (**schema lockstep**: mobile v0.13.1 carries the default the same hour).
+      The Day view shows it as one slim strip instead.
+      *Open:* the week's intent before the day's noise. *Close:* the week's
+      rocks named and held; done ones strike through.
+    * *"more" replaces the notes drawer:* each day keeps its three; everything
+      past them is a checklist, **collapsed by default** ("▸ 4 more"), with
+      Enter-to-add, ✕ to remove, and an emptied item leaving the list.
+      Storage is just `day.win[3..]` (the legacy renderer already tolerated
+      >3), so there's **no new field** for it. *Migration (Chad chose):* every
+      non-empty line of an old free-form note becomes an item, once
+      ("- ", "• ", "[ ]" stripped; "[x]" arrives done; duplicates skipped).
+      The note text is **never deleted**; `day.noteMoved` records what was
+      moved, so a note edited later on the phone only adds its new lines.
+      Runs in `normalize()`, so it applies on load and on every sync pull.
+    * *The tray:* the Day view's left column lists the day's three, then
+      "more", as cards. Drag one onto the hours and a **30-minute block**
+      lands under the pointer (15-min snap), linked by `block.ref` → the
+      item's `id` (ids are minted lazily, so old items don't change until
+      something points at them). The card then shows when it's on the map.
+      "+ add an item" works here too. The old "place →" buttons are gone.
+    * *The Now card + the bell:* replaces "The day's three". By default it
+      **follows the clock**: the block (or Outlook event) under the
+      now-line, preferring your own block, else the next one today. **Click
+      selects** a block, event or card; **double-click renames** (counted as
+      two clicks within 400ms, since a re-render would swallow a native
+      dblclick); a click on empty hours hands it back to the clock.
+      **▶ Start timer** rings the tinker's bell for the minutes *left*
+      (the whole block if it hasn't started; disabled once it's over) and
+      **floats it** via Document PiP (Chrome/Edge); elsewhere the card shows
+      the live countdown. A 1-second heartbeat keeps the card and the
+      now-line current while the Day view is open.
+    * *Small fixes found by looking:* the now-line runs **behind** blocks,
+      because over them it made a live block look struck through (done).
+      The week hero hides on the Day view, which has its strip.
+    * *Desktop first (Chad):* mobile carries `db.weeks` and the extra items
+      (its board shows extras as extra slots, and it still shows the old
+      note). Its UI for any of this waits until the design settles.
+    * *Verified:* a fresh CDP suite, 40/40 with real mouse input. It covers
+      legacy migration (incl. no double-move and a phone-edited note), hero
+      typing and checking, the more-list add/remove/empty/collapse, the
+      tray drag (preview, drop, link, a drop outside places nothing), Now
+      card clock-following, the time-left bell + float, future and ended
+      blocks, click/double-click, card selection, empty-hour release, tray
+      checkbox vs drag, another day, cold reload, and export. Plus an 8/8
+      regression sweep (every tab, the classic gestures, no uncaught errors)
+      and a 4/4 mobile lockstep round-trip. *Test scars, again:* a modal
+      left open by an earlier step silently ate pointer events (close with
+      the app's own `open` class, not a guessed one); `:nth-of-type` counts
+      the divider as a sibling; and the container's Chromium moved to
+      `/opt/pw-browsers/chromium-1243/chrome-linux64/chrome`.
+
 ## 💡 The Parking Lot (Future Ideas — deliberately open)
 * ~~**Intention-on-open / enough-on-close ritual**~~ — **SHIPPED in base form:**
   intention-on-open as the Opening tab (v0.3.0), enough-on-close as the

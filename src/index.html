@@ -263,9 +263,33 @@ body.cream #openArt{filter:none}
 .wb-slot .ck-label{flex:1;min-width:0;display:block}
 .wb-slot input{width:100%;min-width:0;font-size:13px;background:transparent;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:3px 2px;color:inherit}
 .wb-slot input:focus{outline:none;border-bottom-color:var(--accent)}
-.wb-note-btn{width:100%;margin-top:7px;font-size:11px;color:var(--muted);padding:5px 8px}
-.wb-note-btn .wb-note-dot{color:var(--accent);font-weight:800}
-.wb-note{width:100%;margin-top:7px;min-height:96px;font-size:12.5px;line-height:1.5;resize:vertical}
+/* "more" — the day's list past the three: collapsed by default, held out of the way */
+.wb-more-btn{width:100%;margin-top:7px;font-size:11px;color:var(--muted);padding:5px 8px}
+.wb-more-btn .wb-more-n{color:var(--accent);font-weight:700}
+.wb-more{margin-top:4px;padding-top:4px;border-top:1px dashed var(--border)}
+.wb-more .wb-slot input{font-size:12.5px}
+.wb-del{border:none;background:transparent;color:var(--muted);padding:0 3px;font-size:11px;opacity:0;cursor:pointer}
+.wb-slot:hover .wb-del,.wb-slot:focus-within .wb-del{opacity:.7}
+.wb-del:hover{opacity:1!important;color:var(--text)}
+.wb-add{width:100%;margin-top:4px;font-size:12.5px;background:transparent;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:4px 2px;color:inherit}
+.wb-add:focus{outline:none;border-bottom-color:var(--accent)}
+/* The week's focus — three for the whole week, above the board */
+.wk-hero{margin-bottom:14px;padding:16px 20px 12px;border:1px solid var(--border);border-radius:16px;
+  background:radial-gradient(ellipse at 12% 0%,rgba(242,162,74,.10),transparent 60%),var(--panel)}
+.wk-hero-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.wk-kicker{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.wk-focus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 22px}
+@media (max-width:980px){ .wk-focus{grid-template-columns:1fr} }
+.wk-row{display:flex;align-items:center;gap:10px;padding:4px 0}
+.wk-n{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.wk-row .ck-label{flex:1;min-width:0;display:block}
+.wk-row input{width:100%;min-width:0;font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-size:18px;
+  background:transparent;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:4px 2px;color:inherit}
+.wk-row input:focus{outline:none;border-bottom-color:var(--accent)}
+.dm-focus-strip{padding:8px 16px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.dm-focus-strip b{color:var(--accent);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.dm-focus-strip .done{text-decoration:line-through;opacity:.55}
+.dm-focus-strip a{color:var(--accent);cursor:pointer}
 .wb-day h4 .wb-map{cursor:pointer;border-radius:4px;padding:0 2px;margin:0 -2px}
 .wb-day h4 .wb-map:hover{color:var(--accent);background:rgba(242,162,74,.10)}
 /* Blueprint · Day map — time grid. Your blocks are lit; Outlook's fixed points are shadows. */
@@ -273,7 +297,8 @@ body.cream #openArt{filter:none}
 .bp-seg button{background:transparent;color:var(--muted);border:none;border-radius:0;padding:5px 12px;font-size:12px;font-weight:600}
 .bp-seg button+button{border-left:1px solid var(--border)}
 .bp-seg button.on{background:rgba(242,162,74,.14);color:var(--accent)}
-.dm-wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;padding-top:6px}
+.dm-wrap{display:grid;grid-template-columns:210px minmax(0,1fr) 250px;gap:14px;padding-top:6px}
+@media (max-width:1180px){ .dm-wrap{grid-template-columns:190px minmax(0,1fr)} .dm-side{grid-column:1 / -1} }
 @media (max-width:980px){ .dm-wrap{grid-template-columns:1fr} }
 .dm-allday{display:flex;flex-wrap:wrap;gap:5px;padding-left:56px;margin-bottom:6px}
 .dm-allday:empty{display:none}
@@ -300,14 +325,35 @@ body.cream #openArt{filter:none}
 .dm-grip{position:absolute;left:0;right:0;bottom:0;height:7px;cursor:ns-resize;touch-action:none}
 .dm-item.blk input{width:100%;font:inherit;background:transparent;border:none;border-bottom:1px solid var(--accent);color:inherit;padding:0;border-radius:0}
 .dm-item.blk input:focus{outline:none}
-.dm-now{position:absolute;left:56px;right:0;height:0;border-top:2px solid var(--accent);z-index:6;pointer-events:none}
+.dm-now{position:absolute;left:56px;right:0;height:0;border-top:2px solid var(--accent);z-index:1;pointer-events:none}   /* behind blocks: a live block must never look struck through */
 .dm-now::before{content:'';position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
 .dm-side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .dm-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px}
 .dm-card h4{margin:0 0 8px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.dm-three-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
-.dm-three-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-three-row.done span{text-decoration:line-through;opacity:.55}
+/* The tray — the day's items as cards, dragged onto the hours */
+.dm-tray{display:flex;flex-direction:column;gap:6px;min-width:0;max-height:calc(100vh - 230px);overflow-y:auto;padding-right:2px;align-self:start;position:sticky;top:12px}
+.dm-tray h4{margin:0 0 2px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.dm-tray-sep{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;opacity:.8}
+.dm-tcard{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel);
+  font-size:13px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.dm-tcard:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border))}
+.dm-tcard .ck-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-tcard.three{border-left:3px solid var(--accent)}
+.dm-tcard.sel,.dm-item.sel{outline:2px solid var(--accent);outline-offset:1px}
+.dm-tcard.lifting{opacity:.45}
+.dm-placed{flex:none;font-size:10.5px;color:var(--accent);opacity:.85;white-space:nowrap}
+.dm-tray-empty{font-size:12.5px;color:var(--muted);line-height:1.45}
+.dm-tray .wb-add{margin-top:2px}
+.dm-drag{position:fixed;z-index:200;pointer-events:none;padding:7px 10px;border:1px solid var(--accent);border-radius:9px;
+  background:var(--panel);font-size:13px;box-shadow:0 8px 22px rgba(0,0,0,.4);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-item.cal{cursor:pointer}
+/* The Now card — what the clock (or your click) points at, and the bell for it */
+.dm-now-card #dmNowBody{font-size:13px;line-height:1.45;margin-bottom:9px}
+.dm-now-t{font-size:15px;font-weight:600;color:var(--text);word-break:break-word}
+.dm-now-s{color:var(--muted);font-size:12.5px}
+.dm-now-s.live{color:var(--accent)}
+.dm-timer-btn{width:100%;min-height:40px;font-size:14px;font-weight:700}
+.dm-timer-btn:disabled{opacity:.45;cursor:default}
 .dm-cal-stat{font-size:12.5px;margin-bottom:8px}
 .dm-cal-btns{display:flex;flex-wrap:wrap;gap:6px}
 .dm-cal-note{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.45}
@@ -564,7 +610,7 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
 <body>
 
 <div class="appbar">
-  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.13.0</small></span></div>
+  <div class="brand"><span class="brand-lamp" aria-hidden="true"></span><span>Chiaro Tinker Tools<small>a personal tool belt &amp; studio · CTT v0.14.0</small></span></div>
   <div class="maintabs">
     <div class="maintab active" data-m="opening" onclick="switchMain('opening')">Opening</div>
     <div class="maintab" data-m="journal" onclick="switchMain('journal')">Project Journal</div>
@@ -901,20 +947,28 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
     <span class="spacer"></span>
     <button class="ghost small" id="bpCopyBtn" onclick="bpMode==='day'?copyDayMap():copyWeekPlan()">Copy Week Plan</button>
   </div>
+  <div class="wk-hero" id="bpFocus">
+    <div class="wk-hero-head"><span class="wk-kicker">This week's focus</span><span class="muted" id="wkFocusProg"></span></div>
+    <div class="wk-focus" id="wkFocus"></div>
+  </div>
   <div class="panel" id="bpWeekPanel">
     <h3><span>The week's skeleton — three per day</span><span class="muted" id="weekProgress"></span></h3>
     <div class="body"><div class="week-board" id="weekBoard"></div></div>
-    <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral. Tap a day's name to map its hours.</div>
+    <div class="hint">Sketch the week — no more than three things per day. When a day goes sideways, come back here to re-ground: these were your priorities and your idea of the time. Go from here, not from the spiral. Anything past the three goes in <em>more</em>, held and out of the way. Tap a day's name to map its hours.</div>
   </div>
   <div class="panel hidden" id="bpDayPanel">
     <h3><span>The day's map — a scratchpad, not a schedule</span><span class="muted" id="dayMapStat"></span></h3>
+    <div class="dm-focus-strip" id="dmFocusStrip"></div>
     <div class="body">
       <div class="dm-wrap">
+        <aside class="dm-tray" id="dmTray" aria-label="The day's items"></aside>
         <div class="dm-scroll"><div class="dm-allday" id="dmAllDay"></div><div class="dm-grid" id="dmGrid"></div></div>
         <aside class="dm-side">
-          <div class="dm-card">
-            <h4>The day's three</h4>
-            <div id="dmThree"></div>
+          <div class="dm-card dm-now-card">
+            <h4>Now</h4>
+            <div id="dmNowBody"></div>
+            <button type="button" class="dm-timer-btn" id="dmTimerBtn" onclick="dmStartTimer()">▶ Start timer</button>
+            <div class="dm-cal-note" id="dmTimerNote"></div>
           </div>
           <div class="dm-card">
             <h4>Outlook <span class="muted">· view-only</span></h4>
@@ -930,7 +984,7 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
         </aside>
       </div>
     </div>
-    <div class="hint">Drag across empty hours to sketch a block. Drag a block to move it, drag its bottom edge to stretch it, click it to rename. Double-click an empty hour for a one-hour block. None of this reaches Outlook. It's a napkin for the day, not an invitation.</div>
+    <div class="hint">Drag a card from the left onto the hours to give it a half hour. Drag across empty hours to sketch a block; drag a block to move it, its bottom edge to stretch it. Click a block to select it for the timer, double-click to rename. Double-click an empty hour for a one-hour block. None of this reaches Outlook. It's a napkin for the day, not an invitation.</div>
   </div>
 </div>
 </div>
@@ -1226,7 +1280,7 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
   <details class="sync-row" open>
     <summary style="cursor:pointer;font-weight:600;font-size:14px">About this app</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
-      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day, plus a hidden ✎ notes drawer under each day for brain-dumps that shouldn't crowd the three, and a Day view that maps a single day's hours under your Outlook meetings), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
+      CTT is one file, one room per tab: <strong>Opening</strong> (the threshold — the line draws in, you name up to three intentions for the session with time boxes), <strong>Project Journal</strong> (projects, steps, budgets, scratchpads), <strong>Time Card</strong> (log your day and roll hours into project steps), <strong>Blueprint</strong> (the week's skeleton — up to three priorities per day, the week's three focuses on top, a collapsed <em>more</em> checklist under each day for whatever shouldn't crowd the three, and a Day view that maps a single day's hours under your Outlook meetings), and <strong>Closing</strong> (the log-off room — a read-only ledger of the held day over a night field, and an optional "It was enough." check on the way out). Intentions and Blueprint are deliberately separate: the board holds the week's reminders, Opening names today's big rocks.<br><br>
       Everything saves automatically — the dot in the top-right reads <strong>Saved</strong> after each change. Nothing leaves your machine unless you turn on cloud sync. Because it's a single file, it's portable and hard to break: if a build ever misbehaves, an earlier version still opens your data.
     </div>
   </details>
@@ -1280,7 +1334,8 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
     <summary style="cursor:pointer;font-weight:600;font-size:14px">Blueprint</summary>
     <div class="sync-note" style="font-size:13px;line-height:1.7;margin-top:8px">
       A seven-day board with three slots per day — sketch the week's skeleton (Sunday works well), check things off as they land, and come back to re-ground when the day goes sideways. Today's three also show on the Time Card. It's a compass, not a task manager: three per day is the whole point.<br><br>
-      <strong>Day</strong> (or tap a day's name on the board) opens <strong>the day's map</strong>: an hour grid for sketching where the time goes. Drag across empty hours to make a block, drag it to move, drag its bottom edge to stretch, click to rename, ✕ to remove; <em>place →</em> drops one of the day's three into the first open hour. It's a napkin, not a calendar: nothing here ever reaches Outlook.<br><br>
+      <strong>This week's focus</strong> sits above the board: three for the whole week, the frame the days sit in. Under each day, <em>▸ more</em> opens a checklist for everything past the three (Enter adds, ✕ removes); it stays collapsed so the three stay the three. Old free-form notes moved into these lists line by line; the original text is kept.<br><br>
+      <strong>Day</strong> (or tap a day's name on the board) opens <strong>the day's map</strong>: an hour grid for sketching where the time goes. The day's items wait in a tray on the left: drag a card onto the hours and it becomes a half-hour block. Drag across empty hours to make a block, drag it to move, drag its bottom edge to stretch, double-click to rename, ✕ to remove. The <strong>Now</strong> card follows the clock (the block under the now-line, else the next one); click any block, event or card to point it there, or empty hours to hand it back. <em>▶ Start timer</em> rings the tinker's bell for the time left in that block and floats it. It's a napkin, not a calendar: nothing here ever reaches Outlook.<br><br>
       <strong>Outlook, view-only:</strong> <em>Import .ics</em> (classic Outlook → File → Save Calendar) or <em>↻ Pull feed</em> (a published calendar link stored as a secret on your sync Worker; see <code>sync/SYNC-SETUP.md</code>) lays your real meetings underneath as dim shadows to plan around. That copy stays on the device that fetched it: never synced, never exported, gone with <em>Forget</em>.
     </div>
   </details>
@@ -1401,7 +1456,10 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}   /* room so t
 
 <script>
 /* =====================================================================
-   Chiaro Tinker Tools (CTT) v0.13.0 — forked from PJT 3.3.0. Single-file HTML.
+   Chiaro Tinker Tools (CTT) v0.14.0 — forked from PJT 3.3.0. Single-file HTML.
+   v0.14.0: Blueprint plans the week down to the minute — week focus (db.weeks), a
+            collapsible "more" checklist per day (old notes moved in), a draggable tray
+            on the day map, and a Now card whose ▶ starts the bell for the block's time left.
    v0.13.0: the pocket FAB comes to desktop — ▦/÷ leave the appbar for a bottom-right
             button that fans out Scratch, Primes and the Bell (Bell = ⧉ pop-out from any room).
    v0.12.3: the Primes number sits a little higher, with air above an open sheet.
@@ -1542,6 +1600,8 @@ function mergeDefaults(p){
   p.timecard=Object.assign({days:{},currentDate:null}, p.timecard||{});
   p.intentions=p.intentions||{};   // Opening tab: per-date session intentions [{text,from,to,done}]
   p.closing=p.closing||{};         // Closing tab: per-date {enough:bool} — never read after its day
+  p.weeks=p.weeks||{};             // Blueprint week focus: keyed by the week's Sunday (ISO) → {focus:[{text,done}]} — SCHEMA LOCKSTEP: this default exists in both sibling repos
+  notesToItems(p.timecard.days);   // v0.14.0: free-form day notes became the day's checklist
   p.blocks=p.blocks||{};           // Blueprint day map: per-date [{id,s,e,text}], s/e = minutes after midnight — SCHEMA LOCKSTEP: this default exists in both sibling repos
   p.primes=Object.assign({solved:{}}, p.primes||{});   // Primes pocket: {n:'YYYY-MM-DD'} the first day each prime was called right — SCHEMA LOCKSTEP: this default exists in both sibling repos
   p.scratch=Object.assign({cells:{}}, p.scratch||{});   // Scratch sheet (pocket tool): raw strings keyed "A1".."H25" — SCHEMA LOCKSTEP: this default exists in both sibling repos
@@ -1566,6 +1626,21 @@ function mergeDefaults(p){
 // stamps/migrates the schema string. Add `if(p.schema===<old>){ …migrate… }`
 // branches here (before the stamp) as the db shape evolves. Verify each new
 // branch against legacy-shaped data — the most load-bearing migration step.
+// v0.14.0 — a day's free-form note becomes items on its checklist, past the
+// three: each non-empty line once ("- ", "• ", "[ ]" stripped; "[x]" arrives
+// done). The note itself is never deleted — day.noteMoved records the text
+// already moved, so a note edited later (say on the phone) only adds its new lines.
+function notesToItems(days){
+  Object.keys(days||{}).forEach(k=>{ const d=days[k];
+    if(!d||typeof d.note!=='string'||!d.note.trim()||d.noteMoved===d.note) return;
+    if(!Array.isArray(d.win)) d.win=[];
+    while(d.win.length<3) d.win.push({text:'',done:false});
+    const have=new Set(d.win.map(w=>((w&&w.text)||'').trim()));
+    d.note.split(/\r?\n/).forEach(line=>{
+      const m=/^\s*(?:[-*•]\s*)?(?:\[( |x|X)?\]\s*)?(.*)$/.exec(line), t=(m[2]||'').trim();
+      if(!t||have.has(t)) return;
+      d.win.push({text:t,done:m[1]==='x'||m[1]==='X'}); have.add(t); });
+    d.noteMoved=d.note; }); }
 function normalize(p){ p=mergeDefaults(p); if(p.schema!==SCHEMA){ /* future migrations key off p.schema here */ p.schema=SCHEMA; } return p; }
 // One-time cleanup of old numbered-section names; also fixes any time-card links to them.
 function migrateLegacySectionNames(){
@@ -3006,56 +3081,94 @@ function renderBlueprint(){
   const day=bpMode==='day';
   document.querySelectorAll('.bp-seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===bpMode));
   document.getElementById('bpWeekPanel').classList.toggle('hidden',day);
+  document.getElementById('bpFocus').classList.toggle('hidden',day);   // the Day view carries the slim focus strip instead
   document.getElementById('bpDayPanel').classList.toggle('hidden',!day);
   document.getElementById('bpTodayBtn').textContent=day?'Today':'This week';
   document.getElementById('bpCopyBtn').textContent=day?'Copy Day Map':'Copy Week Plan';
   if(day) renderDayMap(); else renderWeekBoard();
 }
+// Items: day.win[0..2] are the three; day.win[3..] are "more" — the day's
+// list past the three, collapsed by default. Each item gets a stable id the
+// first time something needs to point at it (a block on the day map).
+function planId(w){ if(!w.id) w.id=uid(); return w.id; }
+function dayExtras(day){ return ((day&&day.win)||[]).slice(3).filter(w=>w&&(w.text||'').trim()); }
+const wbOpen=new Set();   // days whose "more" list is open (view state, not persisted)
+function weekKey(ds){ const [y,m,d]=ds.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()-dt.getDay()); return iso(dt); }
+function focusList(key){ const w=db.weeks[key]; return (w&&Array.isArray(w.focus))?w.focus:[]; }
+function focusSlot(key,i){ if(!db.weeks[key]||!Array.isArray(db.weeks[key].focus)) db.weeks[key]={focus:[]};
+  const f=db.weeks[key].focus; while(f.length<=i) f.push({text:'',done:false}); return f[i]; }
+function renderWeekFocus(){
+  const key=weekDates()[0], box=document.getElementById('wkFocus'); box.innerHTML='';
+  const ph=['What is this week for?','And then?','One more, if it earns it.'];
+  for(let i=0;i<3;i++){ const it=focusList(key)[i]||{text:'',done:false};
+    const row=document.createElement('div'); row.className='wk-row';
+    const n=document.createElement('span'); n.className='wk-n'; n.textContent=i+1;
+    const lw=document.createElement('span'); lw.className='ck-label'+(it.done?' ck-done':'');
+    const tx=document.createElement('input'); tx.type='text'; tx.value=it.text||''; tx.placeholder=ph[i]; tx.setAttribute('aria-label','Week focus '+(i+1)); lw.appendChild(tx);
+    const ck=makeCheck(!!it.done, lw, dn=>{ const f=focusSlot(key,i); f.text=tx.value; f.done=dn; save(); focusProg(); });
+    const commit=()=>{ if((focusList(key)[i]||{}).text===tx.value) return; focusSlot(key,i).text=tx.value; save(); focusProg(); };
+    let t=null; tx.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(commit,800); });
+    tx.addEventListener('change',commit);
+    row.append(n,ck.wrap,lw); box.appendChild(row); }
+  focusProg(); }
+function focusProg(){ const f=focusList(weekDates()[0]).filter(w=>w&&(w.text||'').trim());
+  document.getElementById('wkFocusProg').textContent=f.length?(f.filter(w=>w.done).length+' / '+f.length+' done'):''; }
 function renderWeekBoard(){
-  const days=weekDates(); const today=todayStr();
+  const days=weekDates();
   document.getElementById('weekLabel').textContent='Week of '+dowName(days[0]);
+  renderWeekFocus();
   const board=document.getElementById('weekBoard'); board.innerHTML='';
-  days.forEach(ds=>{
-    const day=db.timecard.days[ds];   // read-only peek; the day is only created once something is typed
-    const [y,m,d]=ds.split('-').map(Number);
-    const col=document.createElement('div'); col.className='wb-day'+(ds===today?' today':'');
-    const h=document.createElement('h4');
-    const wd=document.createElement('span'); wd.textContent=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short'});
-    wd.className='wb-map'; wd.title='Map this day\u2019s hours'; wd.onclick=()=>openDayMap(ds);
-    const md=document.createElement('span'); md.textContent=m+'/'+d;
-    h.append(wd,md); col.appendChild(h);
-    let n=3; if(day&&Array.isArray(day.win)) day.win.forEach((w,i)=>{ if(w&&(w.text||'').trim()&&i>=n) n=i+1; });   // legacy days may hold >3
-    for(let i=0;i<n;i++){
-      const item=(day&&day.win&&day.win[i])||{text:'',done:false};
-      const row=document.createElement('div'); row.className='wb-slot';
-      const lw=document.createElement('span'); lw.className='ck-label'+(item.done?' ck-done':'');
-      const tx=document.createElement('input'); tx.type='text'; tx.value=item.text||''; tx.placeholder='·'; lw.appendChild(tx);
-      const ck=makeCheck(!!item.done, lw, dn=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; planSlot(dd,i).done=dn;
-        updateWeekProgress(); renderPlanMini(); save(); });
-      let tt=null; tx.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(()=>{ const dd=getDay(ds);
-        if(planSlot(dd,i).text!==tx.value){ planSlot(dd,i).text=tx.value; save(); } },800); });
-      tx.addEventListener('change',()=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; save(); updateWeekProgress(); renderPlanMini(); });
-      row.append(ck.wrap,lw); col.appendChild(row);
-    }
-    // Daily notes — a brain-dump drawer under the three things. Default
-    // hidden: thoughts are held, the day's focus stays the three. Lives on
-    // day.note (legacy days simply lack it).
-    const nbtn=document.createElement('button'); nbtn.type='button'; nbtn.className='ghost small wb-note-btn';
-    const setLbl=()=>{ const has=!!(((db.timecard.days[ds]||{}).note)||'').trim();
-      nbtn.innerHTML='✎ notes'+(has?' <span class="wb-note-dot">·</span>':''); };
-    const ta=document.createElement('textarea'); ta.className='wb-note';
-    ta.placeholder='Brain-dump for the day — held here, out of the way.';
-    ta.value=(day&&day.note)||''; ta.style.display='none';
-    let nt=null; const commitNote=()=>{ const dd=getDay(ds); if(dd.note!==ta.value){ dd.note=ta.value; save(); } setLbl(); };
-    ta.addEventListener('input',()=>{ clearTimeout(nt); nt=setTimeout(commitNote,800); });
-    ta.addEventListener('change',commitNote);
-    nbtn.onclick=()=>{ const open=ta.style.display!=='none';
-      ta.style.display=open?'none':'block'; if(!open) ta.focus(); };
-    setLbl();
-    col.append(nbtn,ta);
-    board.appendChild(col);
-  });
+  days.forEach(ds=>board.appendChild(wbDayCol(ds)));
   updateWeekProgress();
+}
+// One day's column: the three, then the collapsible "more" list. Edits that
+// change the list's shape rebuild just this column.
+function wbDayCol(ds){
+  const day=db.timecard.days[ds];   // read-only peek; the day is only created once something is typed
+  const [y,m,d]=ds.split('-').map(Number);
+  const col=document.createElement('div'); col.className='wb-day'+(ds===todayStr()?' today':''); col.dataset.ds=ds;
+  const h=document.createElement('h4');
+  const wd=document.createElement('span'); wd.textContent=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short'});
+  wd.className='wb-map'; wd.title='Map this day’s hours'; wd.onclick=()=>openDayMap(ds);
+  const md=document.createElement('span'); md.textContent=m+'/'+d;
+  h.append(wd,md); col.appendChild(h);
+  const rebuild=focusAdd=>{ const nc=wbDayCol(ds); col.replaceWith(nc); updateWeekProgress(); renderPlanMini();
+    if(focusAdd){ const a=nc.querySelector('.wb-add'); if(a) a.focus(); } };
+  const slotRow=(i,extra)=>{
+    const item=(day&&day.win&&day.win[i])||{text:'',done:false};
+    const row=document.createElement('div'); row.className='wb-slot';
+    const lw=document.createElement('span'); lw.className='ck-label'+(item.done?' ck-done':'');
+    const tx=document.createElement('input'); tx.type='text'; tx.value=item.text||''; tx.placeholder=extra?'':'·'; lw.appendChild(tx);
+    const ck=makeCheck(!!item.done, lw, dn=>{ const dd=getDay(ds); planSlot(dd,i).text=tx.value; planSlot(dd,i).done=dn;
+      updateWeekProgress(); renderPlanMini(); save(); });
+    let tt=null; tx.addEventListener('input',()=>{ clearTimeout(tt); tt=setTimeout(()=>{ const dd=getDay(ds);
+      if(planSlot(dd,i).text!==tx.value){ planSlot(dd,i).text=tx.value; save(); } },800); });
+    tx.addEventListener('change',()=>{ clearTimeout(tt); const dd=getDay(ds);
+      if(extra&&!tx.value.trim()){ dd.win.splice(i,1); save(); rebuild(); return; }   // an emptied extra leaves the list
+      planSlot(dd,i).text=tx.value; save(); updateWeekProgress(); renderPlanMini(); });
+    row.append(ck.wrap,lw);
+    if(extra){ const x=document.createElement('button'); x.type='button'; x.className='wb-del'; x.textContent='✕';
+      x.title='Remove'; x.setAttribute('aria-label','Remove item');
+      x.onclick=()=>{ const dd=getDay(ds); dd.win.splice(i,1); save(); rebuild(); };
+      row.appendChild(x); }
+    return row; };
+  for(let i=0;i<3;i++) col.appendChild(slotRow(i,false));
+  // "more" — collapsed by default; a count shows what's held there
+  const extraIdx=[]; ((day&&day.win)||[]).forEach((w,i)=>{ if(i>=3&&w&&(w.text||'').trim()) extraIdx.push(i); });
+  const open=wbOpen.has(ds);
+  const btn=document.createElement('button'); btn.type='button'; btn.className='ghost small wb-more-btn';
+  btn.setAttribute('aria-expanded',open?'true':'false');
+  btn.innerHTML=(open?'▾ ':'▸ ')+(extraIdx.length?'<span class="wb-more-n">'+extraIdx.length+'</span> more':'more');
+  btn.onclick=()=>{ if(open) wbOpen.delete(ds); else wbOpen.add(ds); rebuild(!open); };
+  col.appendChild(btn);
+  if(open){ const list=document.createElement('div'); list.className='wb-more';
+    extraIdx.forEach(i=>list.appendChild(slotRow(i,true)));
+    const add=document.createElement('input'); add.type='text'; add.className='wb-add'; add.placeholder='+ add an item'; add.setAttribute('aria-label','Add an item');
+    add.addEventListener('keydown',e=>{ if(e.key!=='Enter') return; e.preventDefault(); const v=add.value.trim(); if(!v) return;
+      const dd=getDay(ds); while(dd.win.length<3) dd.win.push({text:'',done:false});
+      dd.win.push({id:uid(),text:v,done:false}); save(); rebuild(true); });
+    list.appendChild(add); col.appendChild(list); }
+  return col;
 }
 function updateWeekProgress(){ let done=0,total=0;
   weekDates().forEach(ds=>{ const day=db.timecard.days[ds]; if(!day||!Array.isArray(day.win)) return;
@@ -3065,6 +3178,10 @@ function weekShift(n){ const [y,m,d]=(weekAnchor||todayStr()).split('-').map(Num
   const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+n); weekAnchor=iso(dt); renderBlueprint(); }
 function weekToday(){ weekAnchor=null; renderBlueprint(); }
 function copyWeekPlan(){ const plain=[],html=[];
+  const focus=focusList(weekDates()[0]).filter(w=>w&&(w.text||'').trim());
+  if(focus.length){ plain.push('This week’s focus'); html.push('<b>This week’s focus</b>');
+    focus.forEach(w=>{ const mk=w.done?'[x]':'[ ]'; plain.push('  '+mk+' '+w.text); html.push('  '+mk+' '+escapeHtml(w.text)); });
+    plain.push(''); html.push(''); }
   weekDates().forEach(ds=>{ const day=db.timecard.days[ds]; const items=((day&&day.win)||[]).filter(w=>w&&(w.text||'').trim());
     if(!items.length) return; const head=dowName(ds);
     plain.push(head); html.push('<b>'+escapeHtml(head)+'</b>');
@@ -3083,12 +3200,13 @@ let dayAnchor=null;     // ISO date shown in the day map; null = today
 const DM_PPM=0.8;       // pixels per minute (48px an hour)
 const DM_SNAP=15;       // minutes
 let dmR0=360, dmR1=1260;   // visible range for the current render (minutes)
+let dmSel=null;            // {kind:'blk'|'cal'|'item', id} — what the Now card points at; null = follow the clock
 function dmDate(){ return dayAnchor||todayStr(); }
 function setBpMode(m){ bpMode=m; renderBlueprint(); }
-function openDayMap(ds){ dayAnchor=ds; bpMode='day'; renderBlueprint(); }
+function openDayMap(ds){ dayAnchor=ds; bpMode='day'; dmSel=null; renderBlueprint(); }
 function bpShift(n){ if(bpMode!=='day') return weekShift(7*n);
-  const [y,m,d]=dmDate().split('-').map(Number); dayAnchor=iso(new Date(y,m-1,d+n)); renderBlueprint(); }
-function bpToday(){ if(bpMode!=='day') return weekToday(); dayAnchor=null; renderBlueprint(); }
+  const [y,m,d]=dmDate().split('-').map(Number); dayAnchor=iso(new Date(y,m-1,d+n)); dmSel=null; renderBlueprint(); }
+function bpToday(){ if(bpMode!=='day') return weekToday(); dayAnchor=null; dmSel=null; renderBlueprint(); }
 function dmBlocks(ds,create){ if(!Array.isArray(db.blocks[ds])){ if(!create) return []; db.blocks[ds]=[]; } return db.blocks[ds]; }
 function fmtMin(m){ m=Math.round(m); const h=Math.floor(m/60)%24, mm=m%60;
   return ((h%12)||12)+(mm?':'+String(mm).padStart(2,'0'):'')+(h<12?' AM':' PM'); }
@@ -3136,7 +3254,7 @@ function renderDayMap(){
   if(ds===today){ const n=new Date(), nm=n.getHours()*60+n.getMinutes();
     if(nm>=dmR0&&nm<=dmR1){ const nl=document.createElement('div'); nl.className='dm-now'; nl.style.top=((nm-dmR0)*DM_PPM)+'px'; grid.appendChild(nl); } }
   wireDayCol(col,ds);
-  renderDmThree(ds); renderCalStat(); updateDayStat(ds);
+  renderDmFocus(ds); renderDmTray(ds); renderCalStat(); updateDayStat(ds); updateNowCard();
 }
 function dmItemEl(it,ds){
   const el=document.createElement('div'); el.className='dm-item '+it.kind;
@@ -3145,6 +3263,7 @@ function dmItemEl(it,ds){
   if(it.kind==='cal'){ ti.textContent=it.ev.title||'(busy)';
     tm.textContent=fmtMin(it.s)+' – '+fmtMin(it.e)+(it.ev.loc?' · '+it.ev.loc:'');
     el.title=(it.ev.title||'(busy)')+'\n'+tm.textContent+'\nFrom Outlook · view only';
+    el.dataset.key=calKey(it.ev); el.onclick=()=>dmSelect({kind:'cal',id:calKey(it.ev)});
     el.append(ti,tm); }
   else { const b=it.b; el.dataset.id=b.id; dmFillTitle(ti,b); tm.textContent=fmtMin(b.s)+' – '+fmtMin(b.e);
     const x=document.createElement('button'); x.type='button'; x.className='dm-x'; x.textContent='✕';
@@ -3167,14 +3286,17 @@ function wireDayCol(col,ds){
       ghost._s=s; ghost._e=en; dmPlace(ghost,{s:s,e:en});
       ghost.innerHTML='<span class="dm-time">'+fmtMin(s)+' – '+fmtMin(en)+'</span>'; };
     const up=()=>{ col.removeEventListener('pointermove',mv); col.removeEventListener('pointerup',up); col.removeEventListener('pointercancel',up);
-      if(ghost){ const s=ghost._s, en=ghost._e; ghost.remove(); if(en>s) addBlock(ds,s,en); } };
+      if(ghost){ const s=ghost._s, en=ghost._e; ghost.remove(); if(en>s) addBlock(ds,s,en); }
+      else dmSelect(null); };
     try{ col.setPointerCapture(e.pointerId); }catch(_){}
     col.addEventListener('pointermove',mv); col.addEventListener('pointerup',up); col.addEventListener('pointercancel',up);
   });
   col.addEventListener('dblclick',e=>{ if(e.target!==col) return;
     const s=dmClamp(Math.floor(dmYToMin(col,e.clientY)/30)*30); addBlock(ds,s,Math.min(1440,s+60)); });
 }
-// A block: drag to move, drag the bottom edge to stretch, click (no drag) to rename.
+// A block: drag to move, drag the bottom edge to stretch, click to select it
+// for the Now card, double-click to rename (two clicks within 400ms — counted
+// here, since a re-render between them would swallow a native dblclick).
 function wireBlock(el,b,ds){
   el.addEventListener('pointerdown',e=>{
     if(e.button!==0||e.target.tagName==='INPUT') return;
@@ -3187,12 +3309,17 @@ function wireBlock(el,b,ds){
       else { const len=e0-s0, ns=Math.max(dmR0,Math.min(dmR1-len,s0+dm)); b.s=ns; b.e=ns+len; }
       dmPlace(el,{s:b.s,e:b.e}); el.querySelector('.dm-time').textContent=fmtMin(b.s)+' – '+fmtMin(b.e); };
     const up=()=>{ el.removeEventListener('pointermove',mv); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up);
-      if(moved){ save(); renderDayMap(); } else if(!resize) editBlock(ds,b.id); };
+      if(moved){ save(); renderDayMap(); return; }
+      if(resize) return;
+      const now=Date.now();
+      if(dmLastClick.id===b.id&&now-dmLastClick.t<400){ dmLastClick={id:null,t:0}; editBlock(ds,b.id); }
+      else { dmLastClick={id:b.id,t:now}; dmSelect({kind:'blk',id:b.id}); } };
     try{ el.setPointerCapture(e.pointerId); }catch(_){}
     el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
   });
 }
-function addBlock(ds,s,e){ const b={id:uid(),s:s,e:e,text:''}; dmBlocks(ds,true).push(b); save(); renderDayMap(); editBlock(ds,b.id); }
+let dmLastClick={id:null,t:0};
+function addBlock(ds,s,e){ const b={id:uid(),s:s,e:e,text:''}; dmBlocks(ds,true).push(b); dmSel={kind:'blk',id:b.id}; save(); renderDayMap(); editBlock(ds,b.id); }
 function removeBlock(ds,id){ const a=dmBlocks(ds,false), i=a.findIndex(b=>b.id===id); if(i<0) return;
   a.splice(i,1); if(!a.length) delete db.blocks[ds]; save(); renderDayMap(); }
 // Rename in place — no re-render on commit, so a drag that started the blur
@@ -3204,31 +3331,136 @@ function editBlock(ds,id){
   const inp=document.createElement('input'); inp.type='text'; inp.value=b.text||''; inp.placeholder='What goes here?'; inp.maxLength=200;
   ti.replaceWith(inp);
   let done=false; const commit=keep=>{ if(done) return; done=true;
-    if(keep){ const v=inp.value.trim()?inp.value:''; if(b.text!==v){ b.text=v; save(); renderDmThree(ds); } }
+    if(keep){ const v=inp.value.trim()?inp.value:''; if(b.text!==v){ b.text=v; save(); updateNowCard(); } }
     const sp=document.createElement('span'); sp.className='dm-title'; dmFillTitle(sp,b); inp.replaceWith(sp); };
   inp.addEventListener('pointerdown',e=>e.stopPropagation());
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); }
     else if(e.key==='Escape'){ e.preventDefault(); commit(false); } });
   inp.addEventListener('blur',()=>commit(true));
   inp.focus(); inp.select(); }
-function renderDmThree(ds){ const box=document.getElementById('dmThree'); box.innerHTML='';
-  const day=db.timecard.days[ds]; const items=((day&&day.win)||[]).filter(w=>w&&(w.text||'').trim());
-  if(!items.length){ box.innerHTML='<div class="muted" style="font-size:12.5px">Nothing on the board for this day.</div>'; return; }
-  const placed=new Set(dmBlocks(ds,false).map(b=>(b.text||'').trim()));
-  items.forEach(w=>{ const r=document.createElement('div'); r.className='dm-three-row'+(w.done?' done':'');
-    const t=document.createElement('span'); t.textContent=w.text; t.title=w.text;
-    const btn=document.createElement('button'); btn.type='button'; btn.className='ghost small';
-    if(placed.has(w.text.trim())){ btn.textContent='placed'; btn.disabled=true; }
-    else { btn.textContent='place →'; btn.title='Drop an hour for this onto the first open slot'; btn.onclick=()=>placeThree(ds,w.text.trim()); }
-    r.append(t,btn); box.appendChild(r); }); }
-// First open hour from 9 AM (or from now, on today), around blocks and Outlook events.
-function placeThree(ds,text){
-  const busy=[...dmBlocks(ds,false),...calForDate(ds).filter(e=>!e.allDay)];
-  const n=new Date(); let s=9*60;
-  if(ds===todayStr()) s=Math.max(s,Math.ceil((n.getHours()*60+n.getMinutes())/30)*30);
-  while(s+60<=1440&&busy.some(x=>x.s<s+60&&x.e>s)) s+=30;
-  if(s+60>1440) s=9*60;
-  dmBlocks(ds,true).push({id:uid(),s:s,e:s+60,text:text}); save(); renderDayMap(); flash('Placed at '+fmtMin(s)); }
+// The week's focus, one line above the hours: the frame the day sits in.
+function renderDmFocus(ds){ const el=document.getElementById('dmFocusStrip'); el.innerHTML='';
+  const f=focusList(weekKey(ds)).filter(w=>w&&(w.text||'').trim());
+  const b=document.createElement('b'); b.textContent='Week focus'; el.appendChild(b);
+  if(!f.length){ const a=document.createElement('a'); a.textContent='Name this week’s three on the Week view →';
+    a.onclick=()=>{ weekAnchor=ds; setBpMode('week'); }; el.appendChild(a); return; }
+  f.forEach((w,i)=>{ const sp=document.createElement('span'); sp.textContent=(i+1)+'. '+w.text; if(w.done) sp.className='done'; el.appendChild(sp); }); }
+// The tray: the day's three, then "more" — cards to drag onto the hours.
+function renderDmTray(ds){ const tray=document.getElementById('dmTray'); tray.innerHTML='';
+  const h=document.createElement('h4'); h.textContent='The day'; tray.appendChild(h);
+  const day=db.timecard.days[ds], win=(day&&day.win)||[];
+  const placedAt={}; dmBlocks(ds,false).forEach(bk=>{ if(bk.ref&&(placedAt[bk.ref]==null||bk.s<placedAt[bk.ref])) placedAt[bk.ref]=bk.s; });
+  let any=false, sep=false;
+  win.forEach((w,i)=>{ if(!w||!(w.text||'').trim()) return; any=true;
+    if(i>=3&&!sep){ sep=true; const s2=document.createElement('div'); s2.className='dm-tray-sep'; s2.textContent='more'; tray.appendChild(s2); }
+    tray.appendChild(dmTrayCard(ds,i,w,placedAt)); });
+  if(!any){ const e=document.createElement('div'); e.className='dm-tray-empty';
+    e.textContent='Nothing planned yet. Add the day’s three on the Week view, or an item here.'; tray.appendChild(e); }
+  const add=document.createElement('input'); add.type='text'; add.className='wb-add'; add.placeholder='+ add an item'; add.setAttribute('aria-label','Add an item to this day');
+  add.addEventListener('keydown',e=>{ if(e.key!=='Enter') return; e.preventDefault(); const v=add.value.trim(); if(!v) return;
+    const dd=getDay(ds); while(dd.win.length<3) dd.win.push({text:'',done:false});
+    dd.win.push({id:uid(),text:v,done:false}); save(); renderDmTray(ds); updateNowCard();
+    const a2=document.querySelector('#dmTray .wb-add'); if(a2) a2.focus(); });
+  tray.appendChild(add); }
+function dmTrayCard(ds,i,w,placedAt){
+  const card=document.createElement('div'); card.className='dm-tcard'+(i<3?' three':''); card.dataset.id=planId(w);
+  card.title='Drag onto the hours · click to select';
+  const lw=document.createElement('span'); lw.className='ck-label'+(w.done?' ck-done':''); lw.textContent=w.text;
+  const ck=makeCheck(!!w.done, lw, dn=>{ planSlot(getDay(ds),i).done=dn; save(); });
+  ck.box.addEventListener('pointerdown',e=>e.stopPropagation());
+  card.append(ck.wrap,lw);
+  if(placedAt[w.id]!=null){ const pl=document.createElement('span'); pl.className='dm-placed'; pl.textContent=fmtMin(placedAt[w.id]); pl.title='On the map at '+fmtMin(placedAt[w.id]); card.appendChild(pl); }
+  wireTrayCard(card,ds,w);
+  return card; }
+// Drag a card onto the hours: a half-hour block lands where you let go
+// (snapped to 15 minutes). Let go anywhere else and nothing happens.
+function wireTrayCard(card,ds,w){
+  card.addEventListener('pointerdown',e=>{
+    if(e.button!==0) return; e.preventDefault(); dmBlurEditing();
+    const x0=e.clientX, y0=e.clientY; let fly=null, ghost=null, slot=null;
+    const col=()=>document.querySelector('#dmGrid .dm-col');
+    const mv=ev=>{ if(!fly&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<5) return;
+      if(!fly){ fly=document.createElement('div'); fly.className='dm-drag'; fly.textContent=w.text; document.body.appendChild(fly); card.classList.add('lifting'); }
+      fly.style.left=(ev.clientX+12)+'px'; fly.style.top=(ev.clientY-14)+'px';
+      const c=col(), r=c&&c.getBoundingClientRect();
+      if(r&&ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom){
+        const s=Math.max(dmR0,Math.min(dmR1-30,dmSnap(dmYToMin(c,ev.clientY)-15)));
+        if(!ghost){ ghost=document.createElement('div'); ghost.className='dm-item ghost'; c.appendChild(ghost); }
+        dmPlace(ghost,{s:s,e:s+30}); ghost.innerHTML='<span class="dm-time">'+fmtMin(s)+' – '+fmtMin(s+30)+'</span>'; slot=s; }
+      else { if(ghost){ ghost.remove(); ghost=null; } slot=null; } };
+    const up=()=>{ card.removeEventListener('pointermove',mv); card.removeEventListener('pointerup',up); card.removeEventListener('pointercancel',up);
+      card.classList.remove('lifting'); if(fly) fly.remove(); if(ghost) ghost.remove();
+      if(!fly){ dmSelect({kind:'item',id:w.id}); return; }   // a click, not a drag
+      if(slot==null) return;
+      const bk={id:uid(),s:slot,e:slot+30,text:w.text,ref:planId(w)};
+      dmBlocks(ds,true).push(bk); dmSel={kind:'blk',id:bk.id}; save(); renderDayMap(); flash('Placed at '+fmtMin(slot)); };
+    try{ card.setPointerCapture(e.pointerId); }catch(_){}
+    card.addEventListener('pointermove',mv); card.addEventListener('pointerup',up); card.addEventListener('pointercancel',up);
+  }); }
+/* ---- The Now card + the bell ----
+   By default the card follows the clock: the block (or Outlook event) under
+   the now-line, else the next one today. A click on a block, event or card
+   points it elsewhere; a click on empty hours hands it back to the clock.
+   ▶ Start timer rings the tinker's bell for the time LEFT in that block (the
+   whole block if it hasn't started), then floats it where Document PiP exists. */
+function calKey(ev){ return ev.s+'|'+ev.e+'|'+(ev.title||''); }
+function dmSelect(sel){ dmSel=sel; updateNowCard(); }
+function dmNowMin(){ const n=new Date(); return n.getHours()*60+n.getMinutes()+n.getSeconds()/60; }
+function dmTargets(ds){
+  const out=dmBlocks(ds,false).map(b=>({kind:'blk',id:b.id,title:(b.text||'').trim()||'untitled block',s:b.s,e:b.e}));
+  calForDate(ds).filter(ev=>!ev.allDay).forEach(ev=>out.push({kind:'cal',id:calKey(ev),title:ev.title||'(busy)',s:ev.s,e:ev.e}));
+  return out; }
+function dmTarget(){ const ds=dmDate(), t=dmTargets(ds);
+  if(dmSel){
+    if(dmSel.kind==='item'){ const day=db.timecard.days[ds], w=((day&&day.win)||[]).find(x=>x&&x.id===dmSel.id);
+      if(w){ const bk=dmBlocks(ds,false).filter(b=>b.ref===w.id).sort((a,b)=>a.s-b.s)[0];   // placed? then it's that block
+        return bk?Object.assign({},t.find(x=>x.id===bk.id),{title:w.text}):{kind:'item',id:w.id,title:w.text,s:null,e:null}; } }
+    else { const f=t.find(x=>x.kind===dmSel.kind&&x.id===dmSel.id); if(f) return f; }
+    dmSel=null; }   // it was deleted — back to the clock
+  if(ds!==todayStr()) return null;
+  const nm=dmNowMin(), cur=t.filter(x=>x.s<=nm&&nm<x.e).sort((a,b)=>(a.kind==='blk'?0:1)-(b.kind==='blk'?0:1)||b.s-a.s)[0];
+  if(cur) return Object.assign({auto:true},cur);
+  const next=t.filter(x=>x.s>nm).sort((a,b)=>a.s-b.s)[0];
+  return next?Object.assign({auto:true},next):null; }
+// Minutes for the bell, or 0 when the block is already over.
+function dmTimerMins(t){ if(!t) return 0; if(t.s==null) return 30;
+  if(dmDate()!==todayStr()) return t.e-t.s;
+  const nm=dmNowMin(); if(nm>=t.e) return 0; if(nm<t.s) return t.e-t.s; return Math.max(1,Math.ceil(t.e-nm)); }
+function updateNowCard(){
+  const body=document.getElementById('dmNowBody'), btn=document.getElementById('dmTimerBtn'), note=document.getElementById('dmTimerNote');
+  if(!body) return;
+  const t=dmTarget(), ds=dmDate(), today=ds===todayStr();
+  document.querySelectorAll('#bpDayPanel .sel').forEach(x=>x.classList.remove('sel'));
+  if(t){ const q=t.kind==='cal'?'#dmGrid .dm-item.cal':(t.kind==='blk'?'#dmGrid .dm-item.blk':'#dmTray .dm-tcard');
+    document.querySelectorAll(q).forEach(x=>{ if((t.kind==='cal'?x.dataset.key:x.dataset.id)===t.id) x.classList.add('sel'); });
+    if(dmSel&&dmSel.kind==='item') document.querySelectorAll('#dmTray .dm-tcard').forEach(x=>{ if(x.dataset.id===dmSel.id) x.classList.add('sel'); }); }
+  const mins=dmTimerMins(t);
+  let html='';
+  if(!t) html='<div class="dm-now-s">'+(today?'Nothing on the map right now. Click a block, an event or a card to point the bell at it.':'Click a block, an event or a card to point the bell at it.')+'</div>';
+  else { let st;
+    if(t.s==null) st='Not on the map yet · a 30-minute bell';
+    else if(!today) st=fmtMin(t.s)+' – '+fmtMin(t.e)+' · '+fmtSpan(t.e-t.s);
+    else { const nm=dmNowMin();
+      if(nm>=t.e) st='Ended at '+fmtMin(t.e);
+      else if(nm<t.s) st=(t.auto?'Next · ':'')+'starts '+fmtMin(t.s)+' · '+fmtSpan(t.e-t.s);
+      else st='<span class="live">Now · '+mins+' min left</span> · until '+fmtMin(t.e); }
+    html='<div class="dm-now-t"></div><div class="dm-now-s">'+st+(t.kind==='cal'?' · Outlook':'')+'</div>'; }
+  body.innerHTML=html; const tt=body.querySelector('.dm-now-t'); if(tt) tt.textContent=t.title;
+  btn.disabled=!mins; btn.textContent=mins?('▶ Start timer · '+mins+' min'):'▶ Start timer';
+  note.textContent=(bell.running?('🔔 '+bellFmt(Math.max(0,Math.round((bell.endAt-Date.now())/1000)))+' left'+(bell.label?' · '+bell.label:'')+'. Starting again replaces it.'):''); }
+function dmStartTimer(){ const t=dmTarget(), mins=dmTimerMins(t); if(!mins) return;
+  bellSet(mins,t.title); bellStartPause();
+  if('documentPictureInPicture' in window&&!bellPip) bellPopOut();   // float it — this click is the user gesture PiP needs
+  else flash('Bell started · '+mins+' min');
+  updateNowCard(); }
+// A one-second heartbeat while the day map is on screen: the Now card's
+// countdown and the clock-following selection; the now-line moves each minute.
+let dmTickMin=-1;
+setInterval(()=>{ const pane=document.getElementById('main-blueprint');
+  if(bpMode!=='day'||!pane||!pane.classList.contains('active')) return;
+  updateNowCard();
+  const n=new Date(), nm=n.getHours()*60+n.getMinutes(); if(nm===dmTickMin) return; dmTickMin=nm;
+  const ln=document.querySelector('#dmGrid .dm-now'); if(ln&&nm>=dmR0&&nm<=dmR1) ln.style.top=((nm-dmR0)*DM_PPM)+'px'; },1000);
 function updateDayStat(ds){ const bl=dmBlocks(ds,false), mins=bl.reduce((a,b)=>a+(b.e-b.s),0);
   const cal=calForDate(ds).filter(e=>!e.allDay).length; const parts=[];
   if(bl.length) parts.push(bl.length+' block'+(bl.length>1?'s':'')+' · '+fmtSpan(mins)+' sketched');
